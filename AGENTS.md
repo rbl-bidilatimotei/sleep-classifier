@@ -1,6 +1,6 @@
 # Collaboration
 
-Start user-facing responses with Timo. Work one agreed milestone at a time and
+Work one agreed milestone at a time and
 explain decisions and findings; this project is a learning exercise.
 Read docs/first-experiment.md before changing the experiment protocol.
 
