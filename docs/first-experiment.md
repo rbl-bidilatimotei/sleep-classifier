@@ -3,6 +3,8 @@
 Status: protocol proposed, 2026-10-28. Session 1 now implements the environment,
 download/audit commands, and initial notebook; see [session findings](session-01.md).
 
+See [preparation decisions](preparation-decisions.md) for the next milestone and unresolved rules.
+
 ## Prediction contract
 
 Propose four classes: wake = 0, light = N1 + N2, deep = N3, REM = 5.

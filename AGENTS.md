@@ -20,3 +20,16 @@ For changed behavior, add unit tests for meaningful contracts and failure modes.
 Run uv run pytest and uv run ruff check . before delivery. Execute changed notebooks
 from a fresh kernel and inspect their outputs. Update runnable documentation and
 session findings with code changes; distinguish observed results from proposals.
+
+# Style and workflow
+
+Use ASD-STE100 principles when possible. Keep procedural sentences below 21 words.
+Keep descriptive sentences below 26 words. Use active voice and exact technical terms.
+Give one instruction per sentence. Keep articles. Avoid idioms and filler.
+Use the existing Google-style docstrings. Omit final periods from line comments.
+Explain deviations when they improve correctness or readability.
+
+Create working branches for changes. Submit changes through pull requests to main.
+Preserve unrelated user edits. Keep each pull request within the agreed milestone.
+The primary agent owns the design and review. Delegate bounded implementation tasks
+to smaller models when useful. Review and test their changes before delivery.
