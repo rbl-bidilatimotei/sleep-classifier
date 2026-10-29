@@ -1,5 +1,6 @@
 """Execute the exploration notebook with the active Python environment."""
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -11,7 +12,11 @@ from jupyter_client.kernelspec import KernelSpecManager
 from nbclient import NotebookClient
 
 root = Path(__file__).resolve().parents[1]
-notebook = nbformat.read(root / "notebooks/01_data_exploration.ipynb", as_version=4)
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--notebook", type=Path, default=Path("notebooks/01_data_exploration.ipynb"))
+args = parser.parse_args()
+source = (root / args.notebook).resolve()
+notebook = nbformat.read(source, as_version=4)
 with TemporaryDirectory() as temporary:
     kernel_dir = Path(temporary) / "sleep-classifier"
     kernel_dir.mkdir()
@@ -34,7 +39,7 @@ with TemporaryDirectory() as temporary:
         resources={"metadata": {"path": str(root)}},
         # Explicit kernel spec prevents accidentally using a global Python kernel.
     ).execute(cleanup_kc=True)
-output = root / "artifacts/notebooks/01_data_exploration.executed.ipynb"
+output = root / "artifacts/notebooks" / f"{source.stem}.executed.ipynb"
 output.parent.mkdir(parents=True, exist_ok=True)
 nbformat.write(notebook, output)
 print(output)

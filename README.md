@@ -117,3 +117,15 @@ Dataset license: Open Data Commons Attribution License v1.0; downloaded as
 Original study: Walch et al., *Sleep stage prediction with raw acceleration and
 photoplethysmography heart rate data derived from a consumer wearable device*,
 SLEEP (2019), [DOI 10.1093/sleep/zsz180](https://doi.org/10.1093/sleep/zsz180).
+
+## Preparation analysis
+
+Open [notebook 02](notebooks/02_coverage_and_steps.ipynb) to inspect duplicate removal, epoch coverage, and step history.
+Read [session 2](docs/session-02.md) for observed results and the label-boundary assumption.
+
+```bash
+uv run --locked python -m sleep_classifier.analysis --config configs/explore.yaml
+uv run --locked --group notebook python scripts/execute_notebook.py --notebook notebooks/02_coverage_and_steps.ipynb
+```
+
+This analysis covers one development participant. The cohort audit and threshold selection remain subsequent work.
