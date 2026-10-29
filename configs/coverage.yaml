@@ -1,0 +1,19 @@
+cohort_config: cohort.yaml
+selected_rule: moderate
+# Candidate rules are compared on development observations only
+candidates:
+  - name: observed
+    max_heart_gap_seconds: 30
+    min_heart_readings: 1
+    min_motion_bin_fraction: 0.0
+    max_motion_gap_seconds: 30
+  - name: moderate
+    max_heart_gap_seconds: 15
+    min_heart_readings: 3
+    min_motion_bin_fraction: 0.8
+    max_motion_gap_seconds: 5
+  - name: strict
+    max_heart_gap_seconds: 10
+    min_heart_readings: 4
+    min_motion_bin_fraction: 0.9
+    max_motion_gap_seconds: 2

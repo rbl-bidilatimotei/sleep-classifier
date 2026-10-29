@@ -129,3 +129,11 @@ uv run --locked --group notebook python scripts/execute_notebook.py --notebook n
 ```
 
 This analysis covers one development participant. The cohort audit and threshold selection remain subsequent work.
+
+## Cohort readiness
+
+Read [session 3](docs/session-03.md) for eligibility rules, frozen participant splits, and baseline coverage limits.
+Open [notebook 03](notebooks/03_cohort_readiness.ipynb) for development-only coverage plots.
+Run the reproduction commands in session 3 before opening the notebook on a fresh checkout.
+The cohort archive requires about 550 MB of network transfer and 2.2 GB of extracted storage.
+The baseline uses 23 training, three validation, and three untouched test participants after two integrity exclusions.

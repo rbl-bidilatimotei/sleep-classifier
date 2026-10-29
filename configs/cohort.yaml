@@ -1,0 +1,9 @@
+# Paths are relative to this file, independent of the shell working directory
+data_dir: ../data/raw/sleep-accel/1.0.0
+output_dir: ../artifacts/cohort/readiness
+split_path: splits/baseline.json
+seed: 42
+test_count: 3
+validation_count: 3
+forced_development:
+  - "1066528"
