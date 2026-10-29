@@ -1,0 +1,88 @@
+{
+  "heart_rate/1066528_heartrate.txt": {
+    "sha256_verified": true,
+    "rows": 16617,
+    "first_timestamp": -355241.73971,
+    "last_timestamp": 34491.1535499,
+    "min_delta": -389732.8932599,
+    "median_delta": 5.0,
+    "max_delta": 61544.84544999999,
+    "nonincreasing_timestamps": 2,
+    "first_three_rows": [
+      [
+        -355241.73971,
+        86.0
+      ],
+      [
+        -351407.99872,
+        67.0
+      ],
+      [
+        -351277.36756,
+        141.0
+      ]
+    ]
+  },
+  "labels/1066528_labeled_sleep.txt": {
+    "sha256_verified": true,
+    "rows": 952,
+    "first_timestamp": 0.0,
+    "last_timestamp": 28530.0,
+    "min_delta": 30.0,
+    "median_delta": 30.0,
+    "max_delta": 30.0,
+    "nonincreasing_timestamps": 0,
+    "first_three_rows": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        30.0,
+        0.0
+      ],
+      [
+        60.0,
+        0.0
+      ]
+    ],
+    "label_counts": {
+      "0": 185,
+      "1": 97,
+      "2": 299,
+      "3": 62,
+      "5": 309
+    }
+  },
+  "steps/1066528_steps.txt": {
+    "sha256_verified": true,
+    "rows": 397,
+    "first_timestamp": -365207.0,
+    "last_timestamp": -127607.0,
+    "min_delta": 600.0,
+    "median_delta": 600.0,
+    "max_delta": 600.0,
+    "nonincreasing_timestamps": 0,
+    "first_three_rows": [
+      [
+        -365207.0,
+        243.0
+      ],
+      [
+        -364607.0,
+        578.0
+      ],
+      [
+        -364007.0,
+        848.0
+      ]
+    ]
+  },
+  "manifest_file_counts": {
+    ".": 1,
+    "heart_rate": 31,
+    "labels": 31,
+    "motion": 31,
+    "steps": 31
+  }
+}

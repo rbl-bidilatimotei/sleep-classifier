@@ -1,0 +1,4 @@
+# Paths are relative to this file, independent of the shell/notebook working directory.
+subject_id: "1066528"
+data_dir: ../data/raw/sleep-accel/1.0.0
+report_path: ../artifacts/audits/1066528.json
