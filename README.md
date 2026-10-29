@@ -16,9 +16,11 @@ notebook. No training, imputation, epoch features, or accuracy results yet.
 ## Local setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), clone this
-repository once hosted, and run these commands from the checkout root:
+repository, and run these commands from the checkout root:
 
 ```bash
+git clone https://github.com/rbl-bidilatimotei/sleep-classifier.git
+cd sleep-classifier
 uv sync --locked --group notebook
 uv run --locked python -m sleep_classifier.data download --config configs/explore.yaml
 uv run --locked python -m sleep_classifier.data audit --config configs/explore.yaml
@@ -65,19 +67,34 @@ operations use module names, for example:
 `python -m` takes a dotted module name, not a filesystem path. A standalone script
 instead uses `uv run python scripts/execute_notebook.py`.
 
-Colab has its own notebook kernel; `uv sync` does not replace that kernel. After
-cloning the future repository and installing uv in Colab, use the same uv commands
-to download, audit, and execute the notebook through `scripts/execute_notebook.py`.
-That keeps package operations in the locked environment. Direct interactive imports
-in a Colab-hosted notebook require installing the package into Colab's kernel too;
-that separate setup is not yet tested or guaranteed to match this lockfile. Local
-Jupyter is the verified route for this milestone; Colab integration comes later.
+Open [00_remote_setup.ipynb](notebooks/00_remote_setup.ipynb) in Colab.
+Select a branch or tag that contains the required project files.
+Run the numbered cells in order. Inspect each result before continuing.
+Separate cells handle checkout, dependencies, download, audit, exploration, and report display.
+The notebook displays the executed report as HTML.
+Existing checkouts remain unchanged. Their current commit must match the selected local reference.
+
+Colab uses a separate notebook kernel. The setup notebook runs project code through uv subprocesses.
+It does not install the project dependencies into the Colab kernel.
+Use local Jupyter for direct interactive imports in `01_data_exploration.ipynb`.
+The Colab workflow still requires validation in an actual Colab runtime.
+
+## Working branches and preparation
+
+Use a working branch for each agreed change. Submit a pull request to `main`.
+The primary agent owns design decisions and reviews delegated implementation work.
+Smaller models can implement bounded tasks with explicit file ownership and checks.
+
+Read [preparation decisions](docs/preparation-decisions.md) before the next milestone.
+The document separates observed facts from proposed rules.
+Coverage thresholds and label boundaries remain unresolved.
 
 ## Layout
 
 ```text
 configs/explore.yaml            # Active data settings
 src/sleep_classifier/data.py    # Shared ingestion, audit, and CLI
+notebooks/00_remote_setup.ipynb # Colab command workflow
 notebooks/01_data_exploration.ipynb
 scripts/execute_notebook.py     # Reproducible fresh-kernel runner
 tests/                        # Synthetic unit tests (no network)
