@@ -54,10 +54,11 @@ def epoch_coverage(frame: pd.DataFrame, labels: pd.DataFrame, bin_seconds: int =
     label_times = labels["time"].to_numpy(dtype=float)
     if not np.isfinite(label_times).all():
         raise ValueError("Label times must be finite")
-    if len(label_times) and (
-        np.any(np.diff(label_times) <= 0) or np.any((label_times - label_times[0]) % 30 != 0)
-    ):
-        raise ValueError("Label times must be unique, sorted, and on a 30-second grid")
+    if len(label_times):
+        offsets = label_times - label_times[0]
+        on_grid = np.isclose(offsets, np.rint(offsets / 30) * 30, rtol=0, atol=1e-8)
+        if np.any(np.diff(label_times) <= 0) or not on_grid.all():
+            raise ValueError("Label times must be unique, sorted, and on a 30-second grid")
 
     sensors = deduplicate_sensor(frame)
     sample_times = sensors["time"].to_numpy(dtype=float)
