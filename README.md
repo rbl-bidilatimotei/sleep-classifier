@@ -69,7 +69,8 @@ instead uses `uv run python scripts/execute_notebook.py`.
 
 Open [00_remote_setup.ipynb](notebooks/00_remote_setup.ipynb) in Colab.
 Select a branch or tag that contains the required project files.
-Run the setup cell to clone, install dependencies, download, audit, and execute exploration.
+Run the numbered cells in order. Inspect each result before continuing.
+Separate cells handle checkout, dependencies, download, audit, exploration, and report display.
 The notebook displays the executed report as HTML.
 Existing checkouts remain unchanged. Their current commit must match the selected local reference.
 
