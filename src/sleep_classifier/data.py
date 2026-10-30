@@ -217,7 +217,7 @@ def summarize(frame: pd.DataFrame, sensor: str) -> dict[str, Any]:
             str(stage): int(count) for stage, count in frame.stage.value_counts().items()
         }
         result["unexpected_labels"] = sorted(
-            float(stage) for stage in set(frame.stage) - {0, 1, 2, 3, 5}
+            float(stage) for stage in set(frame.stage) - {-1, 0, 1, 2, 3, 4, 5}
         )
         result["non_30_second_intervals"] = int((deltas != 30).sum())
     

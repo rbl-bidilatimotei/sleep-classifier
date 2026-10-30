@@ -30,6 +30,7 @@ Use the existing Google-style docstrings. Omit final periods from line comments.
 Explain deviations when they improve correctness or readability.
 
 Create working branches for changes. Submit changes through pull requests to main.
+Delete the remote and local PR branches after a successful merge.
 Preserve unrelated user edits. Keep each pull request within the agreed milestone.
 The primary agent owns the design and review. Delegate bounded implementation tasks
 to smaller models when useful. Review and test their changes before delivery.

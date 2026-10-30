@@ -55,9 +55,9 @@ def test_malformed_observations_rejected(tmp_path, contents):
 
 
 def test_unknown_labels_and_gaps_are_reported():
-    frame = pd.DataFrame({"time": [0, 30, 90], "stage": [0, -1, 5]})
+    frame = pd.DataFrame({"time": [0, 30, 90], "stage": [0, 99, 5]})
     report = summarize(frame, "labels")
-    assert report["unexpected_labels"] == [-1]
+    assert report["unexpected_labels"] == [99]
     assert report["non_30_second_intervals"] == 1
 
 
