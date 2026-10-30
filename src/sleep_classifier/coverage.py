@@ -31,12 +31,9 @@ def deduplicate_sensor(frame: pd.DataFrame) -> pd.DataFrame:
 def epoch_coverage(frame: pd.DataFrame, labels: pd.DataFrame, bin_seconds: int = 1) -> pd.DataFrame:
     """Summarize unique sensor observations inside assumed label epochs.
 
-    Label timestamps mark starts of half-open 30-second epochs. The occupied-bin
-    fraction describes timestamp distribution and does not imply physiology.
-
     Args:
-        frame (pd.DataFrame): Sensor observations with a ``time`` column.
-        labels (pd.DataFrame): Labels with unique, sorted ``time`` values.
+        frame (pd.DataFrame): Sensor observations with a `time` column.
+        labels (pd.DataFrame): Labels with unique, sorted `time` values.
         bin_seconds (int): Width of fixed bins that divide a 30-second epoch.
 
     Returns:

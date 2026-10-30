@@ -1,0 +1,2 @@
+coverage_config: coverage.yaml
+output_dir: ../data/processed/baseline

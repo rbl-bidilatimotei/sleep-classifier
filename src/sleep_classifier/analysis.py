@@ -30,6 +30,7 @@ def analyze(config_path: Path) -> Path:
     summary = {"subject_id": config["subject_id"], "epoch_start_assumed": True, "sensors": {}}
     
     fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
+    
     for sensor in ("heart_rate", "motion"):
         clean = deduplicate_sensor(frames[sensor])
         table = epoch_coverage(clean, labels)
@@ -50,6 +51,7 @@ def analyze(config_path: Path) -> Path:
     axes[1].set_ylabel("Occupied 1-second bins")
     axes[2].set_ylabel("Largest gap (seconds)")
     axes[2].set_xlabel("Hours from PSG start")
+    
     for axis in axes:
         axis.legend()
     

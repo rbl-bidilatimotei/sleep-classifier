@@ -41,7 +41,7 @@ uv run --locked --group notebook python scripts/execute_notebook.py --notebook n
 ```
 
 Tables, figures, and provenance are saved under `artifacts/audits/1066528-coverage/`.
-The executed notebook is saved under `artifacts/notebooks/`.
+The executed HTML report is saved under `artifacts/notebooks/`.
 The analysis verifies source checksums before reading the participant files.
 Your IPython dependency and lockfile edits are included in this work chunk.
 
