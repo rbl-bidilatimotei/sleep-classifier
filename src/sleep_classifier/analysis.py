@@ -1,5 +1,3 @@
-"""Produce reproducible reports for development-participant coverage."""
-
 import argparse
 import json
 from pathlib import Path
@@ -29,7 +27,9 @@ def analyze(config_path: Path) -> Path:
     }
     labels = frames["labels"]
     summary = {"subject_id": config["subject_id"], "epoch_start_assumed": True, "sensors": {}}
+    
     fig, axes = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
+    
     for sensor in ("heart_rate", "motion"):
         clean = deduplicate_sensor(frames[sensor])
         table = epoch_coverage(clean, labels)
@@ -44,11 +44,13 @@ def analyze(config_path: Path) -> Path:
         axes[0].plot(hours, table.sample_count, label=sensor)
         axes[1].plot(hours, table.occupied_bin_fraction, label=sensor)
         axes[2].plot(hours, table.largest_observation_gap, label=sensor)
+    
     axes[0].set_ylabel("Unique readings / epoch")
     axes[0].set_yscale("symlog", linthresh=1)
     axes[1].set_ylabel("Occupied 1-second bins")
     axes[2].set_ylabel("Largest gap (seconds)")
     axes[2].set_xlabel("Hours from PSG start")
+    
     for axis in axes:
         axis.legend()
     fig.suptitle("Development participant coverage — assumed epoch starts")

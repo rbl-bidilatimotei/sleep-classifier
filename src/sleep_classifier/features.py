@@ -1,5 +1,3 @@
-"""Build causal sensor summaries for labeled sleep epochs."""
-
 import numpy as np
 import pandas as pd
 
@@ -24,9 +22,9 @@ def build_epoch_features(
     """Summarize sensor values within each labeled half-open 30-second epoch.
 
     Args:
-        heart (pd.DataFrame): Heart observations with ``time`` and ``heart_rate``.
-        motion (pd.DataFrame): Acceleration observations with ``time``, ``x``, ``y``, and ``z``.
-        labels (pd.DataFrame): Sorted labels with ``time`` and ``stage``.
+        heart (pd.DataFrame): Heart observations with `time` and `heart_rate`.
+        motion (pd.DataFrame): Acceleration observations with `time`, `x`, `y`, and `z`.
+        labels (pd.DataFrame): Sorted labels with `time` and `stage`.
         rule (dict): Coverage thresholds from the selected coverage rule.
 
     Returns:
@@ -65,6 +63,7 @@ def build_epoch_features(
     axes = motion_clean[["x", "y", "z"]].to_numpy(dtype=float)
     if not np.isfinite(hr_values).all() or not np.isfinite(axes).all():
         raise ValueError("Sensor values must be finite")
+    
     magnitude = np.sqrt(np.square(axes).sum(axis=1))
     feature_rows = []
     for start in label_times:

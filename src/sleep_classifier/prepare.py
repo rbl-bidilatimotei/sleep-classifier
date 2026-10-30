@@ -1,5 +1,3 @@
-"""Prepare causal development features without opening test observations."""
-
 import argparse
 import json
 from pathlib import Path
@@ -25,12 +23,15 @@ def prepare(config_path: Path) -> Path:
     coverage = yaml.safe_load(coverage_path.read_text())
     config = load_config(coverage_path.parent / coverage["cohort_config"])
     inventory = json.loads((config["output_dir"] / "inventory.json").read_text())
+    
     split = json.loads(config["split_path"].read_text())
     if split != create_split(inventory, config):
         raise ValueError("Split differs from the saved inventory and configuration")
+    
     rules = [r for r in coverage["candidates"] if r["name"] == coverage["selected_rule"]]
     if len(rules) != 1:
         raise ValueError("Exactly one selected coverage rule is required")
+    
     records = {r["participant_id"]: r for r in inventory["participants"]}
     output = config_path.parent / settings["output_dir"]
     output.mkdir(parents=True, exist_ok=True)
