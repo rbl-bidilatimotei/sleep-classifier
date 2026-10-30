@@ -1,5 +1,3 @@
-"""Download the release archive and verify extracted source files."""
-
 import argparse
 import hashlib
 import tempfile
@@ -8,9 +6,11 @@ from pathlib import Path
 
 from sleep_classifier.data import fetch_file, sha256
 
+# TODO: Move this URL to a configuration file or environment variable
 ARCHIVE_URL = "https://physionet.org/content/sleep-accel/get-zip/1.0.0/"
 
 
+# TODO: Split this into smaller functions for better testability and maintainability
 def extract_verified(archive: Path, destination: Path) -> None:
     """Extract manifest-listed files after verifying their publisher checksums.
 

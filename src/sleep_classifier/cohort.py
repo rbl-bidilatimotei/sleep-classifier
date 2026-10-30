@@ -1,5 +1,3 @@
-"""Create a checksum-verified participant inventory and reproducible cohort split."""
-
 import argparse
 import hashlib
 import json
@@ -59,7 +57,15 @@ def load_config(path: Path) -> dict[str, Any]:
 
 
 def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[str, str]]:
-    """Map manifest-listed participant files to modality and relative filename."""
+    """Map manifest-listed participant files to modality and relative filename.
+    
+    Args:
+        root (Path): Root directory containing the participant files.
+        checksums (dict[str, str]): Relative filenames mapped to their expected SHA-256 checksums.
+
+    Returns:
+        dict[str, dict[str, str]]: Mapping of participant IDs to modality and relative filename.
+    """
     result: dict[str, dict[str, str]] = {}
     for filename in checksums:
         path = Path(filename)
@@ -74,6 +80,14 @@ def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[
 
 
 def _conflicting_duplicates(frame: Any) -> bool:
+    """Check if a sensor DataFrame has conflicting duplicate timestamps.
+
+    Args:
+        frame (Any): Sensor DataFrame with a "time" column.
+
+    Returns:
+        bool: True if there are conflicting duplicate timestamps, False otherwise.
+    """
     duplicates = frame.loc[frame["time"].duplicated(keep=False)]
     if duplicates.empty:
         return False
@@ -83,6 +97,17 @@ def _conflicting_duplicates(frame: Any) -> bool:
 def _eligible_checks(
     subject: str, root: Path, checksums: dict[str, str], files: dict[str, str]
 ) -> dict[str, Any]:
+    """Check the eligibility of a participant's sensor files based on checksums and data validity.
+
+    Args:
+        subject (str): Participant ID.
+        root (Path): Root directory containing the participant files.
+        checksums (dict[str, str]): Relative filenames mapped to their expected SHA-256 checksums.
+        files (dict[str, str]): Mapping of modality to relative filename for the participant.
+
+    Returns:
+        dict[str, Any]: Ineligibility info, including reasons, computed hashes, and loaded frames.
+    """
     reasons: list[str] = []
     hashes: dict[str, str] = {}
     frames: dict[str, Any] = {}
@@ -180,6 +205,15 @@ def build_inventory(root: Path) -> dict[str, Any]:
 
 
 def _write_immutable(path: Path, payload: dict[str, Any]) -> None:
+    """Write a JSON-serializable dictionary to a file, ensuring immutability.
+
+    Args:
+        path (Path): Destination file path.
+        payload (dict[str, Any]): JSON-serializable dictionary to write.
+
+    Raises:
+        FileExistsError: If the file exists and has different content.
+    """
     content = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():

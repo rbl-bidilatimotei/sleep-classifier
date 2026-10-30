@@ -1,5 +1,3 @@
-"""Compare coverage rules using development participants only."""
-
 import argparse
 import json
 from pathlib import Path
