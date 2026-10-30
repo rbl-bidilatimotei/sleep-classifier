@@ -1,0 +1,5 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/baseline
+seed: 42
+max_iter: 300
+inverse_regularization: 1.0

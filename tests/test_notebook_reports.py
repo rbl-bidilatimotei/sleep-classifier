@@ -29,3 +29,20 @@ def test_runner_executes_notebook_and_writes_html_report(tmp_path):
     assert "<html" in report
     assert notebook_path.read_bytes() == original_source
     assert not list(report_path.parent.glob("*.ipynb"))
+
+
+def test_report_runner_skips_tagged_training_cells(tmp_path):
+    notebook_path = tmp_path / "training_guard.ipynb"
+    training_cell = nbformat.v4.new_code_cell("raise RuntimeError('training must not run')")
+    training_cell.metadata["tags"] = ["skip-execution"]
+    notebook = nbformat.v4.new_notebook(
+        cells=[
+            training_cell,
+            nbformat.v4.new_code_cell("print('report completed')"),
+        ]
+    )
+    nbformat.write(notebook, notebook_path)
+
+    report_path = NotebookReportRunner(notebook_path, tmp_path / "reports").run()
+
+    assert "report completed" in report_path.read_text()

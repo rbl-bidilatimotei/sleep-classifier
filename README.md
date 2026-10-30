@@ -149,3 +149,16 @@ uv run --locked --group notebook python scripts/execute_notebook.py --notebook n
 ```
 
 Preparation writes training and validation CSVs only. Fit any scaler on eligible training rows in the next milestone.
+
+## First baseline: run training yourself
+
+Open [notebook 05](notebooks/05_baseline_experiment.ipynb) for setup, preparation, and explicit training controls.
+Read [session 5](docs/session-05.md) before running the first experiment.
+No sleep-data model has been trained during implementation.
+
+```bash
+uv sync --locked --group baseline --group notebook
+uv run --locked --group baseline python -m sleep_classifier.baseline --config configs/baseline.yaml --train
+```
+
+The report runner saves HTML only and skips the notebook's tagged training cell.
