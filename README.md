@@ -137,3 +137,15 @@ Open [notebook 03](notebooks/03_cohort_readiness.ipynb) for development-only cov
 Run the reproduction commands in session 3 before opening the notebook on a fresh checkout.
 The cohort archive requires about 550 MB of network transfer and 2.2 GB of extracted storage.
 The baseline uses 23 training, three validation, and three untouched test participants after two integrity exclusions.
+
+## Causal feature preparation
+
+Open [notebook 04](notebooks/04_causal_features.ipynb) to inspect the six baseline features and sequence boundaries.
+Read [session 4](docs/session-04.md) for target mapping, generated row counts, and preparation limits.
+
+```bash
+uv run --locked python -m sleep_classifier.prepare --config configs/prepare.yaml
+uv run --locked --group notebook python scripts/execute_notebook.py --notebook notebooks/04_causal_features.ipynb
+```
+
+Preparation writes training and validation CSVs only. Fit any scaler on eligible training rows in the next milestone.
