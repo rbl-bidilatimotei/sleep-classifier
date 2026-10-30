@@ -1,5 +1,3 @@
-"""Coverage summaries for timestamped sensor observations."""
-
 import numpy as np
 import pandas as pd
 

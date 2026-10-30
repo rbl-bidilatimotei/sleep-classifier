@@ -21,6 +21,7 @@ def analyze(config_path: Path) -> Path:
     audit = audit_subject(config["data_dir"], config["subject_id"])
     output = config["report_path"].parent / f"{config['subject_id']}-coverage"
     output.mkdir(parents=True, exist_ok=True)
+    
     frames = {
         name: load_sensor(sensor_path(config["data_dir"], config["subject_id"], name), name)
         for name in audit["sensors"]
@@ -53,6 +54,7 @@ def analyze(config_path: Path) -> Path:
     
     for axis in axes:
         axis.legend()
+    
     fig.suptitle("Development participant coverage — assumed epoch starts")
     fig.tight_layout()
     fig.savefig(output / "coverage.png", dpi=120)

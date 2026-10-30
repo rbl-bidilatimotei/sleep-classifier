@@ -60,8 +60,8 @@ def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[
     """Map manifest-listed participant files to modality and relative filename.
     
     Args:
-        root (Path): Root directory containing participant files.
-        checksums (dict[str, str]): Mapping of relative filenames to SHA-256 checksums.
+        root (Path): Root directory containing the participant files.
+        checksums (dict[str, str]): Relative filenames mapped to their expected SHA-256 checksums.
 
     Returns:
         dict[str, dict[str, str]]: Mapping of participant IDs to modality and relative filename.
@@ -80,10 +80,10 @@ def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[
 
 
 def _conflicting_duplicates(frame: Any) -> bool:
-    """Check if a sensor frame has conflicting duplicate timestamps.
+    """Check if a sensor DataFrame has conflicting duplicate timestamps.
 
     Args:
-        frame (Any): Sensor data frame with a "time" column.
+        frame (Any): Sensor DataFrame with a "time" column.
 
     Returns:
         bool: True if there are conflicting duplicate timestamps, False otherwise.
@@ -101,12 +101,12 @@ def _eligible_checks(
 
     Args:
         subject (str): Participant ID.
-        root (Path): Root directory containing participant files.
-        checksums (dict[str, str]): Mapping of relative filenames to SHA-256 checksums.
+        root (Path): Root directory containing the participant files.
+        checksums (dict[str, str]): Relative filenames mapped to their expected SHA-256 checksums.
         files (dict[str, str]): Mapping of modality to relative filename for the participant.
 
     Returns:
-        dict[str, Any]: Dictionary containing reasons for ineligibility, hashes, and loaded frames.
+        dict[str, Any]: Ineligibility info, including reasons, computed hashes, and loaded frames.
     """
     reasons: list[str] = []
     hashes: dict[str, str] = {}
@@ -205,14 +205,14 @@ def build_inventory(root: Path) -> dict[str, Any]:
 
 
 def _write_immutable(path: Path, payload: dict[str, Any]) -> None:
-    """Write a JSON payload to a file, refusing to overwrite if the content differs.
+    """Write a JSON-serializable dictionary to a file, ensuring immutability.
 
     Args:
-        path (Path): Path to the JSON file to write.
+        path (Path): Destination file path.
         payload (dict[str, Any]): JSON-serializable dictionary to write.
 
     Raises:
-        FileExistsError: If the file already exists and its content differs from the payload.
+        FileExistsError: If the file exists and has different content.
     """
     content = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     path.parent.mkdir(parents=True, exist_ok=True)

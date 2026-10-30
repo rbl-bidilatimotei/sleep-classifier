@@ -1,5 +1,3 @@
-"""Compare coverage rules using development participants only."""
-
 import argparse
 import json
 from pathlib import Path
@@ -25,22 +23,18 @@ def analyze(config_path: Path) -> Path:
     settings = yaml.safe_load(config_path.read_text())
     if settings.get("selected_rule") not in {r["name"] for r in settings["candidates"]}:
         raise ValueError("selected_rule must identify a configured candidate")
-    
     config = load_config(config_path.parent / settings["cohort_config"])
     inventory = json.loads((config["output_dir"] / "inventory.json").read_text())
     split = json.loads(config["split_path"].read_text())
     if split != create_split(inventory, config):
         raise ValueError("Split does not match the current inventory and settings")
-    
     records = {r["participant_id"]: r for r in inventory["participants"]}
     participants = sorted(split["train"] + split["validation"])
     if set(participants) & set(split["test"]):
         raise ValueError("Development participants overlap the test set")
-    
     rows, retained = [], []
     output = config["output_dir"] / "development"
     output.mkdir(parents=True, exist_ok=True)
-    
     for subject in participants:
         print(f"Development coverage: {subject}", flush=True)
 
