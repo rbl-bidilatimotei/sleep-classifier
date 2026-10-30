@@ -26,12 +26,14 @@ def extract_verified(archive: Path, destination: Path) -> None:
         prefix = name.removesuffix("SHA256SUMS.txt")
         contents = source.read(name)
         destination.mkdir(parents=True, exist_ok=True)
+        
         manifest_path = destination / "SHA256SUMS.txt"
         if manifest_path.is_symlink():
             raise ValueError("Existing manifest must not be a symlink")
         if manifest_path.exists():
             if manifest_path.read_bytes() != contents:
                 raise ValueError("Existing manifest differs from the archive")
+        
         for line in contents.decode().splitlines():
             expected, relative = line.split()
             target = destination / relative
@@ -62,6 +64,7 @@ def extract_verified(archive: Path, destination: Path) -> None:
             finally:
                 if temporary_path is not None:
                     temporary_path.unlink(missing_ok=True)
+        
         if not manifest_path.exists():
             temporary_path = None
             try:
