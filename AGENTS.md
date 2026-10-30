@@ -34,3 +34,15 @@ Delete the remote and local PR branches after a successful merge.
 Preserve unrelated user edits. Keep each pull request within the agreed milestone.
 The primary agent owns the design and review. Delegate bounded implementation tasks
 to smaller models when useful. Review and test their changes before delivery.
+
+# Code structure and execution
+
+Use cohesive classes for operations with state or configuration. Keep utility functions small.
+Split large methods into named steps. Avoid nested functions unless the design requires them.
+Use specific names that describe the operation and data. Separate logical blocks with blank lines.
+Use class and method docstrings when useful. Omit module-level docstrings and __init__.py docstrings.
+
+Prepare training notebooks and commands for Timo to execute. Run real-data training only after explicit authorization.
+Synthetic training tests for tiny models and EDA execution are permitted.
+Keep source .ipynb files in Git. Save executed notebook reports as HTML only.
+Run training only through an explicit opt-in command; report-only execution must not start training.

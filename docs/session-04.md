@@ -67,3 +67,15 @@ Notebook 04 imports the shared implementation and displays one training particip
 Validation covers epoch boundaries, duplicate conflicts, missing observations, target mapping, segment breaks, and test-participant isolation.
 The next experiment is a majority-class reference and a simple non-sequential classifier, followed by a small GRU.
 Use the same six features and participant split to compare these models.
+
+## Repository reconciliation and style update
+
+PR #3 was merged into main on 2026-10-30. PR #4 remained open and retained the earlier cohort history.
+Current main was merged into the feature branch without rewriting its history.
+Conflicts used the merged cohort implementation and retained the feature-specific additions and user edits.
+
+Feature construction now uses `EpochFeatureBuilder`. Preparation uses `FeaturePreparationJob`.
+Their smaller methods preserve the existing public wrapper functions and output schema.
+Source notebooks remain `.ipynb` files. The report runner exports executed HTML directly from memory.
+Executed `.ipynb` files are no longer written by the runner.
+Training execution requires separate, explicit authorization from Timo.

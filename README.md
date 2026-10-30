@@ -40,7 +40,7 @@ For a fresh-kernel execution without opening Jupyter:
 uv run --locked python scripts/execute_notebook.py
 ```
 
-The executed notebook is saved under `artifacts/notebooks/`; the source notebook
+The executed HTML report is saved under `artifacts/notebooks/`; the source notebook
 stays output-free. This runner explicitly uses the active Python interpreter.
 
 ## Tests and formatting
