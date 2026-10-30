@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -26,8 +27,11 @@ def extract_verified(archive: Path, destination: Path) -> None:
         contents = source.read(name)
         destination.mkdir(parents=True, exist_ok=True)
         manifest_path = destination / "SHA256SUMS.txt"
-        if manifest_path.exists() and manifest_path.read_bytes() != contents:
-            raise ValueError("Existing manifest differs from the archive")
+        if manifest_path.is_symlink():
+            raise ValueError("Existing manifest must not be a symlink")
+        if manifest_path.exists():
+            if manifest_path.read_bytes() != contents:
+                raise ValueError("Existing manifest differs from the archive")
         for line in contents.decode().splitlines():
             expected, relative = line.split()
             target = destination / relative
@@ -38,19 +42,42 @@ def extract_verified(archive: Path, destination: Path) -> None:
                     raise ValueError(f"Existing checksum mismatch: {relative}")
                 continue
             target.parent.mkdir(parents=True, exist_ok=True)
-            temporary = target.with_suffix(target.suffix + ".part")
+            temporary_path: Path | None = None
             digest = hashlib.sha256()
             try:
-                with source.open(prefix + relative) as stream, temporary.open("wb") as out:
+                with source.open(prefix + relative) as stream, tempfile.NamedTemporaryFile(
+                    mode="wb",
+                    prefix=f".{target.name}.",
+                    suffix=".part",
+                    dir=target.parent,
+                    delete=False,
+                ) as out:
+                    temporary_path = Path(out.name)
                     while block := stream.read(1024 * 1024):
                         digest.update(block)
                         out.write(block)
                 if digest.hexdigest() != expected:
                     raise ValueError(f"Archive checksum mismatch: {relative}")
-                temporary.replace(target)
+                temporary_path.replace(target)
             finally:
-                temporary.unlink(missing_ok=True)
-        manifest_path.write_bytes(contents)
+                if temporary_path is not None:
+                    temporary_path.unlink(missing_ok=True)
+        if not manifest_path.exists():
+            temporary_path = None
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode="wb",
+                    prefix=".SHA256SUMS.",
+                    suffix=".part",
+                    dir=destination,
+                    delete=False,
+                ) as out:
+                    temporary_path = Path(out.name)
+                    out.write(contents)
+                temporary_path.replace(manifest_path)
+            finally:
+                if temporary_path is not None:
+                    temporary_path.unlink(missing_ok=True)
 
 
 def main() -> None:

@@ -76,5 +76,8 @@ The archive is about 550 MB. Extracted data requires about 2.2 GB, plus the reta
 Generated reports remain under `artifacts/cohort/readiness/`. Raw data and reports are excluded from Git.
 Notebook 03 reads the shared report implementation. Its source remains output-free.
 
-Validation: 47 tests passed. Notebook 03 executed in a fresh local kernel, and its generated plot was inspected.
+Validation: 49 tests passed. Notebook 03 executed in a fresh local kernel, and its generated plot was inspected.
 No training, accuracy result, GPU check, or Colab validation is included in this milestone.
+
+Review fix: archive extraction uses securely created temporary files and rejects a symlinked manifest.
+Regression tests verify that existing external files remain unchanged.

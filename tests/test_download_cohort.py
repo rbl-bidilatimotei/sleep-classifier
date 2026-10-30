@@ -42,3 +42,36 @@ def test_manifest_traversal_is_rejected(tmp_path):
     with pytest.raises(ValueError, match="Unsafe"):
         extract_verified(archive, tmp_path / "raw")
     assert not (tmp_path / "escape.txt").exists()
+
+
+def test_member_extraction_does_not_follow_deterministic_part_symlink(tmp_path):
+    archive = archive_at(tmp_path / "release.zip")
+    target = tmp_path / "raw"
+    member = target / "heart_rate/1_heartrate.txt"
+    member.parent.mkdir(parents=True)
+    outside = tmp_path / "outside.txt"
+    outside.write_text("keep this file")
+    (member.parent / "1_heartrate.txt.part").symlink_to(outside)
+
+    extract_verified(archive, target)
+
+    assert outside.read_text() == "keep this file"
+    assert member.read_bytes() == b"0 60\n"
+
+
+def test_manifest_symlink_is_rejected(tmp_path):
+    contents = b"0 60\n"
+    archive = archive_at(tmp_path / "release.zip", contents=contents)
+    target = tmp_path / "raw"
+    target.mkdir()
+    outside = tmp_path / "outside-manifest.txt"
+    manifest_contents = (
+        f"{hashlib.sha256(contents).hexdigest()} heart_rate/1_heartrate.txt\n"
+    )
+    outside.write_text(manifest_contents)
+    (target / "SHA256SUMS.txt").symlink_to(outside)
+
+    with pytest.raises(ValueError, match="manifest.*symlink"):
+        extract_verified(archive, target)
+
+    assert outside.read_text() == manifest_contents
