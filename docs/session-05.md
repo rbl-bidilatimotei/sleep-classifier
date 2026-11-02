@@ -80,4 +80,13 @@ Tests use synthetic feature tables and a tiny synthetic scaler/model fit.
 They check partition isolation, explicit features, invalid values, provenance counts, coverage denominators, and train-only scaling.
 The HTML runner is tested with synthetic notebooks, including a tagged cell that must not execute.
 The report-only baseline notebook is executed with setup, preparation, and training disabled.
-No validation accuracy from the real dataset has been generated yet.
+Timo subsequently ran the baseline locally. See [the measured baseline report](baseline-results.md) for results.
+
+## Execution feedback update
+
+Standard-library logging now reports four stages: load, logistic fit, majority fit, and validation/persistence.
+Fit logs include record counts, elapsed time, and the final optimizer iteration count.
+Logistic regression has no training epochs. We do not simulate epoch progress or report an unknown completion percentage.
+Notebook shell cells use readable uv commands, unbuffered Python for training, and explicit exit checks.
+The report-export cell is tagged to prevent recursive execution during HTML generation.
+The original executed source was archived as an HTML user-run record before clearing source outputs.

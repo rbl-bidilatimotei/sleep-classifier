@@ -46,3 +46,19 @@ def test_report_runner_skips_tagged_training_cells(tmp_path):
     report_path = NotebookReportRunner(notebook_path, tmp_path / "reports").run()
 
     assert "report completed" in report_path.read_text()
+
+
+def test_baseline_notebook_guards_training_and_its_export_command():
+    source = Path(__file__).resolve().parents[1] / "notebooks/05_baseline_experiment.ipynb"
+    notebook = nbformat.read(source, as_version=4)
+    configuration = next(cell for cell in notebook.cells if "RUN_TRAINING =" in cell.source)
+    assert "RUN_TRAINING = False" in configuration.source
+
+    guarded_cells = [
+        cell
+        for cell in notebook.cells
+        if cell.cell_type == "code"
+        and ("--train" in cell.source or "scripts/execute_notebook.py" in cell.source)
+    ]
+    assert len(guarded_cells) == 2
+    assert all("skip-execution" in cell.metadata.get("tags", []) for cell in guarded_cells)

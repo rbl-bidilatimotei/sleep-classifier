@@ -1,8 +1,10 @@
 import argparse
 import json
+import logging
 import platform
 import re
 from pathlib import Path
+from time import perf_counter
 
 import joblib
 import numpy as np
@@ -16,7 +18,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sleep_classifier.features import FEATURE_COLUMNS
+from sleep_classifier.logging_utils import configure_logging
 
+LOGGER = logging.getLogger(__name__)
 CLASS_LABELS = (0, 1, 2, 3)
 
 
@@ -146,8 +150,18 @@ class BaselineExperiment:
 
     def run(self) -> Path:
         """Fit on training participants and evaluate validation participants."""
+        started = perf_counter()
+        LOGGER.info("Stage 1/4: loading settings and prepared train/validation rows")
         settings, prepared_dir, output_dir = self._load_settings()
         dataset = PreparedFeatureDataset(prepared_dir).load()
+        train_rows = len(dataset["partitions"]["train"])
+        validation_rows = len(dataset["partitions"]["validation"])
+        LOGGER.info(
+            "Stage 1/4 complete: train_rows=%d validation_rows=%d elapsed_seconds=%.2f",
+            train_rows,
+            validation_rows,
+            perf_counter() - started,
+        )
         pipeline, majority = self._fit_models(dataset["partitions"]["train"], settings)
         return self._save_results(settings, dataset, pipeline, majority, output_dir)
 
@@ -164,8 +178,15 @@ class BaselineExperiment:
         """Fit both classifiers using training rows only."""
         x_train = train.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
         y_train = train["target"].to_numpy(dtype=int)
+        pipeline = self._build_logistic_pipeline(settings)
+        self._fit_logistic_regression(pipeline, x_train, y_train, len(train), settings)
+        majority = self._fit_majority_classifier(x_train, y_train, len(train))
+        return pipeline, majority
+
+    def _build_logistic_pipeline(self, settings: dict):
+        """Create the scaled logistic-regression pipeline from baseline settings."""
         seed = int(settings["seed"])
-        pipeline = make_pipeline(
+        return make_pipeline(
             StandardScaler(),
             LogisticRegression(
                 max_iter=int(settings["max_iter"]),
@@ -173,23 +194,79 @@ class BaselineExperiment:
                 random_state=seed,
             ),
         )
+
+    def _fit_logistic_regression(
+        self, pipeline, x_train: np.ndarray, y_train: np.ndarray, row_count: int, settings: dict
+    ) -> None:
+        """Fit logistic regression and report the optimizer's iteration count."""
+        max_iter = int(settings["max_iter"])
+        started = perf_counter()
+        LOGGER.info("Stage 2/4: fitting logistic regression on train_rows=%d", row_count)
         pipeline.fit(x_train, y_train)
+        actual_iterations = int(np.max(pipeline.named_steps["logisticregression"].n_iter_))
+        LOGGER.info(
+            "Stage 2/4 complete: logistic_regression iteration_cap=%d actual_iterations=%d "
+            "elapsed_seconds=%.2f",
+            max_iter,
+            actual_iterations,
+            perf_counter() - started,
+        )
+        if actual_iterations >= max_iter:
+            LOGGER.warning(
+                "Logistic regression reached the configured iteration cap (%d); "
+                "inspect convergence before interpreting results",
+                max_iter,
+            )
+
+    def _fit_majority_classifier(
+        self, x_train: np.ndarray, y_train: np.ndarray, row_count: int
+    ) -> DummyClassifier:
+        """Fit and time the most-frequent-class reference classifier."""
+        started = perf_counter()
+        LOGGER.info("Stage 3/4: fitting majority classifier on train_rows=%d", row_count)
         majority = DummyClassifier(strategy="most_frequent").fit(x_train, y_train)
-        return pipeline, majority
+        LOGGER.info(
+            "Stage 3/4 complete: majority classifier fitted elapsed_seconds=%.2f",
+            perf_counter() - started,
+        )
+        return majority
 
     def _save_results(
         self, settings: dict, dataset: dict, pipeline, majority, output_dir: Path
     ) -> Path:
         """Persist fitted estimators and validation metrics."""
+        started = perf_counter()
         validation = dataset["partitions"]["validation"]
+        LOGGER.info(
+            "Stage 4/4: evaluating and persisting validation_rows=%d",
+            len(validation),
+        )
         x_validation = validation.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
         y_validation = validation["target"].to_numpy(dtype=int)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        models_dir = output_dir / "models"
-        models_dir.mkdir(parents=True, exist_ok=True)
-        joblib.dump(pipeline, models_dir / "logistic_regression.joblib")
-        joblib.dump(majority, models_dir / "majority.joblib")
-        result = {
+        result = self._build_result_payload(
+            settings, dataset, pipeline, majority, x_validation, y_validation, validation
+        )
+        metrics_path = self._persist_results(output_dir, pipeline, majority, result)
+        LOGGER.info(
+            "Stage 4/4 complete: metrics_path=%s validation_rows=%d elapsed_seconds=%.2f",
+            metrics_path,
+            len(validation),
+            perf_counter() - started,
+        )
+        return metrics_path
+
+    def _build_result_payload(
+        self,
+        settings: dict,
+        dataset: dict,
+        pipeline,
+        majority,
+        x_validation: np.ndarray,
+        y_validation: np.ndarray,
+        validation: pd.DataFrame,
+    ) -> dict:
+        """Calculate the unchanged metrics and provenance payload."""
+        return {
             "config": settings,
             "features": list(FEATURE_COLUMNS),
             "classes": list(CLASS_LABELS),
@@ -207,6 +284,14 @@ class BaselineExperiment:
                 ),
             },
         }
+
+    def _persist_results(self, output_dir: Path, pipeline, majority, result: dict) -> Path:
+        """Persist fitted estimators and validation metrics."""
+        output_dir.mkdir(parents=True, exist_ok=True)
+        models_dir = output_dir / "models"
+        models_dir.mkdir(parents=True, exist_ok=True)
+        joblib.dump(pipeline, models_dir / "logistic_regression.joblib")
+        joblib.dump(majority, models_dir / "majority.joblib")
         metrics_path = output_dir / "metrics.json"
         metrics_path.write_text(json.dumps(result, indent=2) + "\n")
         return metrics_path
@@ -277,7 +362,9 @@ def main() -> None:
     args = parser.parse_args()
     if not args.train:
         parser.error("pass --train to explicitly fit the baseline models")
-    print(BaselineExperiment(args.config).run())
+    configure_logging()
+    metrics_path = BaselineExperiment(args.config).run()
+    LOGGER.info("Baseline metrics saved: %s", metrics_path)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -9,6 +10,9 @@ import yaml
 from sleep_classifier.cohort import create_split, load_config
 from sleep_classifier.coverage import epoch_coverage, step_bins
 from sleep_classifier.data import load_sensor, sensor_path, sha256
+from sleep_classifier.logging_utils import configure_logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 def analyze(config_path: Path) -> Path:
@@ -23,24 +27,24 @@ def analyze(config_path: Path) -> Path:
     settings = yaml.safe_load(config_path.read_text())
     if settings.get("selected_rule") not in {r["name"] for r in settings["candidates"]}:
         raise ValueError("selected_rule must identify a configured candidate")
-    
+
     config = load_config(config_path.parent / settings["cohort_config"])
     inventory = json.loads((config["output_dir"] / "inventory.json").read_text())
     split = json.loads(config["split_path"].read_text())
     if split != create_split(inventory, config):
         raise ValueError("Split does not match the current inventory and settings")
-    
+
     records = {r["participant_id"]: r for r in inventory["participants"]}
     participants = sorted(split["train"] + split["validation"])
     if set(participants) & set(split["test"]):
         raise ValueError("Development participants overlap the test set")
-    
+
     rows, retained = [], []
     output = config["output_dir"] / "development"
     output.mkdir(parents=True, exist_ok=True)
-    
+
     for subject in participants:
-        print(f"Development coverage: {subject}", flush=True)
+        LOGGER.info("Analyzing development participant %s", subject)
 
         def read(sensor):
             path = sensor_path(config["data_dir"], subject, sensor)
@@ -125,7 +129,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
-    print(analyze(args.config))
+    configure_logging()
+    output = analyze(args.config)
+    LOGGER.info("Development coverage reports written: path=%s", output)
 
 
 if __name__ == "__main__":

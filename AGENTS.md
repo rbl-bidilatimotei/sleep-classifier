@@ -46,3 +46,10 @@ Prepare training notebooks and commands for Timo to execute. Run real-data train
 Synthetic training tests for tiny models and EDA execution are permitted.
 Keep source .ipynb files in Git. Save executed notebook reports as HTML only.
 Run training only through an explicit opt-in command; report-only execution must not start training.
+
+# Progress and notebook commands
+
+Use standard-library logging for operational messages. Configure handlers only at CLI entry points.
+Log real stages, record counts, elapsed time, and available optimizer or epoch progress.
+Use readable !uv run commands in notebooks and check their exit status.
+Tag training and report-export cells with skip-execution so HTML generation cannot train or recursively export itself.

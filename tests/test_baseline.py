@@ -1,8 +1,10 @@
 import json
+import logging
 from pathlib import Path
 
 import pandas as pd
 import pytest
+import yaml
 
 from sleep_classifier.features import FEATURE_COLUMNS
 
@@ -102,6 +104,42 @@ def test_scaler_fits_training_features_only(tmp_path: Path) -> None:
     scaler = pipeline.named_steps["standardscaler"]
     assert scaler.mean_.tolist() == [1.0] * len(FEATURE_COLUMNS)
     assert validation.loc[:, FEATURE_COLUMNS].iloc[0, 0] == 100.0
+
+
+def test_baseline_logs_stages_row_counts_and_actual_iterations(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    prepared_dir = tmp_path / "prepared"
+    prepared_dir.mkdir()
+    _write_dataset(prepared_dir)
+    prepare_config = tmp_path / "prepare.yaml"
+    prepare_config.write_text(yaml.safe_dump({"output_dir": "prepared"}))
+    config_path = tmp_path / "baseline.yaml"
+    settings = {
+        "prepare_config": "prepare.yaml",
+        "output_dir": "results",
+        "seed": 42,
+        "max_iter": 300,
+        "inverse_regularization": 1.0,
+    }
+    config_path.write_text(yaml.safe_dump(settings))
+    experiment = BaselineExperiment(config_path)
+
+    caplog.set_level(logging.INFO, logger=baseline.__name__)
+    train = PreparedFeatureDataset(prepared_dir).load()["partitions"]["train"]
+    pipeline, _ = experiment._fit_models(train, settings)
+    actual_iterations = int(pipeline.named_steps["logisticregression"].n_iter_.max())
+    assert f"iteration_cap=300 actual_iterations={actual_iterations}" in caplog.text
+
+    caplog.clear()
+    metrics_path = experiment.run()
+
+    assert metrics_path.is_file()
+    assert "Stage 1/4 complete: train_rows=2 validation_rows=2" in caplog.text
+    assert "Stage 2/4: fitting logistic regression on train_rows=2" in caplog.text
+    assert "Stage 3/4: fitting majority classifier on train_rows=2" in caplog.text
+    assert "Stage 4/4: evaluating and persisting validation_rows=2" in caplog.text
+    assert "elapsed_seconds=" in caplog.text
 
 
 def test_loader_refuses_to_hide_participant_without_eligible_epochs(tmp_path):

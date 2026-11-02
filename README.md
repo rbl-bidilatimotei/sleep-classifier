@@ -162,3 +162,11 @@ uv run --locked --group baseline python -m sleep_classifier.baseline --config co
 ```
 
 The report runner saves HTML only and skips the notebook's tagged training cell.
+
+## Measured baseline results
+
+Timo's first local run achieved 56.08% validation accuracy and 0.3045 macro-F1 with logistic regression.
+REM recall was 1.96%. See [the measured results and limitations](docs/baseline-results.md).
+The baseline is a reference experiment, not a useful final sleep-stage classifier.
+Training logs now show stages, row counts, elapsed time, and the completed optimizer iteration count.
+Logistic regression uses optimizer iterations rather than training epochs.

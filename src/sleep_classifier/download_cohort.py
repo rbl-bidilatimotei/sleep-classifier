@@ -1,10 +1,14 @@
 import argparse
 import hashlib
+import logging
 import tempfile
 import zipfile
 from pathlib import Path
 
 from sleep_classifier.data import fetch_file, sha256
+from sleep_classifier.logging_utils import configure_logging
+
+LOGGER = logging.getLogger(__name__)
 
 # TODO: Move this URL to a configuration file or environment variable
 ARCHIVE_URL = "https://physionet.org/content/sleep-accel/get-zip/1.0.0/"
@@ -26,14 +30,14 @@ def extract_verified(archive: Path, destination: Path) -> None:
         prefix = name.removesuffix("SHA256SUMS.txt")
         contents = source.read(name)
         destination.mkdir(parents=True, exist_ok=True)
-        
+
         manifest_path = destination / "SHA256SUMS.txt"
         if manifest_path.is_symlink():
             raise ValueError("Existing manifest must not be a symlink")
         if manifest_path.exists():
             if manifest_path.read_bytes() != contents:
                 raise ValueError("Existing manifest differs from the archive")
-        
+
         for line in contents.decode().splitlines():
             expected, relative = line.split()
             target = destination / relative
@@ -47,13 +51,16 @@ def extract_verified(archive: Path, destination: Path) -> None:
             temporary_path: Path | None = None
             digest = hashlib.sha256()
             try:
-                with source.open(prefix + relative) as stream, tempfile.NamedTemporaryFile(
-                    mode="wb",
-                    prefix=f".{target.name}.",
-                    suffix=".part",
-                    dir=target.parent,
-                    delete=False,
-                ) as out:
+                with (
+                    source.open(prefix + relative) as stream,
+                    tempfile.NamedTemporaryFile(
+                        mode="wb",
+                        prefix=f".{target.name}.",
+                        suffix=".part",
+                        dir=target.parent,
+                        delete=False,
+                    ) as out,
+                ):
                     temporary_path = Path(out.name)
                     while block := stream.read(1024 * 1024):
                         digest.update(block)
@@ -64,7 +71,7 @@ def extract_verified(archive: Path, destination: Path) -> None:
             finally:
                 if temporary_path is not None:
                     temporary_path.unlink(missing_ok=True)
-        
+
         if not manifest_path.exists():
             temporary_path = None
             try:
@@ -88,9 +95,11 @@ def main() -> None:
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument("--destination", type=Path, required=True)
     args = parser.parse_args()
+    configure_logging()
+    LOGGER.info("Downloading cohort archive to %s", args.archive)
     fetch_file(ARCHIVE_URL, args.archive)
     extract_verified(args.archive, args.destination)
-    print(f"Verified cohort files in {args.destination}")
+    LOGGER.info("Verified cohort files in %s", args.destination)
 
 
 if __name__ == "__main__":

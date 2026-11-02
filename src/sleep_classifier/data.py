@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import json
+import logging
 import re
 import urllib.request
 from pathlib import Path
@@ -10,6 +11,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from sleep_classifier.logging_utils import configure_logging
+
 BASE_URL = "https://physionet.org/files/sleep-accel/1.0.0/"
 SENSORS = {
     "heart_rate": ("heartrate", ["time", "heart_rate"]),
@@ -17,40 +20,41 @@ SENSORS = {
     "steps": ("steps", ["time", "steps"]),
     "labels": ("labeled_sleep", ["time", "stage"]),
 }
+LOGGER = logging.getLogger(__name__)
 
 
 def load_config(path: Path) -> dict[str, Path | str]:
     """Resolve experiment paths relative to the YAML file.
-    
+
     Args:
         path (Path): Path to the YAML configuration file.
-    
+
     Returns:
         dict[str, Path | str]: Resolved configuration dictionary.
     """
     path = path.resolve()
     config = yaml.safe_load(path.read_text())
     expected = {"subject_id", "data_dir", "report_path"}
-    
+
     if not isinstance(config, dict) or set(config) != expected:
         raise ValueError(f"Config must contain exactly {sorted(expected)}")
     if not isinstance(config["subject_id"], str) or not re.fullmatch(r"\d+", config["subject_id"]):
         raise ValueError("subject_id must be a quoted numeric string")
-    
+
     for key in ("data_dir", "report_path"):
         if not isinstance(config[key], str) or not config[key]:
             raise ValueError(f"{key} must be a nonempty path")
         config[key] = (path.parent / config[key]).resolve()
-    
+
     return config
 
 
 def sha256(path: Path) -> str:
     """Hash large motion files without loading them into memory.
-    
+
     Args:
         path (Path): Path to the file to hash.
-    
+
     Returns:
         str: SHA-256 hash of the file.
     """
@@ -63,12 +67,12 @@ def sha256(path: Path) -> str:
 
 def fetch_file(url: str, destination: Path, expected_hash: str | None = None) -> None:
     """Download atomically, reusing valid files and rejecting corrupted local files.
-    
+
     Args:
         url (str): URL of the file to download.
         destination (Path): Local path to save the downloaded file.
         expected_hash (str | None): Optional SHA-256 hash to verify the file.
-    
+
     Raises:
         ValueError: If the file's checksum does not match the expected hash.
     """
@@ -76,10 +80,10 @@ def fetch_file(url: str, destination: Path, expected_hash: str | None = None) ->
         if expected_hash and sha256(destination) != expected_hash:
             raise ValueError(f"Checksum mismatch: {destination}; inspect before removing it")
         return
-    
+
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(destination.suffix + ".part")
-    
+
     try:
         with urllib.request.urlopen(url, timeout=120) as response, temporary.open("wb") as out:
             while block := response.read(1024 * 1024):
@@ -93,10 +97,10 @@ def fetch_file(url: str, destination: Path, expected_hash: str | None = None) ->
 
 def manifest(root: Path) -> dict[str, str]:
     """Read the publisher's filename-to-checksum mapping.
-    
+
     Args:
         root (Path): Root directory containing the SHA256SUMS.txt file.
-    
+
     Returns:
         dict[str, str]: Mapping from filenames to their SHA-256 checksums.
     """
@@ -124,11 +128,11 @@ def sensor_path(root: Path, subject: str, sensor: str) -> Path:
 
 def download_subject(root: Path, subject: str) -> None:
     """Fetch four sensor files and license, verifying publisher checksums.
-    
+
     Args:
         root (Path): Root directory to store downloaded files.
         subject (str): Subject identifier.
-    
+
     Raises:
         ValueError: If any file is absent from the publisher manifest or has a checksum mismatch.
     """
@@ -141,7 +145,7 @@ def download_subject(root: Path, subject: str) -> None:
         name = relative.as_posix()
         if name not in checksums:
             raise ValueError(f"File is absent from publisher manifest: {name}")
-        print(f"Verify/download {name}", flush=True)
+        LOGGER.info("Verifying or downloading %s", name)
         fetch_file(BASE_URL + name, root / relative, checksums[name])
 
 
@@ -159,27 +163,27 @@ def load_sensor(path: Path, sensor: str) -> pd.DataFrame:
         ValueError: If the file has an invalid shape or contains nonfinite values.
     """
     columns = SENSORS[sensor][1]
-    
+
     # The release mixes comma-delimited sensor files and whitespace labels/steps
     with path.open() as stream:
         separator = "," if "," in stream.readline() else r"\s+"
-    
+
     frame = pd.read_csv(path, sep=separator, header=None)
     if frame.shape[1] != len(columns) or frame.empty:
         raise ValueError(f"Invalid shape for {sensor}: {frame.shape}")
-    
+
     frame.columns = columns
     frame = frame.astype(float)
-    
+
     if not np.isfinite(frame.to_numpy()).all():
         raise ValueError(f"Nonfinite values in {path}")
-    
+
     return frame
 
 
 def summarize(frame: pd.DataFrame, sensor: str) -> dict[str, Any]:
     """Describe ordering and coverage without silently repairing data.
-    
+
     Args:
         frame (pd.DataFrame): Sensor data.
         sensor (str): Sensor name.
@@ -220,7 +224,7 @@ def summarize(frame: pd.DataFrame, sensor: str) -> dict[str, Any]:
             float(stage) for stage in set(frame.stage) - {-1, 0, 1, 2, 3, 4, 5}
         )
         result["non_30_second_intervals"] = int((deltas != 30).sum())
-    
+
     if sensor == "steps":
         result["negative_counts"] = int((frame.steps < 0).sum())
         result["fractional_counts"] = int((frame.steps % 1 != 0).sum())
@@ -228,13 +232,13 @@ def summarize(frame: pd.DataFrame, sensor: str) -> dict[str, Any]:
         result["complete_bins_in_previous_24h"] = int(
             ((times >= -86400) & (times.shift(-1) <= 0) & (times.shift(-1) > times)).sum()
         )
-    
+
     return result
 
 
 def audit_subject(root: Path, subject: str) -> dict[str, Any]:
     """Verify and summarize all modalities for one participant.
-    
+
     Args:
         root (Path): Root directory of the dataset.
         subject (str): Subject identifier.
@@ -261,15 +265,21 @@ def main() -> None:
     parser.add_argument("operation", choices=["download", "audit"])
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
+    configure_logging()
     config = load_config(args.config)
-    
+
     if args.operation == "download":
         download_subject(config["data_dir"], config["subject_id"])
     else:
         report = audit_subject(config["data_dir"], config["subject_id"])
         config["report_path"].parent.mkdir(parents=True, exist_ok=True)
         config["report_path"].write_text(json.dumps(report, indent=2) + "\n")
-        print(json.dumps(report, indent=2))
+        LOGGER.info(
+            "Audit report written: path=%s subject=%s sensor_count=%d",
+            config["report_path"],
+            config["subject_id"],
+            len(report["sensors"]),
+        )
 
 
 if __name__ == "__main__":
