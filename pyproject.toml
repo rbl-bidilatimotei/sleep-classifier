@@ -21,6 +21,10 @@ baseline = [
     "scikit-learn>=1.9.1",
 ]
 dev = ["pytest>=8.0", "ruff>=0.9"]
+gru = [
+    { include-group = "baseline" },
+    "torch>=2.15.0",
+]
 notebook = ["jupyterlab>=4.0", "ipykernel>=6.0", "nbconvert>=7.0"]
 
 [tool.pytest.ini_options]

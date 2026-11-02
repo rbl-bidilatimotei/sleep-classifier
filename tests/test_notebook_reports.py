@@ -62,3 +62,15 @@ def test_baseline_notebook_guards_training_and_its_export_command():
     ]
     assert len(guarded_cells) == 2
     assert all("skip-execution" in cell.metadata.get("tags", []) for cell in guarded_cells)
+
+
+def test_gru_notebook_keeps_training_operator_controlled():
+    source = Path(__file__).resolve().parents[1] / "notebooks/07_causal_gru.ipynb"
+    notebook = nbformat.read(source, as_version=4)
+    configuration = next(cell for cell in notebook.cells if "RUN_TRAINING =" in cell.source)
+    assert "RUN_TRAINING = False" in configuration.source
+    training = [
+        cell for cell in notebook.cells if cell.cell_type == "code" and "--train" in cell.source
+    ]
+    assert len(training) == 1
+    assert "skip-execution" in training[0].metadata.get("tags", [])
