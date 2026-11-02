@@ -149,3 +149,24 @@ uv run --locked --group notebook python scripts/execute_notebook.py --notebook n
 ```
 
 Preparation writes training and validation CSVs only. Fit any scaler on eligible training rows in the next milestone.
+
+## First baseline: run training yourself
+
+Open [notebook 05](notebooks/05_baseline_experiment.ipynb) for setup, preparation, and explicit training controls.
+Read [session 5](docs/session-05.md) before running the first experiment.
+No sleep-data model has been trained during implementation.
+
+```bash
+uv sync --locked --group baseline --group notebook
+uv run --locked --group baseline python -m sleep_classifier.baseline --config configs/baseline.yaml --train
+```
+
+The report runner saves HTML only and skips the notebook's tagged training cell.
+
+## Measured baseline results
+
+Timo's first local run achieved 56.08% validation accuracy and 0.3045 macro-F1 with logistic regression.
+REM recall was 1.96%. See [the measured results and limitations](docs/baseline-results.md).
+The baseline is a reference experiment, not a useful final sleep-stage classifier.
+Training logs now show stages, row counts, elapsed time, and the completed optimizer iteration count.
+Logistic regression uses optimizer iterations rather than training epochs.

@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 from pathlib import Path
 
 import yaml
@@ -7,6 +8,9 @@ import yaml
 from sleep_classifier.cohort import create_split, load_config
 from sleep_classifier.data import load_sensor, sensor_path, sha256
 from sleep_classifier.features import FEATURE_COLUMNS, EpochFeatureBuilder
+from sleep_classifier.logging_utils import configure_logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 class FeaturePreparationJob:
@@ -30,7 +34,11 @@ class FeaturePreparationJob:
                 )
                 table = builder.build(frames["heart_rate"], frames["motion"], frames["labels"])
                 summaries.append(self._write_participant(output, partition, participant_id, table))
-                print(f"Prepared {partition}: {participant_id}", flush=True)
+                LOGGER.info(
+                    "Prepared participant partition=%s participant=%s",
+                    partition,
+                    participant_id,
+                )
         provenance = self._provenance(context, summaries)
         (output / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
         return output
@@ -113,7 +121,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare development feature tables")
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
-    print(prepare(args.config))
+    configure_logging()
+    output = prepare(args.config)
+    LOGGER.info("Prepared train and validation tables: path=%s", output)
 
 
 if __name__ == "__main__":

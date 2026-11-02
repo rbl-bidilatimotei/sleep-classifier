@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import json
+import logging
 import random
 import re
 from pathlib import Path
@@ -10,9 +11,11 @@ import numpy as np
 import yaml
 
 from sleep_classifier import data
+from sleep_classifier.logging_utils import configure_logging
 
 MODALITIES = tuple(data.SENSORS)
 VALID_STAGES = {-1, 0, 1, 2, 3, 4, 5}
+LOGGER = logging.getLogger(__name__)
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -58,7 +61,7 @@ def load_config(path: Path) -> dict[str, Any]:
 
 def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[str, str]]:
     """Map manifest-listed participant files to modality and relative filename.
-    
+
     Args:
         root (Path): Root directory containing the participant files.
         checksums (dict[str, str]): Relative filenames mapped to their expected SHA-256 checksums.
@@ -279,17 +282,32 @@ def main() -> None:
     parser.add_argument("operation", choices=["inventory", "split"])
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
+    configure_logging()
     config = load_config(args.config)
     inventory_path = config["output_dir"] / "inventory.json"
     if args.operation == "inventory":
         inventory = build_inventory(config["data_dir"])
         _write_immutable(inventory_path, inventory)
-        print(json.dumps(inventory, indent=2, sort_keys=True))
+        records = inventory["participants"]
+        eligible_count = sum(record["eligible"] for record in records)
+        LOGGER.info(
+            "Inventory written: path=%s participants=%d eligible=%d ineligible=%d",
+            inventory_path,
+            len(records),
+            eligible_count,
+            len(records) - eligible_count,
+        )
     else:
         inventory = json.loads(inventory_path.read_text())
         split = create_split(inventory, config)
         _write_immutable(config["split_path"], split)
-        print(json.dumps(split, indent=2, sort_keys=True))
+        LOGGER.info(
+            "Participant split written: path=%s train=%d validation=%d test=%d",
+            config["split_path"],
+            len(split["train"]),
+            len(split["validation"]),
+            len(split["test"]),
+        )
 
 
 if __name__ == "__main__":

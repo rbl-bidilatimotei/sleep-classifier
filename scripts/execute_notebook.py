@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -10,7 +11,10 @@ from jupyter_client.kernelspec import KernelSpecManager
 from nbclient import NotebookClient
 from nbconvert import HTMLExporter
 
+from sleep_classifier.logging_utils import configure_logging
+
 ROOT = Path(__file__).resolve().parents[1]
+LOGGER = logging.getLogger(__name__)
 
 
 class NotebookReportRunner:
@@ -71,10 +75,11 @@ def main() -> None:
     )
     parser.add_argument("--output-dir", type=Path, default=ROOT / "artifacts/notebooks")
     args = parser.parse_args()
+    configure_logging()
     source = (ROOT / args.notebook).resolve()
     output_dir = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     report_path = NotebookReportRunner(source, output_dir.resolve()).run()
-    print(report_path)
+    LOGGER.info("Executed notebook report written: path=%s", report_path)
 
 
 if __name__ == "__main__":

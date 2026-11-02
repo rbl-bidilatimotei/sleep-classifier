@@ -29,3 +29,36 @@ def test_runner_executes_notebook_and_writes_html_report(tmp_path):
     assert "<html" in report
     assert notebook_path.read_bytes() == original_source
     assert not list(report_path.parent.glob("*.ipynb"))
+
+
+def test_report_runner_skips_tagged_training_cells(tmp_path):
+    notebook_path = tmp_path / "training_guard.ipynb"
+    training_cell = nbformat.v4.new_code_cell("raise RuntimeError('training must not run')")
+    training_cell.metadata["tags"] = ["skip-execution"]
+    notebook = nbformat.v4.new_notebook(
+        cells=[
+            training_cell,
+            nbformat.v4.new_code_cell("print('report completed')"),
+        ]
+    )
+    nbformat.write(notebook, notebook_path)
+
+    report_path = NotebookReportRunner(notebook_path, tmp_path / "reports").run()
+
+    assert "report completed" in report_path.read_text()
+
+
+def test_baseline_notebook_guards_training_and_its_export_command():
+    source = Path(__file__).resolve().parents[1] / "notebooks/05_baseline_experiment.ipynb"
+    notebook = nbformat.read(source, as_version=4)
+    configuration = next(cell for cell in notebook.cells if "RUN_TRAINING =" in cell.source)
+    assert "RUN_TRAINING = False" in configuration.source
+
+    guarded_cells = [
+        cell
+        for cell in notebook.cells
+        if cell.cell_type == "code"
+        and ("--train" in cell.source or "scripts/execute_notebook.py" in cell.source)
+    ]
+    assert len(guarded_cells) == 2
+    assert all("skip-execution" in cell.metadata.get("tags", []) for cell in guarded_cells)

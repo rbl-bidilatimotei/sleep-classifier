@@ -1,5 +1,3 @@
-"""Verify archive integrity and preservation of existing files."""
-
 import hashlib
 import zipfile
 
