@@ -5,13 +5,12 @@ heart rate, and historical steps, using small PyTorch models in a later mileston
 
 ## Status
 
-Session 1 implements reproducible downloads, raw-data audits, and one exploration
-notebook. No training, imputation, epoch features, or accuracy results yet.
+The cohort audit, causal feature preparation, and first baseline comparison are complete.
+Training uses 23 participants, validation uses three, and the final three test participants remain reserved.
+Class-weighted logistic regression improves REM recall but lowers accuracy and macro-F1 in this experiment.
+See the [graphical comparison](docs/experiments/class-weighted-baseline-2026-11-02/README.md) and [interpretation](docs/class-weighted-experiment.md).
 
-- [Session findings and next decisions](docs/session-01.md)
-- [Proposed experiment protocol](docs/first-experiment.md)
-- [Literature notes](docs/literature-notes.md)
-- [Project collaboration instructions](AGENTS.md)
+![Measured validation confusion matrices](docs/experiments/class-weighted-baseline-2026-11-02/confusion_matrices.png)
 
 ## Local setup
 
@@ -154,7 +153,7 @@ Preparation writes training and validation CSVs only. Fit any scaler on eligible
 
 Open [notebook 05](notebooks/05_baseline_experiment.ipynb) for setup, preparation, and explicit training controls.
 Read [session 5](docs/session-05.md) before running the first experiment.
-No sleep-data model has been trained during implementation.
+The original reference was run by Timo. The weighted comparison was run under explicit authorization.
 
 ```bash
 uv sync --locked --group baseline --group notebook
@@ -170,3 +169,13 @@ REM recall was 1.96%. See [the measured results and limitations](docs/baseline-r
 The baseline is a reference experiment, not a useful final sleep-stage classifier.
 Training logs now show stages, row counts, elapsed time, and the completed optimizer iteration count.
 Logistic regression uses optimizer iterations rather than training epochs.
+
+## Result files and graphical reports
+
+`artifacts/` is ignored because it contains generated models, prediction tables, and full HTML reports.
+These files can be rebuilt and can become large. The ignore rule does not apply to `docs/experiments/`.
+Selected measured summaries and compact PNG figures are tracked there for viewing directly on GitHub.
+Raw sensor data remains excluded from Git.
+
+Open [notebook 06](notebooks/06_class_weighted_comparison.ipynb) to inspect the saved comparison.
+The report module creates confusion matrices, per-class scores, standardized coefficients, and chronological prediction ribbons.
