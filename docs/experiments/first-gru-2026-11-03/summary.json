@@ -1,0 +1,208 @@
+{
+  "accuracy": 0.5669064748201439,
+  "macro_f1": 0.476035042857085,
+  "classes": {
+    "0": {
+      "precision": 0.7009345794392523,
+      "recall": 0.39893617021276595,
+      "f1": 0.5084745762711864,
+      "support": 188
+    },
+    "1": {
+      "precision": 0.5877901109989909,
+      "recall": 0.7694848084544254,
+      "f1": 0.6664759725400458,
+      "support": 1514
+    },
+    "2": {
+      "precision": 0.48249027237354086,
+      "recall": 0.5321888412017167,
+      "f1": 0.5061224489795918,
+      "support": 466
+    },
+    "3": {
+      "precision": 0.4971751412429379,
+      "recall": 0.1437908496732026,
+      "f1": 0.22306717363751585,
+      "support": 612
+    }
+  },
+  "confusion_matrix": [
+    [
+      75,
+      108,
+      1,
+      4
+    ],
+    [
+      16,
+      1165,
+      250,
+      83
+    ],
+    [
+      3,
+      213,
+      248,
+      2
+    ],
+    [
+      13,
+      496,
+      15,
+      88
+    ]
+  ],
+  "coverage": {
+    "scored_epochs": 2884,
+    "eligible_epochs": 2780,
+    "label_bearing_epochs": 2884,
+    "fraction": 0.9639389736477115
+  },
+  "participants": {
+    "1449548": {
+      "scored_epochs": 953,
+      "eligible_epochs": 851,
+      "label_bearing_epochs": 953,
+      "coverage": 0.8929695697796433,
+      "accuracy": 0.5323149236192715,
+      "macro_f1": 0.44881595768303406
+    },
+    "5383425": {
+      "scored_epochs": 976,
+      "eligible_epochs": 974,
+      "label_bearing_epochs": 976,
+      "coverage": 0.9979508196721312,
+      "accuracy": 0.5010266940451745,
+      "macro_f1": 0.4495234158471828
+    },
+    "8686948": {
+      "scored_epochs": 955,
+      "eligible_epochs": 955,
+      "label_bearing_epochs": 955,
+      "coverage": 1.0,
+      "accuracy": 0.6649214659685864,
+      "macro_f1": 0.5167769869900516
+    }
+  },
+  "best_epoch": 1,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.0381132231711958,
+      "validation_loss": 0.943892852007914,
+      "validation_macro_f1": 0.476035042857085,
+      "validation_accuracy": 0.5669064748201439
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.8978898377123725,
+      "validation_loss": 0.9566794488927444,
+      "validation_macro_f1": 0.4333425842300473,
+      "validation_accuracy": 0.5122302158273381
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.8761495774120559,
+      "validation_loss": 0.9689155313608457,
+      "validation_macro_f1": 0.4618587766257211,
+      "validation_accuracy": 0.49712230215827335
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.8627460254382436,
+      "validation_loss": 0.9458277765795481,
+      "validation_macro_f1": 0.4750747737169604,
+      "validation_accuracy": 0.5302158273381294
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.851362815586643,
+      "validation_loss": 0.9907201646043242,
+      "validation_macro_f1": 0.46674645115819774,
+      "validation_accuracy": 0.4852517985611511
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.8404424159893402,
+      "validation_loss": 0.9598329899122389,
+      "validation_macro_f1": 0.46209835690978973,
+      "validation_accuracy": 0.5370503597122303
+    }
+  ],
+  "config": {
+    "prepare_config": "prepare.yaml",
+    "output_dir": "../artifacts/gru-context-10",
+    "seed": 42,
+    "epochs": 20,
+    "batch_size": 64,
+    "context_epochs": 10,
+    "hidden_size": 32,
+    "learning_rate": 0.001,
+    "patience": 5,
+    "gradient_clip": 1.0,
+    "device": "auto"
+  },
+  "features": [
+    "heart_rate_mean",
+    "heart_rate_std",
+    "heart_rate_min",
+    "heart_rate_max",
+    "motion_magnitude_mean",
+    "motion_magnitude_std"
+  ],
+  "device": "cpu",
+  "packages": {
+    "python": "3.11.16",
+    "numpy": "2.4.6",
+    "pandas": "3.1.0",
+    "scikit_learn": "1.9.1",
+    "torch": "2.15.0"
+  },
+  "metrics_sha256": "c28f28b660789f19f4afeb07f16eb967cf9d9cb11ffb56ae3c8fc31ae3bf5264",
+  "split": {
+    "forced_development": [
+      "1066528"
+    ],
+    "inventory_sha256": "1b56c2929a42b4011130ed940d16d8656b8125df186039f641ff00b8ca88e235",
+    "seed": 42,
+    "test": [
+      "46343",
+      "7749105",
+      "8000685"
+    ],
+    "test_count": 3,
+    "train": [
+      "1066528",
+      "1360686",
+      "1455390",
+      "1818471",
+      "2598705",
+      "2638030",
+      "3997827",
+      "4018081",
+      "4314139",
+      "4426783",
+      "5132496",
+      "5498603",
+      "5797046",
+      "6220552",
+      "781756",
+      "8173033",
+      "8258170",
+      "844359",
+      "8530312",
+      "8692923",
+      "9106476",
+      "9618981",
+      "9961348"
+    ],
+    "validation": [
+      "1449548",
+      "5383425",
+      "8686948"
+    ],
+    "validation_count": 3,
+    "version": 1
+  }
+}

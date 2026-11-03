@@ -6,7 +6,7 @@ def deduplicate_sensor(frame: pd.DataFrame) -> pd.DataFrame:
     """Sort sensor rows and remove exact duplicates by timestamp.
 
     Args:
-        frame (pd.DataFrame): Sensor observations with a ``time`` column.
+        frame (pd.DataFrame): Sensor observations with a `time` column.
 
     Returns:
         pd.DataFrame: Sorted observations with one row per timestamp.
@@ -91,7 +91,7 @@ def step_bins(frame: pd.DataFrame) -> pd.DataFrame:
     """Return observed step values with endpoints from the next timestamp.
 
     Args:
-        frame (pd.DataFrame): Step observations with ``time`` and ``steps`` columns.
+        frame (pd.DataFrame): Step observations with `time` and `steps` columns.
 
     Returns:
         pd.DataFrame: Sorted start, observed end, and step count rows.

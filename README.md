@@ -180,11 +180,12 @@ Raw sensor data remains excluded from Git.
 Open [notebook 06](notebooks/06_class_weighted_comparison.ipynb) to inspect the saved comparison.
 The report module creates confusion matrices, per-class scores, standardized coefficients, and chronological prediction ribbons.
 
-## First GRU: prepared for operator-run training
+## First GRU: measured local run
 
 Read the [first GRU experiment](docs/first-gru-experiment.md) and open [notebook 07](notebooks/07_causal_gru.ipynb).
 It uses the same six features with at most ten epochs of causal context and 32 hidden units.
-Only preflight and synthetic tests have run. No real-data GRU model has been trained.
+The first local CPU run reached 56.69% accuracy and 0.4760 macro-F1 on validation data.
+See the [measured results](docs/experiments/first-gru-2026-11-03/README.md).
 
 ```bash
 uv sync --locked --group gru --group notebook
