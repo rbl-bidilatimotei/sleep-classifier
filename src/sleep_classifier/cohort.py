@@ -230,7 +230,7 @@ def create_split(inventory: dict[str, Any], config: dict[str, Any]) -> dict[str,
     """Select deterministic participant splits from an eligibility inventory.
 
     Args:
-        inventory (dict[str, Any]): Output from ``build_inventory``.
+        inventory (dict[str, Any]): Output from `build_inventory`.
         config (dict[str, Any]): Validated cohort settings.
 
     Returns:
