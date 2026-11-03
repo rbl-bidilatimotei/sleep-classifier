@@ -1,0 +1,6 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/baseline-balanced
+seed: 42
+max_iter: 300
+inverse_regularization: 1.0
+class_weight: balanced

@@ -1,0 +1,583 @@
+{
+  "classes": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "features": [
+    "heart_rate_mean",
+    "heart_rate_std",
+    "heart_rate_min",
+    "heart_rate_max",
+    "motion_magnitude_mean",
+    "motion_magnitude_std"
+  ],
+  "reference": {
+    "majority": {
+      "accuracy": 0.5446043165467626,
+      "macro_f1": 0.17629250116441547,
+      "classes": {
+        "0": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5446043165467626,
+          "recall": 1.0,
+          "f1": 0.7051700046576619,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 612
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          188,
+          0,
+          0
+        ],
+        [
+          0,
+          1514,
+          0,
+          0
+        ],
+        [
+          0,
+          466,
+          0,
+          0
+        ],
+        [
+          0,
+          612,
+          0,
+          0
+        ]
+      ],
+      "coverage": {
+        "scored_epochs": 2884,
+        "eligible_epochs": 2780,
+        "label_bearing_epochs": 2884,
+        "fraction": 0.9639389736477115
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5828437132784959,
+          "macro_f1": 0.18411284335560504
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.4537987679671458,
+          "macro_f1": 0.1560734463276836
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.6031413612565445,
+          "macro_f1": 0.18811234487263226
+        }
+      }
+    },
+    "logistic_regression": {
+      "accuracy": 0.5607913669064748,
+      "macro_f1": 0.3044997582465349,
+      "classes": {
+        "0": {
+          "precision": 0.5263157894736842,
+          "recall": 0.2127659574468085,
+          "f1": 0.30303030303030304,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5640432098765432,
+          "recall": 0.9656538969616909,
+          "f1": 0.7121285923039454,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5844155844155844,
+          "recall": 0.09656652360515021,
+          "f1": 0.16574585635359115,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.34285714285714286,
+          "recall": 0.0196078431372549,
+          "f1": 0.03709428129829984,
+          "support": 612
+        }
+      },
+      "confusion_matrix": [
+        [
+          40,
+          146,
+          0,
+          2
+        ],
+        [
+          12,
+          1462,
+          23,
+          17
+        ],
+        [
+          4,
+          413,
+          45,
+          4
+        ],
+        [
+          20,
+          571,
+          9,
+          12
+        ]
+      ],
+      "coverage": {
+        "scored_epochs": 2884,
+        "eligible_epochs": 2780,
+        "label_bearing_epochs": 2884,
+        "fraction": 0.9639389736477115
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.6039952996474736,
+          "macro_f1": 0.27258614553845906
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.4917864476386037,
+          "macro_f1": 0.3175076954863143
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.5926701570680628,
+          "macro_f1": 0.27995176536203303
+        }
+      }
+    }
+  },
+  "comparison": {
+    "majority": {
+      "accuracy": 0.5446043165467626,
+      "macro_f1": 0.17629250116441547,
+      "classes": {
+        "0": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5446043165467626,
+          "recall": 1.0,
+          "f1": 0.7051700046576619,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "support": 612
+        }
+      },
+      "confusion_matrix": [
+        [
+          0,
+          188,
+          0,
+          0
+        ],
+        [
+          0,
+          1514,
+          0,
+          0
+        ],
+        [
+          0,
+          466,
+          0,
+          0
+        ],
+        [
+          0,
+          612,
+          0,
+          0
+        ]
+      ],
+      "coverage": {
+        "scored_epochs": 2884,
+        "eligible_epochs": 2780,
+        "label_bearing_epochs": 2884,
+        "fraction": 0.9639389736477115
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5828437132784959,
+          "macro_f1": 0.18411284335560504
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.4537987679671458,
+          "macro_f1": 0.1560734463276836
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.6031413612565445,
+          "macro_f1": 0.18811234487263226
+        }
+      }
+    },
+    "logistic_regression": {
+      "accuracy": 0.2629496402877698,
+      "macro_f1": 0.2659246800961491,
+      "classes": {
+        "0": {
+          "precision": 0.2692307692307692,
+          "recall": 0.4095744680851064,
+          "f1": 0.32489451476793246,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.9130434782608695,
+          "recall": 0.013870541611624834,
+          "f1": 0.027325959661678594,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.22802986789201607,
+          "recall": 0.851931330472103,
+          "f1": 0.3597643860444042,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.3232876712328767,
+          "recall": 0.38562091503267976,
+          "f1": 0.35171385991058124,
+          "support": 612
+        }
+      },
+      "confusion_matrix": [
+        [
+          77,
+          1,
+          72,
+          38
+        ],
+        [
+          106,
+          21,
+          985,
+          402
+        ],
+        [
+          15,
+          0,
+          397,
+          54
+        ],
+        [
+          88,
+          1,
+          287,
+          236
+        ]
+      ],
+      "coverage": {
+        "scored_epochs": 2884,
+        "eligible_epochs": 2780,
+        "label_bearing_epochs": 2884,
+        "fraction": 0.9639389736477115
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.2702702702702703,
+          "macro_f1": 0.3136100340885859
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.28439425051334705,
+          "macro_f1": 0.2466230709899231
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.23455497382198953,
+          "macro_f1": 0.23327823936376568
+        }
+      }
+    }
+  },
+  "configs": {
+    "reference": {
+      "prepare_config": "prepare.yaml",
+      "output_dir": "../artifacts/baseline",
+      "seed": 42,
+      "max_iter": 300,
+      "inverse_regularization": 1.0
+    },
+    "comparison": {
+      "prepare_config": "prepare.yaml",
+      "output_dir": "../artifacts/baseline-balanced",
+      "seed": 42,
+      "max_iter": 300,
+      "inverse_regularization": 1.0,
+      "class_weight": "balanced"
+    }
+  },
+  "split": {
+    "forced_development": [
+      "1066528"
+    ],
+    "inventory_sha256": "1b56c2929a42b4011130ed940d16d8656b8125df186039f641ff00b8ca88e235",
+    "seed": 42,
+    "test": [
+      "46343",
+      "7749105",
+      "8000685"
+    ],
+    "test_count": 3,
+    "train": [
+      "1066528",
+      "1360686",
+      "1455390",
+      "1818471",
+      "2598705",
+      "2638030",
+      "3997827",
+      "4018081",
+      "4314139",
+      "4426783",
+      "5132496",
+      "5498603",
+      "5797046",
+      "6220552",
+      "781756",
+      "8173033",
+      "8258170",
+      "844359",
+      "8530312",
+      "8692923",
+      "9106476",
+      "9618981",
+      "9961348"
+    ],
+    "validation": [
+      "1449548",
+      "5383425",
+      "8686948"
+    ],
+    "validation_count": 3,
+    "version": 1
+  },
+  "packages": {
+    "reference": {
+      "python": "3.11.16",
+      "numpy": "2.4.6",
+      "pandas": "3.1.0",
+      "scikit_learn": "1.9.1"
+    },
+    "comparison": {
+      "python": "3.11.16",
+      "numpy": "2.4.6",
+      "pandas": "3.1.0",
+      "scikit_learn": "1.9.1"
+    }
+  },
+  "optimizer": {
+    "reference": null,
+    "comparison": {
+      "actual_iterations": 63,
+      "iteration_cap": 300,
+      "convergence_cap_reached": false
+    }
+  },
+  "input_metrics_sha256": {
+    "reference": "41da2c3aefefd151ca9fb4328648819bc31167c62c10ab30f53467cda93addee",
+    "comparison": "9142afd20a7765e1b7f1537bead311f22e39ac7a1c0312a248223ef815676fc2"
+  },
+  "validation_participants": [
+    "1449548",
+    "5383425",
+    "8686948"
+  ],
+  "model_summary": {
+    "Majority reference": {
+      "accuracy": 0.5446043165467626,
+      "balanced_accuracy": 0.25,
+      "macro_f1": 0.17629250116441547,
+      "rem_recall": 0.0,
+      "scored_epochs": 2884,
+      "retained_epochs": 2780,
+      "label_bearing_epochs": 2884,
+      "coverage": 0.9639389736477115
+    },
+    "Reference logistic regression": {
+      "accuracy": 0.5607913669064748,
+      "balanced_accuracy": 0.3236485552877261,
+      "macro_f1": 0.3044997582465349,
+      "rem_recall": 0.0196078431372549,
+      "scored_epochs": 2884,
+      "retained_epochs": 2780,
+      "label_bearing_epochs": 2884,
+      "coverage": 0.9639389736477115
+    },
+    "Balanced logistic regression": {
+      "accuracy": 0.2629496402877698,
+      "balanced_accuracy": 0.4152493138003785,
+      "macro_f1": 0.2659246800961491,
+      "rem_recall": 0.38562091503267976,
+      "scored_epochs": 2884,
+      "retained_epochs": 2780,
+      "label_bearing_epochs": 2884,
+      "coverage": 0.9639389736477115
+    }
+  },
+  "normalized_confusion_matrices": {
+    "Majority reference": [
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "Reference\nlogistic regression": [
+      [
+        0.2127659574468085,
+        0.776595744680851,
+        0.0,
+        0.010638297872340425
+      ],
+      [
+        0.007926023778071334,
+        0.9656538969616909,
+        0.015191545574636724,
+        0.011228533685601057
+      ],
+      [
+        0.008583690987124463,
+        0.8862660944206009,
+        0.09656652360515021,
+        0.008583690987124463
+      ],
+      [
+        0.032679738562091505,
+        0.9330065359477124,
+        0.014705882352941176,
+        0.0196078431372549
+      ]
+    ],
+    "Balanced\nlogistic regression": [
+      [
+        0.4095744680851064,
+        0.005319148936170213,
+        0.3829787234042553,
+        0.20212765957446807
+      ],
+      [
+        0.07001321003963012,
+        0.013870541611624834,
+        0.6505944517833554,
+        0.2655217965653897
+      ],
+      [
+        0.032188841201716736,
+        0.0,
+        0.851931330472103,
+        0.11587982832618025
+      ],
+      [
+        0.1437908496732026,
+        0.0016339869281045752,
+        0.46895424836601307,
+        0.38562091503267976
+      ]
+    ]
+  },
+  "figures": {
+    "confusion_matrices": "confusion_matrices.png",
+    "per_class_scores": "per_class_scores.png",
+    "coefficients": "standardized_coefficients.png",
+    "participant_timelines": "participant_timelines.png"
+  }
+}

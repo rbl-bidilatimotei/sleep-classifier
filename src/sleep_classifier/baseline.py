@@ -165,9 +165,28 @@ class BaselineExperiment:
         pipeline, majority = self._fit_models(dataset["partitions"]["train"], settings)
         return self._save_results(settings, dataset, pipeline, majority, output_dir)
 
+    def export_validation_predictions(self, destination: Path) -> Path:
+        """Export predictions from saved models without fitting either classifier."""
+        if destination.suffix != ".csv":
+            raise ValueError("Prediction destination must be a CSV file")
+
+        _, prepared_dir, output_dir = self._load_settings()
+        validation = PreparedFeatureDataset(prepared_dir).load()["partitions"]["validation"]
+        pipeline = joblib.load(output_dir / "models/logistic_regression.joblib")
+        majority = joblib.load(output_dir / "models/majority.joblib")
+        predictions = self._build_prediction_table(validation, pipeline, majority)
+
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        predictions.to_csv(destination, index=False)
+        LOGGER.info("Saved-model validation predictions exported without fitting: %s", destination)
+        return destination
+
     def _load_settings(self) -> tuple[dict, Path, Path]:
         """Read baseline and preparation paths from the configuration files."""
         settings = yaml.safe_load(self.config_path.read_text())
+        class_weight = settings.get("class_weight")
+        if class_weight not in (None, "balanced"):
+            raise ValueError("class_weight must be null or 'balanced'")
         prepare_path = self.config_path.parent / settings["prepare_config"]
         prepare_settings = yaml.safe_load(prepare_path.read_text())
         prepared_dir = (prepare_path.parent / prepare_settings["output_dir"]).resolve()
@@ -185,6 +204,9 @@ class BaselineExperiment:
 
     def _build_logistic_pipeline(self, settings: dict):
         """Create the scaled logistic-regression pipeline from baseline settings."""
+        class_weight = settings.get("class_weight")
+        if class_weight not in (None, "balanced"):
+            raise ValueError("class_weight must be null or 'balanced'")
         seed = int(settings["seed"])
         return make_pipeline(
             StandardScaler(),
@@ -192,6 +214,7 @@ class BaselineExperiment:
                 max_iter=int(settings["max_iter"]),
                 C=float(settings["inverse_regularization"]),
                 random_state=seed,
+                class_weight=settings.get("class_weight"),
             ),
         )
 
@@ -246,7 +269,10 @@ class BaselineExperiment:
         result = self._build_result_payload(
             settings, dataset, pipeline, majority, x_validation, y_validation, validation
         )
-        metrics_path = self._persist_results(output_dir, pipeline, majority, result)
+        prediction_table = self._build_prediction_table(validation, pipeline, majority)
+        metrics_path = self._persist_results(
+            output_dir, pipeline, majority, result, prediction_table
+        )
         LOGGER.info(
             "Stage 4/4 complete: metrics_path=%s validation_rows=%d elapsed_seconds=%.2f",
             metrics_path,
@@ -283,9 +309,37 @@ class BaselineExperiment:
                     pipeline.predict(x_validation), y_validation, validation
                 ),
             },
+            "optimizer": {
+                "actual_iterations": int(
+                    np.max(pipeline.named_steps["logisticregression"].n_iter_)
+                ),
+                "iteration_cap": int(settings["max_iter"]),
+                "convergence_cap_reached": bool(
+                    np.max(pipeline.named_steps["logisticregression"].n_iter_)
+                    >= int(settings["max_iter"])
+                ),
+            },
         }
 
-    def _persist_results(self, output_dir: Path, pipeline, majority, result: dict) -> Path:
+    def _build_prediction_table(self, validation: pd.DataFrame, pipeline, majority) -> pd.DataFrame:
+        """Create row-aligned validation predictions and logistic probabilities."""
+        features = validation.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
+        columns = ["participant_id"]
+        if "time" in validation.columns:
+            columns.append("time")
+        columns.append("target")
+        predictions = validation.loc[:, columns].reset_index(drop=True).copy()
+        predictions["majority_prediction"] = majority.predict(features)
+        predictions["logistic_regression_prediction"] = pipeline.predict(features)
+        estimator = pipeline.named_steps["logisticregression"]
+        probabilities = pipeline.predict_proba(features)
+        for index, label in enumerate(estimator.classes_):
+            predictions[f"logistic_probability_{label}"] = probabilities[:, index]
+        return predictions
+
+    def _persist_results(
+        self, output_dir: Path, pipeline, majority, result: dict, prediction_table: pd.DataFrame
+    ) -> Path:
         """Persist fitted estimators and validation metrics."""
         output_dir.mkdir(parents=True, exist_ok=True)
         models_dir = output_dir / "models"
@@ -294,6 +348,7 @@ class BaselineExperiment:
         joblib.dump(majority, models_dir / "majority.joblib")
         metrics_path = output_dir / "metrics.json"
         metrics_path.write_text(json.dumps(result, indent=2) + "\n")
+        prediction_table.to_csv(output_dir / "validation_predictions.csv", index=False)
         return metrics_path
 
     def _metrics(self, predictions: np.ndarray, targets: np.ndarray, frame: pd.DataFrame) -> dict:
@@ -358,13 +413,18 @@ class BaselineExperiment:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fit baseline sleep-stage classifiers")
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--train", action="store_true", help="Confirm the requested model fit")
+    operation = parser.add_mutually_exclusive_group(required=True)
+    operation.add_argument("--train", action="store_true", help="Confirm the requested model fit")
+    operation.add_argument(
+        "--export-predictions", type=Path, help="Export saved predictions without fitting"
+    )
     args = parser.parse_args()
-    if not args.train:
-        parser.error("pass --train to explicitly fit the baseline models")
     configure_logging()
-    metrics_path = BaselineExperiment(args.config).run()
-    LOGGER.info("Baseline metrics saved: %s", metrics_path)
+    experiment = BaselineExperiment(args.config)
+    if args.train:
+        LOGGER.info("Baseline metrics saved: %s", experiment.run())
+    else:
+        experiment.export_validation_predictions(args.export_predictions)
 
 
 if __name__ == "__main__":

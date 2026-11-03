@@ -106,6 +106,56 @@ def test_scaler_fits_training_features_only(tmp_path: Path) -> None:
     assert validation.loc[:, FEATURE_COLUMNS].iloc[0, 0] == 100.0
 
 
+def test_balanced_class_weight_is_applied_and_default_is_unchanged(tmp_path: Path) -> None:
+    train = pd.DataFrame({column: [0.0, 1.0, 2.0, 3.0] for column in FEATURE_COLUMNS})
+    train["target"] = [0, 0, 0, 1]
+    experiment = BaselineExperiment(tmp_path / "unused.yaml")
+    common = {"seed": 42, "max_iter": 300, "inverse_regularization": 1.0}
+
+    default, _ = experiment._fit_models(train, common)
+    balanced, _ = experiment._fit_models(train, {**common, "class_weight": "balanced"})
+
+    assert default.named_steps["logisticregression"].class_weight is None
+    assert balanced.named_steps["logisticregression"].class_weight == "balanced"
+
+
+def test_prediction_table_preserves_rows_and_probability_class_alignment(tmp_path: Path) -> None:
+    train = pd.DataFrame({column: [0.0, 1.0, 2.0, 3.0] for column in FEATURE_COLUMNS})
+    train["target"] = [0, 1, 2, 3]
+    validation = pd.DataFrame({column: [3.0, 0.0, 2.0] for column in FEATURE_COLUMNS})
+    validation["participant_id"] = ["p2", "p1", "p2"]
+    validation["time"] = [30, 10, 20]
+    validation["target"] = [3, 0, 2]
+    pipeline, majority = BaselineExperiment(tmp_path / "unused.yaml")._fit_models(
+        train, {"seed": 42, "max_iter": 300, "inverse_regularization": 1.0}
+    )
+
+    table = BaselineExperiment(tmp_path / "unused.yaml")._build_prediction_table(
+        validation, pipeline, majority
+    )
+
+    assert table[["participant_id", "time", "target"]].values.tolist() == [
+        ["p2", 30, 3],
+        ["p1", 10, 0],
+        ["p2", 20, 2],
+    ]
+    assert len(table) == len(validation)
+    assert table.columns.tolist() == [
+        "participant_id",
+        "time",
+        "target",
+        "majority_prediction",
+        "logistic_regression_prediction",
+        "logistic_probability_0",
+        "logistic_probability_1",
+        "logistic_probability_2",
+        "logistic_probability_3",
+    ]
+    assert table.filter(like="logistic_probability_").sum(axis=1).tolist() == pytest.approx(
+        [1.0] * len(validation)
+    )
+
+
 def test_baseline_logs_stages_row_counts_and_actual_iterations(
     tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -135,6 +185,13 @@ def test_baseline_logs_stages_row_counts_and_actual_iterations(
     metrics_path = experiment.run()
 
     assert metrics_path.is_file()
+    result = json.loads(metrics_path.read_text())
+    assert result["optimizer"]["actual_iterations"] == actual_iterations
+    assert result["optimizer"]["iteration_cap"] == 300
+    assert result["optimizer"]["convergence_cap_reached"] is (actual_iterations >= 300)
+    predictions = pd.read_csv(metrics_path.parent / "validation_predictions.csv")
+    assert len(predictions) == 2
+    assert predictions.columns[:3].tolist() == ["participant_id", "target", "majority_prediction"]
     assert "Stage 1/4 complete: train_rows=2 validation_rows=2" in caplog.text
     assert "Stage 2/4: fitting logistic regression on train_rows=2" in caplog.text
     assert "Stage 3/4: fitting majority classifier on train_rows=2" in caplog.text
@@ -156,3 +213,21 @@ def test_loader_refuses_to_hide_participant_without_eligible_epochs(tmp_path):
     provenance_path.write_text(json.dumps(provenance))
     with pytest.raises(ValueError, match="No eligible rows"):
         PreparedFeatureDataset(tmp_path).load()
+
+
+def test_prediction_export_cli_never_calls_training(monkeypatch, tmp_path):
+    import sys
+
+    destination = tmp_path / "predictions.csv"
+    calls = []
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["baseline", "--config", "config.yaml", "--export-predictions", str(destination)],
+    )
+    monkeypatch.setattr(BaselineExperiment, "run", lambda self: pytest.fail("Unexpected fitting"))
+    monkeypatch.setattr(
+        BaselineExperiment, "export_validation_predictions", lambda self, path: calls.append(path)
+    )
+    baseline.main()
+    assert calls == [destination]
