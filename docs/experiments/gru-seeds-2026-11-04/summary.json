@@ -1,0 +1,328 @@
+{
+  "base_config": "configs/gru.yaml",
+  "output_dir": "artifacts/gru-seeds",
+  "requested_device": "auto",
+  "seed": 42,
+  "shared_seeds": [
+    42,
+    43,
+    44
+  ],
+  "maximum_epochs": 120,
+  "trials": [
+    {
+      "name": "reference-seed-42",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 42
+    },
+    {
+      "name": "patience12-seed-42",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 42
+    },
+    {
+      "name": "reference-seed-43",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 43
+    },
+    {
+      "name": "patience12-seed-43",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 43
+    },
+    {
+      "name": "reference-seed-44",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 44
+    },
+    {
+      "name": "patience12-seed-44",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 44
+    }
+  ],
+  "device": "mps",
+  "results": [
+    {
+      "name": "reference-seed-42",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 42,
+      "accuracy": 0.5669064748201439,
+      "macro_f1": 0.476035042857085,
+      "classes": {
+        "0": {
+          "precision": 0.7009345794392523,
+          "recall": 0.39893617021276595,
+          "f1": 0.5084745762711864,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5877901109989909,
+          "recall": 0.7694848084544254,
+          "f1": 0.6664759725400458,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48249027237354086,
+          "recall": 0.5321888412017167,
+          "f1": 0.5061224489795918,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4971751412429379,
+          "recall": 0.1437908496732026,
+          "f1": 0.22306717363751585,
+          "support": 612
+        }
+      },
+      "best_epoch": 1,
+      "epochs_completed": 6,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/reference-seed-42/metrics.json",
+      "metrics_sha256": "b30803eb8f0cdd4390d5150d5b4fecd7a0c74cc510aba2474254d91ccf671648"
+    },
+    {
+      "name": "patience12-seed-42",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 42,
+      "accuracy": 0.5442446043165468,
+      "macro_f1": 0.5000758923999161,
+      "classes": {
+        "0": {
+          "precision": 0.6,
+          "recall": 0.4627659574468085,
+          "f1": 0.5225225225225225,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.603448275862069,
+          "recall": 0.6472919418758256,
+          "f1": 0.6246016571064372,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48484848484848486,
+          "recall": 0.3776824034334764,
+          "f1": 0.42460796139927626,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4166666666666667,
+          "recall": 0.4411764705882353,
+          "f1": 0.42857142857142855,
+          "support": 612
+        }
+      },
+      "best_epoch": 12,
+      "epochs_completed": 20,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/patience12-seed-42/metrics.json",
+      "metrics_sha256": "11a8d37b40c2693b7f71c92d6f9fbfea403d7cd61817aaefb999c5a1c0777d54"
+    },
+    {
+      "name": "reference-seed-43",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 43,
+      "accuracy": 0.5910071942446044,
+      "macro_f1": 0.502812578563629,
+      "classes": {
+        "0": {
+          "precision": 0.6915887850467289,
+          "recall": 0.39361702127659576,
+          "f1": 0.5016949152542373,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.609479649665121,
+          "recall": 0.7813738441215323,
+          "f1": 0.6848046309696093,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5140712945590994,
+          "recall": 0.5879828326180258,
+          "f1": 0.5485485485485485,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.5628140703517588,
+          "recall": 0.1830065359477124,
+          "f1": 0.2762022194821208,
+          "support": 612
+        }
+      },
+      "best_epoch": 1,
+      "epochs_completed": 6,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/reference-seed-43/metrics.json",
+      "metrics_sha256": "f6505ced73b987660f6c2eaeb0f2cf34b0bd22d777cfc539a29c3db45decbdec"
+    },
+    {
+      "name": "patience12-seed-43",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 43,
+      "accuracy": 0.5910071942446044,
+      "macro_f1": 0.502812578563629,
+      "classes": {
+        "0": {
+          "precision": 0.6915887850467289,
+          "recall": 0.39361702127659576,
+          "f1": 0.5016949152542373,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.609479649665121,
+          "recall": 0.7813738441215323,
+          "f1": 0.6848046309696093,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5140712945590994,
+          "recall": 0.5879828326180258,
+          "f1": 0.5485485485485485,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.5628140703517588,
+          "recall": 0.1830065359477124,
+          "f1": 0.2762022194821208,
+          "support": 612
+        }
+      },
+      "best_epoch": 1,
+      "epochs_completed": 13,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/patience12-seed-43/metrics.json",
+      "metrics_sha256": "6237121915d450ce717c6355b411a4462f67fc0cc333699df96fbe1dcfc5c12c"
+    },
+    {
+      "name": "reference-seed-44",
+      "overrides": {},
+      "recipe": "reference",
+      "seed": 44,
+      "accuracy": 0.5607913669064748,
+      "macro_f1": 0.49587490958348723,
+      "classes": {
+        "0": {
+          "precision": 0.6581196581196581,
+          "recall": 0.4095744680851064,
+          "f1": 0.5049180327868853,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5972144846796658,
+          "recall": 0.7080581241743725,
+          "f1": 0.6479298881837413,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5036231884057971,
+          "recall": 0.5965665236051502,
+          "f1": 0.5461689587426326,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4177215189873418,
+          "recall": 0.21568627450980393,
+          "f1": 0.28448275862068967,
+          "support": 612
+        }
+      },
+      "best_epoch": 2,
+      "epochs_completed": 7,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/reference-seed-44/metrics.json",
+      "metrics_sha256": "efeb03ebefb8dc3bac6372f602d51c15b12ada5e5acedfacf8020514bd6de7fe"
+    },
+    {
+      "name": "patience12-seed-44",
+      "overrides": {
+        "patience": 12
+      },
+      "recipe": "patience12",
+      "seed": 44,
+      "accuracy": 0.5607913669064748,
+      "macro_f1": 0.49587490958348723,
+      "classes": {
+        "0": {
+          "precision": 0.6581196581196581,
+          "recall": 0.4095744680851064,
+          "f1": 0.5049180327868853,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5972144846796658,
+          "recall": 0.7080581241743725,
+          "f1": 0.6479298881837413,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5036231884057971,
+          "recall": 0.5965665236051502,
+          "f1": 0.5461689587426326,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4177215189873418,
+          "recall": 0.21568627450980393,
+          "f1": 0.28448275862068967,
+          "support": 612
+        }
+      },
+      "best_epoch": 2,
+      "epochs_completed": 14,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-seeds/patience12-seed-44/metrics.json",
+      "metrics_sha256": "e1608605733981506cffe65347db7854b2096d0d1d972cf2f67b56897cef21b4"
+    }
+  ],
+  "status": "complete",
+  "seed_comparison": {
+    "recipes": {
+      "reference": {
+        "mean_macro_f1": 0.49157417700140044,
+        "sample_std_macro_f1": 0.013897169862449618,
+        "min_macro_f1": 0.476035042857085,
+        "max_macro_f1": 0.502812578563629
+      },
+      "patience12": {
+        "mean_macro_f1": 0.49958779351567745,
+        "sample_std_macro_f1": 0.003494494685945557,
+        "min_macro_f1": 0.49587490958348723,
+        "max_macro_f1": 0.502812578563629
+      }
+    },
+    "paired": {
+      "patience12": {
+        "reference": "reference",
+        "macro_f1_differences": {
+          "42": 0.024040849542831144,
+          "43": 0.0,
+          "44": 0.0
+        },
+        "mean_difference": 0.008013616514277047,
+        "sample_std_difference": 0.013879990955100853
+      }
+    }
+  }
+}

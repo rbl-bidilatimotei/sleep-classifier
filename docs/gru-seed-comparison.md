@@ -1,6 +1,7 @@
 # Paired GRU seed comparison
 
-Status: prepared for Timo to run. No measured results exist yet.
+Status: Timo completed all six runs.
+See the [measured results](experiments/gru-seeds-2026-11-04/README.md).
 
 The first follow-up selected patience twelve at macro-F1 0.5001, versus reference 0.4760.
 That comparison used one training seed and three validation participants.

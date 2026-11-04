@@ -9,8 +9,13 @@ Read docs/first-experiment.md before changing the experiment protocol.
 Keep reusable operations in src/sleep_classifier; notebooks import these modules
 and explain experiments. Expose reproducible operations through python -m entry
 points. YAML contains only settings used by implemented code. Use uv and maintain
-uv.lock. Use type hints and concise Google-style docstrings, including parameter
-types where parameters need explanation; comments explain non-obvious decisions.
+uv.lock. Use type hints and Google-style docstrings for every non-dunder function or method.
+For methods with parameters, always add Args entries with names, types, and concise descriptions.
+Omit self and cls from Args. Do not add an empty Args section to parameter-free methods.
+Static methods follow the same rule. Avoid nested functions; document their parameters if one is necessary.
+Dunder methods and tests may omit docstrings. Add Returns and Raises when useful.
+Keep summaries short and separate logical blocks with blank lines.
+Comments explain non-obvious decisions.
 
 Keep raw data immutable and verify checksums. Preserve raw ordering in audits;
 make any cleaning policy explicit. Fit transforms on training participants only,

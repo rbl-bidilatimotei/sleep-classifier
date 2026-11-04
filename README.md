@@ -209,3 +209,5 @@ See the [project roadmap](docs/roadmap.md) for the next experiment and later Doc
 
 Use [notebook 09](notebooks/09_gru_seed_comparison.ipynb) for the next [paired seed comparison](docs/gru-seed-comparison.md).
 It prepares six operator-run Adam fits: two recipes across three shared seeds.
+
+The [shared-seed results](docs/experiments/gru-seeds-2026-11-04/README.md) show a mean patience gain of 0.0080 macro-F1, driven by seed 42.
