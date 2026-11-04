@@ -1,0 +1,234 @@
+{
+  "base_config": "configs/gru.yaml",
+  "output_dir": "artifacts/gru-followup",
+  "requested_device": "auto",
+  "seed": 42,
+  "maximum_epochs": 100,
+  "trials": [
+    {
+      "name": "reference",
+      "overrides": {}
+    },
+    {
+      "name": "context1",
+      "overrides": {
+        "context_epochs": 1
+      }
+    },
+    {
+      "name": "learning-rate-0003",
+      "overrides": {
+        "learning_rate": 0.0003
+      }
+    },
+    {
+      "name": "patience12",
+      "overrides": {
+        "patience": 12
+      }
+    },
+    {
+      "name": "hidden64",
+      "overrides": {
+        "hidden_size": 64
+      }
+    }
+  ],
+  "device": "mps",
+  "results": [
+    {
+      "name": "reference",
+      "overrides": {},
+      "accuracy": 0.5669064748201439,
+      "macro_f1": 0.476035042857085,
+      "classes": {
+        "0": {
+          "precision": 0.7009345794392523,
+          "recall": 0.39893617021276595,
+          "f1": 0.5084745762711864,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5877901109989909,
+          "recall": 0.7694848084544254,
+          "f1": 0.6664759725400458,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48249027237354086,
+          "recall": 0.5321888412017167,
+          "f1": 0.5061224489795918,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4971751412429379,
+          "recall": 0.1437908496732026,
+          "f1": 0.22306717363751585,
+          "support": 612
+        }
+      },
+      "best_epoch": 1,
+      "epochs_completed": 6,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-followup/reference/metrics.json",
+      "metrics_sha256": "c1466bb37b16c297fec426267b56a3d757978dda509e71ebe76b9b2029c2611c"
+    },
+    {
+      "name": "context1",
+      "overrides": {
+        "context_epochs": 1
+      },
+      "accuracy": 0.5456834532374101,
+      "macro_f1": 0.4152675879720895,
+      "classes": {
+        "0": {
+          "precision": 0.5,
+          "recall": 0.3351063829787234,
+          "f1": 0.4012738853503185,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5904203323558163,
+          "recall": 0.797886393659181,
+          "f1": 0.6786516853932584,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.4845360824742268,
+          "recall": 0.2017167381974249,
+          "f1": 0.28484848484848485,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.3671497584541063,
+          "recall": 0.24836601307189543,
+          "f1": 0.2962962962962963,
+          "support": 612
+        }
+      },
+      "best_epoch": 16,
+      "epochs_completed": 20,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-followup/context1/metrics.json",
+      "metrics_sha256": "e11f1195b9cc298fd67f43f3d311c7058da0bc3c092706209a2b1f4f8600d94c"
+    },
+    {
+      "name": "learning-rate-0003",
+      "overrides": {
+        "learning_rate": 0.0003
+      },
+      "accuracy": 0.5025179856115108,
+      "macro_f1": 0.4815698974425693,
+      "classes": {
+        "0": {
+          "precision": 0.6585365853658537,
+          "recall": 0.4308510638297872,
+          "f1": 0.5209003215434084,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5690213869086196,
+          "recall": 0.5799207397622193,
+          "f1": 0.5744193653909061,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5221987315010571,
+          "recall": 0.5300429184549357,
+          "f1": 0.5260915867944622,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.29797191887675506,
+          "recall": 0.31209150326797386,
+          "f1": 0.3048683160415004,
+          "support": 612
+        }
+      },
+      "best_epoch": 10,
+      "epochs_completed": 15,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-followup/learning-rate-0003/metrics.json",
+      "metrics_sha256": "18ef7f96f48a37b5c5c87c119e5c9510e3c96368e20174bdec362a0a565b828a"
+    },
+    {
+      "name": "patience12",
+      "overrides": {
+        "patience": 12
+      },
+      "accuracy": 0.5442446043165468,
+      "macro_f1": 0.5000758923999161,
+      "classes": {
+        "0": {
+          "precision": 0.6,
+          "recall": 0.4627659574468085,
+          "f1": 0.5225225225225225,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.603448275862069,
+          "recall": 0.6472919418758256,
+          "f1": 0.6246016571064372,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48484848484848486,
+          "recall": 0.3776824034334764,
+          "f1": 0.42460796139927626,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4166666666666667,
+          "recall": 0.4411764705882353,
+          "f1": 0.42857142857142855,
+          "support": 612
+        }
+      },
+      "best_epoch": 12,
+      "epochs_completed": 20,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-followup/patience12/metrics.json",
+      "metrics_sha256": "c2bb184fd9797abf40e9146ef0813145dacf3e7f464cd30560e9d93af01b9676"
+    },
+    {
+      "name": "hidden64",
+      "overrides": {
+        "hidden_size": 64
+      },
+      "accuracy": 0.5334532374100719,
+      "macro_f1": 0.48829519315984193,
+      "classes": {
+        "0": {
+          "precision": 0.65625,
+          "recall": 0.44680851063829785,
+          "f1": 0.5316455696202531,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5918854415274463,
+          "recall": 0.655217965653897,
+          "f1": 0.6219435736677116,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.4605009633911368,
+          "recall": 0.5128755364806867,
+          "f1": 0.4852791878172589,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.3676148796498906,
+          "recall": 0.27450980392156865,
+          "f1": 0.31431244153414406,
+          "support": 612
+        }
+      },
+      "best_epoch": 7,
+      "epochs_completed": 12,
+      "device": "mps",
+      "metrics_path": "artifacts/gru-followup/hidden64/metrics.json",
+      "metrics_sha256": "3736444142a98666403b7ee2af3fccdb12e48baa0a8ef503271679b0822d62d3"
+    }
+  ],
+  "status": "complete"
+}

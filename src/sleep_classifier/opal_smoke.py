@@ -6,6 +6,7 @@ import logging
 from importlib.metadata import version
 from pathlib import Path
 from time import perf_counter
+from typing import Any
 
 import torch
 from torch import nn
@@ -30,20 +31,29 @@ class OpalSmokeExperiment:
         self.steps = steps
         self.device = torch.device(device)
 
-    def run(self) -> dict:
-        """Check loss and parameter agreement without data files or agent calls."""
+    def run(self) -> dict[str, object]:
+        """Check loss and parameter agreement without data files or agent calls.
+
+        Returns:
+            dict[str, object]: Loss comparison, parameter hashes, and timings.
+        """
+        # Keep OPAL optional for module imports and ordinary tests
         import opal
 
         self.output_dir.mkdir(parents=True, exist_ok=False)
         torch.manual_seed(42)
+
         model = CausalGRUClassifier(hidden_size=8)
         initial_state = copy.deepcopy(model.state_dict())
         generator = torch.Generator().manual_seed(123)
+
         batches = self._make_batches(generator)
         plain = self._run_trial(initial_state, batches)
         wrapped = self._run_trial(initial_state, batches, opal)
         summary = self._compare(plain, wrapped)
+
         (self.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+
         LOGGER.info(
             "Offline OPAL check passed: device=%s steps=%d max_loss_difference=%g output=%s",
             self.device,
@@ -54,18 +64,46 @@ class OpalSmokeExperiment:
         return summary
 
     def _make_batches(self, generator: torch.Generator) -> list[tuple]:
+        """Generate synthetic batches for the experiment.
+
+        Args:
+            generator (torch.Generator): Random number generator for reproducibility.
+
+        Returns:
+            list[tuple]: Synthetic features, lengths, and targets.
+                - features (torch.Tensor): Features with batch, sequence, and feature dimensions.
+                - lengths (torch.Tensor): Sequence lengths for each batch element.
+                - targets (torch.Tensor): Target labels for each batch element.
+        """
         batches = []
         for _ in range(self.steps):
             features = torch.randn(8, 5, 6, generator=generator).to(self.device)
             lengths = torch.tensor([1, 2, 3, 4, 5, 3, 2, 5])
             targets = torch.randint(0, 4, (8,), generator=generator).to(self.device)
             batches.append((features, lengths, targets))
+
         return batches
 
-    def _run_trial(self, initial_state: dict, batches: list[tuple], opal=None) -> dict:
+    def _run_trial(
+        self, initial_state: dict[str, torch.Tensor], batches: list[tuple], opal=None
+    ) -> dict[str, Any]:
+        """Run a single training trial with the given model state and batches.
+
+        Args:
+            initial_state (dict[str, torch.Tensor]): Initial state of the model.
+            batches (list[tuple]): Synthetic features, lengths, and targets.
+            opal (ModuleType | None): Optional wrapper module.
+
+        Returns:
+            dict[str, Any]: Dictionary containing the results of the trial, including:
+                - losses (list[float]): List of loss values for each batch.
+                - state (dict[str, torch.Tensor]): Final state of the model.
+                - elapsed_seconds (float): Time taken for the trial in seconds.
+        """
         torch.manual_seed(42)
         model = CausalGRUClassifier(hidden_size=8).to(self.device)
         model.load_state_dict(initial_state)
+
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
         if opal is not None:
             optimizer = opal.wrap(
@@ -93,6 +131,17 @@ class OpalSmokeExperiment:
         }
 
     def _updates(self, model, optimizer, batches: list[tuple], wrapped: bool) -> list[float]:
+        """Perform model updates for the given batches.
+
+        Args:
+            model (nn.Module): The model to be updated.
+            optimizer (torch.optim.Optimizer): The optimizer used for updates.
+            batches (list[tuple]): Synthetic features, lengths, and targets.
+            wrapped (bool): Indicates if the optimizer is wrapped by OPAL.
+
+        Returns:
+            list[float]: List of loss values for each batch.
+        """
         losses = []
         criterion = nn.CrossEntropyLoss()
         for features, lengths, targets in batches:
@@ -107,9 +156,19 @@ class OpalSmokeExperiment:
             losses.append(float(loss.item()))
         return losses
 
-    def _compare(self, plain: dict, wrapped: dict) -> dict:
+    def _compare(self, plain: dict[str, Any], wrapped: dict[str, Any]) -> dict[str, Any]:
+        """Compare the results of plain and wrapped optimizer runs.
+
+        Args:
+            plain (dict[str, Any]): Results from the plain optimizer run.
+            wrapped (dict[str, Any]): Results from the wrapped optimizer run.
+
+        Returns:
+            dict[str, Any]: Comparison metrics and information.
+        """
         absolute_tolerance = 1e-6 if self.device.type == "mps" else 0.0
         relative_tolerance = 1e-5 if self.device.type == "mps" else 0.0
+
         plain_losses = torch.tensor(plain["losses"], dtype=torch.float64)
         wrapped_losses = torch.tensor(wrapped["losses"], dtype=torch.float64)
         torch.testing.assert_close(
@@ -118,6 +177,7 @@ class OpalSmokeExperiment:
         torch.testing.assert_close(
             plain["state"], wrapped["state"], atol=absolute_tolerance, rtol=relative_tolerance
         )
+
         return {
             "backend": "keep",
             "agent_calls": 0,

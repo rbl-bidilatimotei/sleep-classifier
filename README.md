@@ -200,3 +200,7 @@ Auto device selection now supports CUDA, Apple MPS, and CPU.
 Use [notebook 08](notebooks/08_gru_followup.ipynb) to inspect or launch five controlled comparisons.
 Read the [experiment plan](docs/gru-followup.md) and [OPAL assessment](docs/reactive-optimizer-assessment.md).
 The suite requires explicit `--train`; report generation does not train.
+
+The [measured follow-up results](docs/experiments/gru-followup-2026-11-04/README.md)
+compare restored best checkpoints. Patience twelve reached 0.5001 validation macro-F1.
+These five trials used plain Adam. OPAL was tested separately on synthetic data only.

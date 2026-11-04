@@ -159,3 +159,34 @@ The synthetic workload uses eight hidden units and batches of eight five-epoch s
 Its timings do not predict full-dataset training throughput.
 The recorded check covers integration equivalence, not reactive optimization quality or generated-code compatibility.
 See [the compact verification record](results/opal-smoke-2026-11-03.json).
+
+## Codex pilot for this project
+
+Rechecked the upstream guide on 2026-11-04.
+The installed 0.3.10 source already includes an experimental Codex backend.
+No fork or replacement of Claude Code internals is required.
+Select the backend when wrapping the optimizer:
+
+```python
+optimizer = opal.wrap(
+    optimizer,
+    model,
+    total_steps=maximum_updates,
+    goal="Improve training loss for the causal sleep-stage GRU",
+    backend="codex",
+    backend_options={"model": "gpt-6.1-sol", "effort": "high", "max_tokens": 20000},
+    summarize=False,
+    share_code=False,
+    blocking=True,
+)
+```
+
+This is an integration example, not an enabled project training option.
+Use a separately authenticated CODEX_HOME as required by OPAL.
+The token limit is soft; max_cost_usd does not constrain this backend.
+Select the account and token budget before launching a live run.
+Keep validation metrics hidden from the agent for the first comparison.
+Retain the generated programs and decision logs with the run artifacts.
+The current five-trial suite uses Adam and never calls this backend.
+The separate keep smoke check made no language-model calls.
+See the [upstream Codex instructions](https://github.com/xingjian-bai/opal/blob/main/docs/GUIDE.md#experimental-codex-backend).
