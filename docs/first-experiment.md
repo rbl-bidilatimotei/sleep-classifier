@@ -93,3 +93,5 @@ actual compatibility and memory use when dependencies and batch size are selecte
 - Add Docker, runnable documentation, and a final experiment report.
 
 No accuracy target has been achieved or estimated from this preliminary inspection.
+
+The [current roadmap](roadmap.md) tracks completed experiments and later engineering milestones.
