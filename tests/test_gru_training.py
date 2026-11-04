@@ -215,3 +215,73 @@ def test_explicit_cpu_ignores_available_accelerators(tmp_path, monkeypatch):
     monkeypatch.setattr(torch.backends.mps, "is_available", Mock(return_value=True))
 
     assert TrainingConfig(settings).device().type == "cpu"
+
+
+def test_live_pilot_is_rejected_without_opt_in_before_output_creation(tmp_path):
+    path = _config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings["optimizer_agent"] = {
+        "backend": "codex",
+        "goal": "Reduce training loss",
+        "decisions": 1,
+        "every": 1,
+        "model": "gpt-6.1-sol",
+        "effort": "high",
+        "max_tokens": 1000,
+    }
+    path.write_text(yaml.safe_dump(settings))
+    experiment = GRUExperiment(path)
+    experiment.run_check()
+    with pytest.raises(RuntimeError, match="allow-live-agent"):
+        experiment.run()
+    assert not (tmp_path / "results").exists()
+
+
+def test_actual_keep_adapter_preserves_synthetic_training(tmp_path):
+    pytest.importorskip("opal")
+    path = _config(tmp_path)
+    original = yaml.safe_load(path.read_text())
+    plain_metrics = json.loads(GRUExperiment(path).run().read_text())
+    settings = original | {
+        "output_dir": "keep-results",
+        "optimizer_agent": {
+            "backend": "keep",
+            "goal": "Preserve Adam updates",
+            "decisions": 1,
+            "every": 1,
+        },
+    }
+    path.write_text(yaml.safe_dump(settings))
+    keep_metrics = json.loads(GRUExperiment(path).run().read_text())
+    assert keep_metrics["history"] == plain_metrics["history"]
+    assert keep_metrics["macro_f1"] == plain_metrics["macro_f1"]
+    assert keep_metrics["optimizer"]["agent"]["backend"] == "keep"
+    assert keep_metrics["optimizer"]["updates"] > 0
+    plain = torch.load(tmp_path / "results/gru_checkpoint.pt", weights_only=True)
+    wrapped = torch.load(tmp_path / "keep-results/gru_checkpoint.pt", weights_only=True)
+    for name in plain["state_dict"]:
+        torch.testing.assert_close(
+            plain["state_dict"][name], wrapped["state_dict"][name], atol=0, rtol=0
+        )
+
+
+def test_optimizer_closes_after_training_failure(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+
+    experiment = GRUExperiment(_config(tmp_path))
+    adapter = Mock()
+    monkeypatch.setattr(experiment, "_create_optimizer", Mock(return_value=adapter))
+    monkeypatch.setattr(experiment, "_fit", Mock(side_effect=RuntimeError("synthetic failure")))
+    with pytest.raises(RuntimeError, match="synthetic failure"):
+        experiment.run()
+    adapter.close.assert_called_once_with()
+
+
+def test_pilot_configs_preserve_the_same_model_recipe():
+    root = Path(__file__).resolve().parents[1] / "configs"
+    control = yaml.safe_load((root / "gru-opal-control.yaml").read_text())
+    for name in ("keep", "codex"):
+        recipe = yaml.safe_load((root / f"gru-opal-{name}.yaml").read_text())
+        recipe.pop("optimizer_agent")
+        recipe["output_dir"] = control["output_dir"]
+        assert recipe == control

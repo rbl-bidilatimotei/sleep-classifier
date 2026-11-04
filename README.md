@@ -211,3 +211,6 @@ Use [notebook 09](notebooks/09_gru_seed_comparison.ipynb) for the next [paired s
 It prepares six operator-run Adam fits: two recipes across three shared seeds.
 
 The [shared-seed results](docs/experiments/gru-seeds-2026-11-04/README.md) show a mean patience gain of 0.0080 macro-F1, driven by seed 42.
+
+Use [notebook 10](notebooks/10_opal_pilot.ipynb) for the optional [Codex-powered OPAL pilot](docs/opal-pilot.md).
+Live training requires a separate explicit opt-in; the default report runs preflight only.

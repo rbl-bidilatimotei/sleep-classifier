@@ -56,3 +56,6 @@ Specify warm-up and missing-data behavior before exposing session predictions.
 
 The shared-seed milestone is prepared in [notebook 09](../notebooks/09_gru_seed_comparison.ipynb).
 See its [fixed protocol](gru-seed-comparison.md) before launching the six runs.
+
+The [seed results](experiments/gru-seeds-2026-11-04/README.md) are recorded.
+The next [Codex-powered OPAL pilot](opal-pilot.md) is prepared in notebook 10 and remains operator-controlled.
