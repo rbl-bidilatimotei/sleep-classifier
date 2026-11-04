@@ -1,0 +1,34 @@
+{
+  "cpu": {
+    "backend": "keep",
+    "agent_calls": 0,
+    "synthetic_only": true,
+    "steps": 100,
+    "device": "cpu",
+    "torch_version": "2.15.0",
+    "opal_version": "0.3.10",
+    "max_loss_difference": 0.0,
+    "absolute_tolerance": 0.0,
+    "relative_tolerance": 0.0,
+    "plain_parameter_sha256": "8cb077bf0b1d0665b0c79f5f02833327f7d0e93286757309c00ca2f975354168",
+    "wrapped_parameter_sha256": "8cb077bf0b1d0665b0c79f5f02833327f7d0e93286757309c00ca2f975354168",
+    "plain_seconds_per_step": 0.000609139999942272,
+    "wrapped_seconds_per_step": 0.00427641666996351
+  },
+  "mps": {
+    "backend": "keep",
+    "agent_calls": 0,
+    "synthetic_only": true,
+    "steps": 100,
+    "device": "mps",
+    "torch_version": "2.15.0",
+    "opal_version": "0.3.10",
+    "max_loss_difference": 0.0,
+    "absolute_tolerance": 1e-06,
+    "relative_tolerance": 1e-05,
+    "plain_parameter_sha256": "75a9b8f5f3e8974e6be90753e53c9b059d4735ae7f7f8e36e7ec048dbfe8b9cc",
+    "wrapped_parameter_sha256": "75a9b8f5f3e8974e6be90753e53c9b059d4735ae7f7f8e36e7ec048dbfe8b9cc",
+    "plain_seconds_per_step": 0.02001269084001251,
+    "wrapped_seconds_per_step": 0.011343360829996527
+  }
+}

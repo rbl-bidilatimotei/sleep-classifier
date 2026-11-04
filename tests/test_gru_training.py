@@ -82,7 +82,7 @@ def test_check_runs_forward_without_training_or_writing_artifacts(tmp_path: Path
     assert not (tmp_path / "results").exists()
 
 
-def test_training_config_rejects_mps_and_nonpositive_epochs() -> None:
+def test_training_config_rejects_unknown_device_and_nonpositive_epochs() -> None:
     settings = {
         "seed": 42,
         "epochs": 1,
@@ -92,7 +92,7 @@ def test_training_config_rejects_mps_and_nonpositive_epochs() -> None:
         "patience": 1,
         "learning_rate": 0.001,
         "gradient_clip": 1.0,
-        "device": "mps",
+        "device": "unknown",
     }
     with pytest.raises(ValueError, match="device"):
         TrainingConfig(settings)
@@ -177,3 +177,41 @@ def test_synthetic_training_restores_best_state_and_exports_aligned_rows(tmp_pat
     assert exported["time"].tolist() == [0, 30]
     assert exported["target"].tolist() == [1, 0]
     assert checkpoint["context_epochs"] == 2
+
+
+@pytest.mark.parametrize(
+    ("cuda_available", "mps_available", "expected"),
+    [(True, True, "cuda"), (False, True, "mps"), (False, False, "cpu")],
+)
+def test_auto_device_priority(tmp_path, monkeypatch, cuda_available, mps_available, expected):
+    from unittest.mock import Mock
+
+    settings = yaml.safe_load(_config(tmp_path).read_text())
+    settings["device"] = "auto"
+    monkeypatch.setattr(torch.cuda, "is_available", Mock(return_value=cuda_available))
+    monkeypatch.setattr(torch.backends.mps, "is_available", Mock(return_value=mps_available))
+
+    assert TrainingConfig(settings).device().type == expected
+
+
+@pytest.mark.parametrize("requested", ["cuda", "mps"])
+def test_explicit_unavailable_device_fails(tmp_path, monkeypatch, requested):
+    from unittest.mock import Mock
+
+    settings = yaml.safe_load(_config(tmp_path).read_text())
+    settings["device"] = requested
+    monkeypatch.setattr(torch.cuda, "is_available", Mock(return_value=False))
+    monkeypatch.setattr(torch.backends.mps, "is_available", Mock(return_value=False))
+
+    with pytest.raises(RuntimeError, match=f"{requested.upper()} was requested"):
+        TrainingConfig(settings).device()
+
+
+def test_explicit_cpu_ignores_available_accelerators(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+
+    settings = yaml.safe_load(_config(tmp_path).read_text())
+    monkeypatch.setattr(torch.cuda, "is_available", Mock(return_value=True))
+    monkeypatch.setattr(torch.backends.mps, "is_available", Mock(return_value=True))
+
+    assert TrainingConfig(settings).device().type == "cpu"

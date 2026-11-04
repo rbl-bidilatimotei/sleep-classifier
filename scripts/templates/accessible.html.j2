@@ -1,0 +1,10 @@
+{% extends 'lab/index.html.j2' %}
+
+{% block data_png scoped %}
+{% set alttext = (output | get_metadata('alt', 'image/png')) or (cell | get_metadata('alt')) %}
+{% if alttext %}
+{{ super() | replace('<img ', '<img alt="' ~ (alttext | escape_html) ~ '" ') }}
+{% else %}
+{{ super() }}
+{% endif %}
+{% endblock data_png %}
