@@ -1,0 +1,9 @@
+base_config: gru.yaml
+output_dir: ../artifacts/gru-seeds
+seeds: [42, 43, 44]
+trials:
+  - name: reference
+    overrides: {}
+  - name: patience12
+    overrides:
+      patience: 12

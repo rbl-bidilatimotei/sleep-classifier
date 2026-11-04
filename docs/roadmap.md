@@ -53,3 +53,6 @@ Native macOS execution remains the MPS path; Docker does not provide Apple's MPS
 Keep the first API aligned with the selected model's actual inputs.
 Do not accept steps as a meaningful feature until a trained recipe uses them.
 Specify warm-up and missing-data behavior before exposing session predictions.
+
+The shared-seed milestone is prepared in [notebook 09](../notebooks/09_gru_seed_comparison.ipynb).
+See its [fixed protocol](gru-seed-comparison.md) before launching the six runs.

@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from pathlib import Path
+from statistics import mean, stdev
 
 import yaml
 
@@ -24,7 +25,30 @@ class GRUExperimentSuite:
         self.output_dir = (self.config_path.parent / settings["output_dir"]).resolve()
         self.base = yaml.safe_load(self.base_path.read_text())
         TrainingConfig(self.base)
-        self.trials = self._validate_trials(settings["trials"])
+        recipes = self._validate_trials(settings["trials"])
+        self.seeds = self._validate_seeds(settings.get("seeds"))
+        self.trials = self._expand_seeds(recipes) if self.seeds else recipes
+
+    def _validate_seeds(self, seeds: list | None) -> list[int] | None:
+        """Require a small set of distinct nonnegative training seeds."""
+        if seeds is None:
+            return None
+        if not isinstance(seeds, list) or not 2 <= len(seeds) <= 5:
+            raise ValueError("Use two to five shared seeds")
+        if any(type(seed) is not int or seed < 0 for seed in seeds):
+            raise ValueError("Seeds must be nonnegative integers")
+        if len(set(seeds)) != len(seeds):
+            raise ValueError("Seeds must be unique")
+        return seeds
+
+    def _expand_seeds(self, recipes: list[dict]) -> list[dict]:
+        """Pair every recipe with the same initialization and loader seeds."""
+        return [
+            recipe
+            | {"name": f"{recipe['name']}-seed-{seed}", "recipe": recipe["name"], "seed": seed}
+            for seed in self.seeds
+            for recipe in recipes
+        ]
 
     def _validate_trials(self, trials: list) -> list[dict]:
         """Require one reference and at most four single-setting comparisons."""
@@ -59,6 +83,7 @@ class GRUExperimentSuite:
             "output_dir": str(self.output_dir),
             "requested_device": self.base.get("device", "auto"),
             "seed": self.base["seed"],
+            "shared_seeds": self.seeds,
             "maximum_epochs": sum(
                 (self.base | trial.get("overrides", {}))["epochs"] for trial in self.trials
             ),
@@ -85,6 +110,8 @@ class GRUExperimentSuite:
                 raise
             self._save_summary(summary)
         summary["status"] = "complete"
+        if self.seeds:
+            summary["seed_comparison"] = self._summarize_seeds(summary["results"])
         return self._save_summary(summary)
 
     def _write_trial_config(self, trial: dict, device: str, config_dir: Path) -> Path:
@@ -95,6 +122,7 @@ class GRUExperimentSuite:
         )
         settings["output_dir"] = str(self.output_dir / trial["name"])
         settings["device"] = device
+        settings["seed"] = trial.get("seed", self.base["seed"])
         config_path = config_dir / f"{trial['name']}.yaml"
         config_path.write_text(yaml.safe_dump(settings, sort_keys=False))
         return config_path
@@ -106,6 +134,8 @@ class GRUExperimentSuite:
         return {
             "name": trial["name"],
             "overrides": trial.get("overrides", {}),
+            "recipe": trial.get("recipe", trial["name"]),
+            "seed": trial.get("seed", self.base["seed"]),
             "accuracy": metrics["accuracy"],
             "macro_f1": metrics["macro_f1"],
             "classes": metrics["classes"],
@@ -115,6 +145,40 @@ class GRUExperimentSuite:
             "metrics_path": str(metrics_path),
             "metrics_sha256": hashlib.sha256(content).hexdigest(),
         }
+
+    def _summarize_seeds(self, results: list[dict]) -> dict:
+        """Report recipe variation and paired macro-F1 differences across seeds."""
+        recipes = list(dict.fromkeys(result["recipe"] for result in results))
+        scores = {
+            recipe: {
+                result["seed"]: result["macro_f1"]
+                for result in results
+                if result["recipe"] == recipe
+            }
+            for recipe in recipes
+        }
+        aggregates = {
+            recipe: {
+                "mean_macro_f1": mean(values.values()),
+                "sample_std_macro_f1": stdev(values.values()),
+                "min_macro_f1": min(values.values()),
+                "max_macro_f1": max(values.values()),
+            }
+            for recipe, values in scores.items()
+        }
+        reference = recipes[0]
+        paired = {}
+        for recipe in recipes[1:]:
+            differences = {
+                str(seed): scores[recipe][seed] - scores[reference][seed] for seed in self.seeds
+            }
+            paired[recipe] = {
+                "reference": reference,
+                "macro_f1_differences": differences,
+                "mean_difference": mean(differences.values()),
+                "sample_std_difference": stdev(differences.values()),
+            }
+        return {"recipes": aggregates, "paired": paired}
 
     def _save_summary(self, summary: dict) -> Path:
         """Replace the summary atomically after each completed trial."""

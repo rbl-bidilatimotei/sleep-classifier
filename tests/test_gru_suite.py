@@ -149,3 +149,49 @@ def test_suite_rejects_invalid_comparisons(tmp_path, trial):
 
     with pytest.raises(ValueError):
         GRUExperimentSuite(path)
+
+
+@pytest.mark.parametrize("seeds", [[42, 42], [True, 43], [-1, 43], [42], "42,43"])
+def test_suite_rejects_invalid_shared_seeds(tmp_path, seeds):
+    path = _suite_config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings["seeds"] = seeds
+    path.write_text(yaml.safe_dump(settings))
+    with pytest.raises(ValueError):
+        GRUExperimentSuite(path)
+
+
+def test_shared_seeds_pair_configs_and_aggregate_results(tmp_path, monkeypatch):
+    monkeypatch.setattr("sleep_classifier.gru_suite.GRUExperiment", SyntheticExperiment)
+    path = _suite_config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings["seeds"] = [42, 43, 44]
+    path.write_text(yaml.safe_dump(settings))
+    suite = GRUExperimentSuite(path)
+    assert suite.plan()["maximum_epochs"] == 12
+    summary = json.loads(suite.run().read_text())
+    assert len(summary["results"]) == 6
+    for seed in settings["seeds"]:
+        configs = [
+            yaml.safe_load(p.read_text())
+            for p in (suite.output_dir / "configs").glob(f"*-seed-{seed}.yaml")
+        ]
+        assert len(configs) == 2
+        assert all(config["seed"] == seed for config in configs)
+    assert summary["seed_comparison"]["paired"]["context1"]["mean_difference"] == 0
+
+
+def test_paired_summary_uses_matching_seeds(tmp_path):
+    suite = GRUExperimentSuite(_suite_config(tmp_path))
+    suite.seeds = [42, 43, 44]
+    results = [
+        {"recipe": recipe, "seed": seed, "macro_f1": value + improvement}
+        for seed, value in [(42, 0.2), (43, 0.4), (44, 0.6)]
+        for recipe, improvement in [("reference", 0), ("patience12", 0.1)]
+    ]
+    summary = suite._summarize_seeds(results)
+    assert summary["recipes"]["reference"]["mean_macro_f1"] == pytest.approx(0.4)
+    assert summary["recipes"]["reference"]["sample_std_macro_f1"] == pytest.approx(0.2)
+    paired = summary["paired"]["patience12"]
+    assert paired["mean_difference"] == pytest.approx(0.1)
+    assert paired["sample_std_difference"] == pytest.approx(0)
