@@ -1,6 +1,7 @@
 # First causal GRU experiment
 
-Status: implementation and preflight only. No real-data GRU training has been run.
+Status: Timo completed the first local CPU run on 2026-11-03.
+See the [recorded results](experiments/first-gru-2026-11-03/README.md).
 
 ## What the weighting experiment changed
 
@@ -11,7 +12,7 @@ Per-class precision and recall remain valid metrics. Precision also depends on c
 Aggregate accuracy and weighted averages can hide poor minority-class performance.
 The large recall trade-off was observed, not guaranteed by weighting.
 
-PR #6 records the measured comparison and is ready for review.
+Merged PR #6 records the measured comparison.
 No additional EDA-only milestone is required before the first GRU experiment.
 
 ## Controlled starting point
@@ -62,8 +63,9 @@ uv run --locked --group gru --group notebook python -m sleep_classifier.gru_trai
 Preflight loads prepared development data, fits the training-only scaler, and runs a no-gradient forward pass.
 It does not create an optimizer, checkpoint, or validation accuracy report.
 The measured local preflight confirms 19,928 training and 2,780 validation examples, four output logits, and 3,972 parameters.
-The local device is CPU. CUDA execution in an actual Colab runtime remains unverified.
-Auto selects CUDA when available and CPU otherwise. MPS is not supported by this initial runner.
+The initial run used CPU. Auto now selects CUDA, then Apple MPS, then CPU.
+Explicit unavailable devices raise an error. MPS passed synthetic forward, backward, padding, and Adam checks with PyTorch 2.15.0.
+CUDA execution remains unverified. Small models may run faster on CPU; measure each device before claiming acceleration.
 
 Timo can start training explicitly:
 
@@ -72,8 +74,8 @@ uv run --locked --group gru --group notebook python -u -m sleep_classifier.gru_t
 ```
 
 Use notebook 07 for checked setup, preparation, preflight, and operator-controlled training commands.
-Before this PR merges, select `experiment/causal-gru` when cloning in Colab.
-Use main after merge. Existing checkouts are not reset or switched automatically.
+Use the local checkout or set SLEEP_CLASSIFIER_ROOT in another notebook environment.
+Existing checkouts are not reset or switched automatically.
 
 ## Artifacts and reporting
 
@@ -88,4 +90,5 @@ Notebook 07 plots loss curves, validation scores, and a normalized confusion mat
 Report generation skips setup, preparation, and training cells. It can run preflight and display saved results.
 Source notebooks remain output-free; executed reports are HTML only.
 Publish selected measured figures under docs/experiments after the operator-run experiment.
-No GRU accuracy or improvement claim exists yet.
+The first run reached 56.69% validation accuracy and 0.4760 macro-F1.
+See [controlled follow-up experiments](gru-followup.md) before choosing another configuration.

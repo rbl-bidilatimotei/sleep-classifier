@@ -1,0 +1,17 @@
+base_config: gru.yaml
+output_dir: ../artifacts/gru-followup
+trials:
+  - name: reference
+    overrides: {}
+  - name: context1
+    overrides:
+      context_epochs: 1
+  - name: learning-rate-0003
+    overrides:
+      learning_rate: 0.0003
+  - name: patience12
+    overrides:
+      patience: 12
+  - name: hidden64
+    overrides:
+      hidden_size: 64

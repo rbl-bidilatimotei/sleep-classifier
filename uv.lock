@@ -1418,6 +1418,20 @@ wheels = [
 ]
 
 [[package]]
+name = "opal-optimizer"
+version = "0.3.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "torch" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/eb/ce/92ddaaa83ee838e0851f436c9fdb37d118a61f61caa2e159973aeb26a636/opal_optimizer-0.3.10.tar.gz", hash = "sha256:2b4d617f40ae9cd54fa63396cb19c91693dbf74742aca8deccd65f7d6d583d2e", size = 258405, upload-time = "2026-11-03T07:30:00.452Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/f8/061dadd6b686bd66e67fcf25205afb8b1613655996c92cbe5506a901c2d2/opal_optimizer-0.3.10-py3-none-any.whl", hash = "sha256:9ae08564262c616290bc6af37ddce7c38ade9ebecf9f9b31c9688474aafa9970", size = 206368, upload-time = "2026-11-03T07:29:59.182Z" },
+]
+
+[[package]]
 name = "overrides"
 version = "7.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2049,6 +2063,9 @@ notebook = [
     { name = "jupyterlab" },
     { name = "nbconvert" },
 ]
+opal = [
+    { name = "opal-optimizer" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -2078,6 +2095,7 @@ notebook = [
     { name = "jupyterlab", specifier = ">=4.0" },
     { name = "nbconvert", specifier = ">=7.0" },
 ]
+opal = [{ name = "opal-optimizer", specifier = "==0.3.10" }]
 
 [[package]]
 name = "soupsieve"

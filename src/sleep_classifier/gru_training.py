@@ -52,16 +52,23 @@ class TrainingConfig:
                 raise ValueError(f"{name} must be numeric")
             if not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be positive")
-        if values.get("device", "auto") not in ("auto", "cpu", "cuda"):
-            raise ValueError("device must be 'auto', 'cpu', or 'cuda'")
+        if values.get("device", "auto") not in ("auto", "cpu", "cuda", "mps"):
+            raise ValueError("device must be 'auto', 'cpu', 'cuda', or 'mps'")
 
     def device(self) -> torch.device:
-        """Resolve auto to CUDA when available and CPU otherwise."""
+        """Select CUDA, MPS, then CPU for automatic device selection."""
         requested = self.values.get("device", "auto")
         if requested == "cuda" and not torch.cuda.is_available():
             raise RuntimeError("CUDA was requested but is unavailable")
+        if requested == "mps" and not torch.backends.mps.is_available():
+            raise RuntimeError("MPS was requested but is unavailable")
         if requested == "auto":
-            requested = "cuda" if torch.cuda.is_available() else "cpu"
+            if torch.cuda.is_available():
+                requested = "cuda"
+            elif torch.backends.mps.is_available():
+                requested = "mps"
+            else:
+                requested = "cpu"
         return torch.device(requested)
 
 

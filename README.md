@@ -193,3 +193,10 @@ uv run --locked --group gru --group notebook python -m sleep_classifier.gru_trai
 ```
 
 Run the notebook's explicitly enabled training cell when ready. The final test set remains reserved.
+
+## Local GRU follow-up
+
+Auto device selection now supports CUDA, Apple MPS, and CPU.
+Use [notebook 08](notebooks/08_gru_followup.ipynb) to inspect or launch five controlled comparisons.
+Read the [experiment plan](docs/gru-followup.md) and [OPAL assessment](docs/reactive-optimizer-assessment.md).
+The suite requires explicit `--train`; report generation does not train.

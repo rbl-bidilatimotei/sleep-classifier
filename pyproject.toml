@@ -26,6 +26,9 @@ gru = [
     "torch>=2.15.0",
 ]
 notebook = ["jupyterlab>=4.0", "ipykernel>=6.0", "nbconvert>=7.0"]
+opal = [
+    "opal-optimizer==0.3.10",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
