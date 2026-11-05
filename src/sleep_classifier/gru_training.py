@@ -23,6 +23,7 @@ from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.gru_model import CausalGRUClassifier
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
 
@@ -110,6 +111,7 @@ class GRUExperiment:
         self.config_path = config_path
         self.settings: dict = {}
         self.config: TrainingConfig | None = None
+        self.agent_runtime: dict | None = None
         self.prepared_dir = Path()
         self.output_dir = Path()
 
@@ -167,13 +169,47 @@ class GRUExperiment:
         finally:
             optimizer.close()
         context["optimizer_provenance"] = optimizer.provenance()
+        if self.agent_runtime is not None:
+            context["optimizer_provenance"]["runtime"] = self.agent_runtime
+        context["elapsed_seconds"] = perf_counter() - started
         metrics_path = self._finish(context, validation_loader, criterion, best_epoch, history)
+        self._write_optimizer_report()
         LOGGER.info(
             "GRU results saved: path=%s elapsed_seconds=%.2f",
             self.output_dir,
             perf_counter() - started,
         )
         return metrics_path
+
+    def _write_optimizer_report(self) -> None:
+        """Save operational status separately from selected-checkpoint accuracy."""
+        report = OpalRunReport(self.output_dir).build()
+        (self.output_dir / "optimizer_report.json").write_text(json.dumps(report, indent=2) + "\n")
+        log = (
+            LOGGER.warning
+            if report["status"]
+            in (
+                "failed_no_changes_applied",
+                "no_changes_applied",
+                "interrupted",
+            )
+            else LOGGER.info
+        )
+        log(
+            "Optimizer outcome: status=%s decisions=%s usage=%s",
+            report["status"],
+            report["decision_counts"],
+            report["usage"],
+        )
+        if report["soft_token_cap_exceeded"]:
+            LOGGER.warning(
+                "Agent usage exceeded the configured soft token cap: %s > %s",
+                report["usage"]["total_tokens"],
+                report["soft_token_cap"],
+            )
+        for decision in report["decisions"]:
+            if decision.get("backend_error"):
+                LOGGER.warning("Optimizer decision failed: %s", decision["backend_error"])
 
     def _create_optimizer(
         self, model: nn.Module, batches: int, allow_live_agent: bool
@@ -190,7 +226,7 @@ class GRUExperiment:
             if settings["backend"] == "codex" and not allow_live_agent:
                 raise RuntimeError("Live OPAL requires explicit --allow-live-agent opt-in")
             if settings["backend"] == "codex":
-                CodexRuntime.check(settings.get("binary"))
+                self.agent_runtime = CodexRuntime.check(settings.get("binary"))
             self.output_dir.mkdir(parents=True, exist_ok=False)
 
         adam = torch.optim.Adam(model.parameters(), lr=float(self.settings["learning_rate"]))
@@ -306,6 +342,7 @@ class GRUExperiment:
         metrics["provenance"] = context["dataset"]["provenance"]
         metrics["device"] = str(device)
         metrics["optimizer"] = context.get("optimizer_provenance", {})
+        metrics["elapsed_seconds"] = context.get("elapsed_seconds")
         metrics["packages"] = {
             "python": platform.python_version(),
             "numpy": np.__version__,

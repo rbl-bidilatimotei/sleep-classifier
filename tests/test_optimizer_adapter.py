@@ -107,3 +107,24 @@ def test_settings_reject_unbounded_or_unsupported_options(change):
 def test_settings_reject_non_mapping_configuration(settings):
     with pytest.raises(ValueError, match="mapping"):
         AgentOptimizerSettings(settings)
+
+
+@pytest.mark.parametrize("schedule", [[0], [50, 50], [51], [100, 50], [True]])
+def test_settings_reject_invalid_explicit_schedule(schedule):
+    settings = _settings() | {"decisions": len(schedule), "schedule": schedule}
+    with pytest.raises(ValueError, match="schedule"):
+        AgentOptimizerSettings(settings)
+
+
+def test_early_schedule_is_forwarded_to_wrapper(tmp_path, monkeypatch):
+    wrapper = Mock()
+    monkeypatch.setattr(
+        "sleep_classifier.optimizer_adapter.import_module",
+        Mock(return_value=SimpleNamespace(wrap=wrapper)),
+    )
+    settings = _settings() | {"decisions": 1, "schedule": [50]}
+    OptimizerAdapter.create(Mock(), Mock(), 6240, tmp_path, settings)
+    assert wrapper.call_args.kwargs["schedule"] == [50]
+    assert wrapper.call_args.kwargs["max_decisions"] == 1
+    with pytest.raises(ValueError, match="precede"):
+        OptimizerAdapter.create(Mock(), Mock(), 50, tmp_path, settings)

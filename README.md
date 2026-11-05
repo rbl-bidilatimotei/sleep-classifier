@@ -214,3 +214,6 @@ The [shared-seed results](docs/experiments/gru-seeds-2026-11-04/README.md) show 
 
 Use [notebook 10](notebooks/10_opal_pilot.ipynb) for the optional [Codex-powered OPAL pilot](docs/opal-pilot.md).
 Live training requires a separate explicit opt-in; the default report runs preflight only.
+
+The [first OPAL pilot diagnostics](docs/experiments/opal-pilot-2026-11-05/README.md) distinguish failed agent decisions from successful training.
+Notebook 10 includes full status reporting and a [pinned-CLI retry](docs/opal-compatibility-notes.md).

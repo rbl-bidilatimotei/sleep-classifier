@@ -19,12 +19,12 @@ class CodexRuntime:
         if requested:
             binary = shutil.which(str(Path(requested).expanduser()))
             if binary:
-                return binary
+                return str(Path(binary).resolve())
             raise RuntimeError("Configured Codex executable was not found: " + requested)
 
         binary = shutil.which("codex")
         if binary:
-            return binary
+            return str(Path(binary).resolve())
 
         for directory in (Path("/Applications"), Path.home() / "Applications"):
             candidate = directory / "ChatGPT.app/Contents/Resources/codex-cli/bin/codex"

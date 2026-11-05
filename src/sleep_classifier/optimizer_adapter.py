@@ -28,6 +28,7 @@ class AgentOptimizerSettings:
             "effort",
             "max_tokens",
             "binary",
+            "schedule",
         }
         if set(self.values) - allowed:
             raise ValueError("Unknown optimizer_agent settings")
@@ -40,6 +41,18 @@ class AgentOptimizerSettings:
             value = self.values.get(name)
             if type(value) is not int or value <= 0:
                 raise ValueError(f"optimizer_agent {name} must be a positive integer")
+        schedule = self.values.get("schedule")
+        if schedule is not None:
+            if (
+                not isinstance(schedule, list)
+                or len(schedule) != self.values["decisions"]
+                or any(type(step) is not int or step <= 0 for step in schedule)
+                or schedule != sorted(set(schedule))
+                or any(step % self.values["every"] for step in schedule)
+            ):
+                raise ValueError(
+                    "schedule must match decisions with increasing positive check updates"
+                )
         if self.values["decisions"] > 3:
             raise ValueError("The pilot allows at most three decisions")
 
@@ -78,6 +91,8 @@ class AgentOptimizerSettings:
             summarize=False,
             share_code=False,
         )
+        if "schedule" in self.values:
+            options["schedule"] = self.values["schedule"]
         if self.values["backend"] == "codex":
             options["backend_options"] = {
                 key: self.values[key] for key in ("model", "effort", "max_tokens")
@@ -122,6 +137,8 @@ class OptimizerAdapter:
             OptimizerAdapter: Adapter for the configured update mechanism.
         """
         validated = AgentOptimizerSettings(settings)
+        if validated.values.get("schedule") and validated.values["schedule"][-1] >= total_steps:
+            raise ValueError("Scheduled decisions must precede the maximum training update")
         if validated.values:
             if validated.values["backend"] == "codex" and not allow_live_agent:
                 raise RuntimeError("Live OPAL requires explicit --allow-live-agent opt-in")

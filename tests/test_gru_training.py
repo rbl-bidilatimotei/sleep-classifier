@@ -309,3 +309,17 @@ def test_runtime_failure_precedes_run_directory_creation(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError, match="isolated login is missing"):
         GRUExperiment(path).run(allow_live_agent=True)
     assert not (tmp_path / "results").exists()
+
+
+def test_retry_configs_preserve_model_and_schedule_early_intervention():
+    root = Path(__file__).resolve().parents[1] / "configs"
+    control = yaml.safe_load((root / "gru-opal-retry-control.yaml").read_text())
+    for name in ("keep", "codex"):
+        recipe = yaml.safe_load((root / f"gru-opal-retry-{name}.yaml").read_text())
+        agent = recipe.pop("optimizer_agent")
+        assert agent["schedule"] == [50]
+        assert agent["decisions"] == 1
+        if name == "codex":
+            assert agent["binary"] == "tools/opal-codex/node_modules/.bin/codex"
+        recipe["output_dir"] = control["output_dir"]
+        assert recipe == control

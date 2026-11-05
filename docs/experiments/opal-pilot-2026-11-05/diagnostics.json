@@ -1,0 +1,177 @@
+{
+  "control": {
+    "run_dir": "artifacts/gru-opal-control",
+    "backend": "adam",
+    "configured_agent": {
+      "model": null,
+      "effort": null,
+      "max_tokens": null,
+      "decisions": null,
+      "schedule": null
+    },
+    "runtime": null,
+    "status": "plain_adam",
+    "metrics_available": true,
+    "events_available": false,
+    "classification": {
+      "accuracy": 0.5669064748201439,
+      "macro_f1": 0.476035042857085,
+      "best_epoch": 1
+    },
+    "decision_counts": null,
+    "scheduled_updates": null,
+    "unreached_scheduled_updates": null,
+    "end_update": null,
+    "final_program_version": null,
+    "first_applied_update": null,
+    "agent_wait_seconds": null,
+    "cost_usd": null,
+    "unknown_cost_decisions": null,
+    "usage": {
+      "source": "unavailable",
+      "input_tokens": null,
+      "output_tokens": null
+    },
+    "decisions": [],
+    "soft_token_cap": null,
+    "soft_token_cap_exceeded": null,
+    "selected_checkpoint_update": 312,
+    "checkpoint_precedes_first_change": null
+  },
+  "keep": {
+    "run_dir": "artifacts/gru-opal-keep",
+    "backend": "keep",
+    "configured_agent": {
+      "model": null,
+      "effort": null,
+      "max_tokens": null,
+      "decisions": 2,
+      "schedule": null
+    },
+    "runtime": null,
+    "status": "offline_keep_control",
+    "metrics_available": true,
+    "events_available": true,
+    "classification": {
+      "accuracy": 0.5669064748201439,
+      "macro_f1": 0.476035042857085,
+      "best_epoch": 1
+    },
+    "decision_counts": {
+      "requested": 1,
+      "applied": 0,
+      "kept": 1,
+      "rejected": 0,
+      "load_failed": 0,
+      "reverted": 0
+    },
+    "scheduled_updates": [
+      350,
+      3300
+    ],
+    "unreached_scheduled_updates": [
+      3300
+    ],
+    "end_update": 1872,
+    "final_program_version": 0,
+    "first_applied_update": null,
+    "agent_wait_seconds": 0.0,
+    "cost_usd": 0.0,
+    "unknown_cost_decisions": [],
+    "usage": {
+      "source": "unavailable",
+      "input_tokens": null,
+      "output_tokens": null
+    },
+    "decisions": [
+      {
+        "k": 1,
+        "requested_at": 350,
+        "seconds": 0.0,
+        "returncode": 0,
+        "backend_error": null,
+        "errors": [],
+        "usage": null
+      }
+    ],
+    "soft_token_cap": null,
+    "soft_token_cap_exceeded": null,
+    "selected_checkpoint_update": 312,
+    "checkpoint_precedes_first_change": null
+  },
+  "codex": {
+    "run_dir": "artifacts/gru-opal-codex",
+    "backend": "codex",
+    "configured_agent": {
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "max_tokens": 20000,
+      "decisions": 2,
+      "schedule": null
+    },
+    "runtime": null,
+    "status": "failed_no_changes_applied",
+    "metrics_available": true,
+    "events_available": true,
+    "classification": {
+      "accuracy": 0.5669064748201439,
+      "macro_f1": 0.476035042857085,
+      "best_epoch": 1
+    },
+    "decision_counts": {
+      "requested": 1,
+      "applied": 0,
+      "kept": 0,
+      "rejected": 1,
+      "load_failed": 0,
+      "reverted": 0
+    },
+    "scheduled_updates": [
+      350,
+      3300
+    ],
+    "unreached_scheduled_updates": [
+      3300
+    ],
+    "end_update": 1872,
+    "final_program_version": 0,
+    "first_applied_update": null,
+    "agent_wait_seconds": 131.3,
+    "cost_usd": null,
+    "unknown_cost_decisions": [
+      1
+    ],
+    "usage": {
+      "source": "end_event",
+      "input_tokens": 178791,
+      "cached_input_tokens": 154368,
+      "uncached_input_tokens": 24423,
+      "output_tokens": 4878,
+      "reasoning_output_tokens": 1083,
+      "total_tokens": 183669,
+      "note": "Cached input and reasoning output are subsets, not extra tokens"
+    },
+    "decisions": [
+      {
+        "k": 1,
+        "requested_at": 350,
+        "seconds": 131.3,
+        "returncode": -1,
+        "backend_error": "Unexpected provider non-message item: additional_tools",
+        "errors": [
+          "the agent call did not finish (Unexpected provider non-message item: additional_tools); its edits were not applied"
+        ],
+        "usage": {
+          "input_tokens": 178791,
+          "cached_input_tokens": 154368,
+          "output_tokens": 4878,
+          "reasoning_output_tokens": 1083
+        }
+      }
+    ],
+    "soft_token_cap": 20000,
+    "soft_token_cap_exceeded": true,
+    "selected_checkpoint_update": 312,
+    "checkpoint_precedes_first_change": null
+  }
+}

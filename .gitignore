@@ -9,3 +9,6 @@ artifacts/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+
+# Project-local CLI dependency
+tools/opal-codex/node_modules/

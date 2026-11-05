@@ -114,3 +114,26 @@ CODEX_HOME="$HOME/.codex-opal" \
 
 A missing directory produces a configuration error before authentication starts.
 An existing empty directory correctly reports Not logged in until authentication completes.
+
+## First attempt and controlled retry
+
+The [first live attempt](experiments/opal-pilot-2026-11-05/README.md) applied no changes after a context-audit failure.
+Its matching Adam score is not a successful reactive-optimizer result.
+Notebook 10 now displays operational status, errors, applied/reverted decisions, usage, waiting time, and checkpoint timing.
+New training runs also write optimizer_report.json and log a warning when no live changes were applied.
+The read-only report CLI can inspect completed or partial runs:
+
+```bash
+uv run --locked --group gru --group notebook --group opal python -m sleep_classifier.opal_report \
+  --run-dir artifacts/gru-opal-codex
+```
+
+For the controlled retry, install the pinned CLI with npm ci --prefix tools/opal-codex.
+Use the new configs/gru-opal-retry-control.yaml, gru-opal-retry-keep.yaml, and gru-opal-retry-codex.yaml recipes.
+The Codex recipe explicitly selects the project-local executable, not the app-bundled alpha.
+All three recipes keep the same model, data, seed, coverage, and checkpoint selection rule.
+The keep and Codex recipes schedule one decision at update 50, before the first epoch ends.
+The live token allowance remains a soft 20,000-token cap and can be exceeded within an active turn.
+Existing results remain unchanged in their original directories.
+Do not claim success until an applied decision appears and passes its update trial without reversion.
+A successful integration still does not guarantee a better classifier.
