@@ -211,3 +211,12 @@ Use [notebook 09](notebooks/09_gru_seed_comparison.ipynb) for the next [paired s
 It prepares six operator-run Adam fits: two recipes across three shared seeds.
 
 The [shared-seed results](docs/experiments/gru-seeds-2026-11-04/README.md) show a mean patience gain of 0.0080 macro-F1, driven by seed 42.
+
+Use [notebook 10](notebooks/10_opal_pilot.ipynb) for the optional [Codex-powered OPAL pilot](docs/opal-pilot.md).
+Live training requires a separate explicit opt-in; the default report runs preflight only.
+
+The [first OPAL pilot diagnostics](docs/experiments/opal-pilot-2026-11-05/README.md) distinguish failed agent decisions from successful training.
+Notebook 10 includes full status reporting and a [pinned-CLI retry](docs/opal-compatibility-notes.md).
+
+The [successful OPAL retry](docs/experiments/opal-retry-2026-11-05/README.md) applied an optimizer change and reached 0.4836 macro-F1.
+OPAL remains optional; the next experiment uses conventional Adam and grouped participant validation.

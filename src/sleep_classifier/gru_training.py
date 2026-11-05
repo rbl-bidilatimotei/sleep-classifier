@@ -19,9 +19,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from sleep_classifier.baseline import CLASS_LABELS, PreparedFeatureDataset
+from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.gru_model import CausalGRUClassifier
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.opal_report import OpalRunReport
+from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
 
 LOGGER = logging.getLogger(__name__)
@@ -32,6 +35,7 @@ class TrainingConfig:
 
     def __init__(self, values: dict) -> None:
         self.values = values
+        AgentOptimizerSettings(values.get("optimizer_agent"))
         integer_settings = (
             "seed",
             "epochs",
@@ -107,6 +111,7 @@ class GRUExperiment:
         self.config_path = config_path
         self.settings: dict = {}
         self.config: TrainingConfig | None = None
+        self.agent_runtime: dict | None = None
         self.prepared_dir = Path()
         self.output_dir = Path()
 
@@ -134,14 +139,16 @@ class GRUExperiment:
         LOGGER.info("GRU check passed: %s", json.dumps(result, sort_keys=True))
         return result
 
-    def run(self) -> Path:
-        """Train with early stopping on validation macro-F1 and save artifacts."""
+    def run(self, allow_live_agent: bool = False) -> Path:
+        """Train with explicit control over live optimizer-agent calls.
+
+        Args:
+            allow_live_agent (bool): Permit the configured live OPAL backend.
+        """
         started = perf_counter()
         context = self._prepare()
         train_loader, validation_loader = self._build_loaders(context)
-        optimizer = torch.optim.Adam(
-            context["model"].parameters(), lr=float(self.settings["learning_rate"])
-        )
+        optimizer = self._create_optimizer(context["model"], len(train_loader), allow_live_agent)
         criterion = nn.CrossEntropyLoss()
         LOGGER.info(
             "Training GRU: train_sequences=%d validation_sequences=%d device=%s",
@@ -149,22 +156,88 @@ class GRUExperiment:
             len(context["validation_data"]),
             context["device"],
         )
-        best_epoch, history = self._fit(
-            context["model"],
-            train_loader,
-            validation_loader,
-            optimizer,
-            criterion,
-            context["device"],
-            context["validation_frame"],
-        )
+        try:
+            best_epoch, history = self._fit(
+                context["model"],
+                train_loader,
+                validation_loader,
+                optimizer,
+                criterion,
+                context["device"],
+                context["validation_frame"],
+            )
+        finally:
+            optimizer.close()
+        context["optimizer_provenance"] = optimizer.provenance()
+        if self.agent_runtime is not None:
+            context["optimizer_provenance"]["runtime"] = self.agent_runtime
+        context["elapsed_seconds"] = perf_counter() - started
         metrics_path = self._finish(context, validation_loader, criterion, best_epoch, history)
+        self._write_optimizer_report()
         LOGGER.info(
             "GRU results saved: path=%s elapsed_seconds=%.2f",
             self.output_dir,
             perf_counter() - started,
         )
         return metrics_path
+
+    def _write_optimizer_report(self) -> None:
+        """Save operational status separately from selected-checkpoint accuracy."""
+        report = OpalRunReport(self.output_dir).build()
+        (self.output_dir / "optimizer_report.json").write_text(json.dumps(report, indent=2) + "\n")
+        log = (
+            LOGGER.warning
+            if report["status"]
+            in (
+                "failed_no_changes_applied",
+                "no_changes_applied",
+                "interrupted",
+            )
+            else LOGGER.info
+        )
+        log(
+            "Optimizer outcome: status=%s decisions=%s usage=%s",
+            report["status"],
+            report["decision_counts"],
+            report["usage"],
+        )
+        if report["soft_token_cap_exceeded"]:
+            LOGGER.warning(
+                "Agent usage exceeded the configured soft token cap: %s > %s",
+                report["usage"]["total_tokens"],
+                report["soft_token_cap"],
+            )
+        for decision in report["decisions"]:
+            if decision.get("backend_error"):
+                LOGGER.warning("Optimizer decision failed: %s", decision["backend_error"])
+
+    def _create_optimizer(
+        self, model: nn.Module, batches: int, allow_live_agent: bool
+    ) -> OptimizerAdapter:
+        """Build Adam or the explicitly selected OPAL wrapper.
+
+        Args:
+            model (nn.Module): Initialized training model.
+            batches (int): Training batches per epoch.
+            allow_live_agent (bool): Permit live agent construction.
+        """
+        settings = self.settings.get("optimizer_agent")
+        if settings:
+            if settings["backend"] == "codex" and not allow_live_agent:
+                raise RuntimeError("Live OPAL requires explicit --allow-live-agent opt-in")
+            if settings["backend"] == "codex":
+                self.agent_runtime = CodexRuntime.check(settings.get("binary"))
+            self.output_dir.mkdir(parents=True, exist_ok=False)
+
+        adam = torch.optim.Adam(model.parameters(), lr=float(self.settings["learning_rate"]))
+        return OptimizerAdapter.create(
+            adam,
+            model,
+            batches * int(self.settings["epochs"]),
+            self.output_dir,
+            settings=settings,
+            allow_live_agent=allow_live_agent,
+        )
 
     def _build_loaders(self, context: dict) -> tuple[DataLoader, DataLoader]:
         """Create deterministic train and ordered validation loaders."""
@@ -245,7 +318,15 @@ class GRUExperiment:
         return summary
 
     def _finish(self, context, validation_loader, criterion, best_epoch, history) -> Path:
-        """Evaluate the restored model and persist all validation artifacts."""
+        """Evaluate the restored model and persist validation artifacts.
+
+        Args:
+            context (dict): Prepared inputs, model, scaler, and optimizer provenance.
+            validation_loader (DataLoader): Held-out participant batches.
+            criterion (nn.Module): Validation loss function.
+            best_epoch (int): Selected checkpoint epoch.
+            history (list[dict]): Recorded epoch losses and scores.
+        """
         model = context["model"]
         device = context["device"]
         _, targets, predictions, probabilities = self._evaluate(
@@ -260,6 +341,8 @@ class GRUExperiment:
         metrics["features"] = list(FEATURE_COLUMNS)
         metrics["provenance"] = context["dataset"]["provenance"]
         metrics["device"] = str(device)
+        metrics["optimizer"] = context.get("optimizer_provenance", {})
+        metrics["elapsed_seconds"] = context.get("elapsed_seconds")
         metrics["packages"] = {
             "python": platform.python_version(),
             "numpy": np.__version__,
@@ -333,6 +416,16 @@ class GRUExperiment:
     def _train_epoch(
         self, model, loader, optimizer, criterion, device, gradient_clip: float
     ) -> float:
+        """Apply one training epoch with the configured optimizer.
+
+        Args:
+            model (nn.Module): Model updated by this epoch.
+            loader (DataLoader): Training batches.
+            optimizer (OptimizerAdapter): Adam or OPAL update interface.
+            criterion (nn.Module): Training loss function.
+            device (torch.device): Device for tensors.
+            gradient_clip (float): Maximum gradient norm.
+        """
         model.train()
         total_loss = 0.0
         total_count = 0
@@ -343,7 +436,7 @@ class GRUExperiment:
             loss = criterion(model(features, batch["lengths"]), targets)
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
-            optimizer.step()
+            optimizer.step(loss)
             total_loss += float(loss.item()) * len(targets)
             total_count += len(targets)
         return total_loss / total_count
@@ -463,13 +556,30 @@ def main() -> None:
     operation.add_argument(
         "--check", action="store_true", help="Validate loading and forward pass only"
     )
+    operation.add_argument(
+        "--check-agent", action="store_true", help="Check Codex CLI and login without inference"
+    )
+    parser.add_argument(
+        "--allow-live-agent",
+        action="store_true",
+        help="Permit the configured live OPAL agent during explicit training",
+    )
     args = parser.parse_args()
+    if args.allow_live_agent and not args.train:
+        parser.error("--allow-live-agent requires --train")
     configure_logging()
     experiment = GRUExperiment(args.config)
-    if args.check:
+    if args.check_agent:
+        settings = yaml.safe_load(args.config.read_text())
+        TrainingConfig(settings)
+        agent = settings.get("optimizer_agent") or {}
+        if agent.get("backend") != "codex":
+            parser.error("--check-agent requires a Codex optimizer recipe")
+        LOGGER.info("Codex runtime ready: %s", CodexRuntime.check(agent.get("binary")))
+    elif args.check:
         experiment.run_check()
     else:
-        LOGGER.info("GRU metrics saved: %s", experiment.run())
+        LOGGER.info("GRU metrics saved: %s", experiment.run(allow_live_agent=args.allow_live_agent))
 
 
 if __name__ == "__main__":

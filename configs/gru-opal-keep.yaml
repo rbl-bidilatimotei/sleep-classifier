@@ -1,0 +1,16 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/gru-opal-keep
+seed: 42
+epochs: 20
+batch_size: 64
+context_epochs: 10
+hidden_size: 32
+learning_rate: 0.001
+patience: 5
+gradient_clip: 1.0
+device: auto
+optimizer_agent:
+  backend: keep
+  goal: Reduce training loss for the causal four-class sleep-stage GRU
+  decisions: 2
+  every: 50
