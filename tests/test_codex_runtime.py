@@ -43,5 +43,7 @@ def test_readiness_checks_login_without_inference(tmp_path, monkeypatch):
     backend.decide.assert_not_called()
     assert result["logged_in"] is True
     backend.login_status.return_value = False
-    with pytest.raises(RuntimeError, match="login --device-auth"):
+    with pytest.raises(RuntimeError, match="login --device-auth") as failure:
         CodexRuntime.check()
+    assert f"mkdir -p {tmp_path}" in str(failure.value)
+    assert str(failure.value).index("mkdir -p") < str(failure.value).index("login --device-auth")

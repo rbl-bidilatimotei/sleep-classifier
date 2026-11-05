@@ -102,3 +102,15 @@ It uses OPAL's separate ~/.codex-opal home, not the current desktop login.
 No credentials are copied or printed. No model requests run during this check.
 Live training checks readiness before creating the output directory.
 Normal --check remains a data/model preflight and does not check authentication.
+
+The isolated home must exist before Codex can load its configuration.
+Create it before the first login:
+
+```bash
+mkdir -p "$HOME/.codex-opal"
+CODEX_HOME="$HOME/.codex-opal" \
+  "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex" login --device-auth
+```
+
+A missing directory produces a configuration error before authentication starts.
+An existing empty directory correctly reports Not logged in until authentication completes.

@@ -58,6 +58,7 @@ class CodexRuntime:
                 f"CODEX_HOME={quote(str(backend.codex_home))} {quote(binary)} login --device-auth"
             )
             raise RuntimeError(
-                "OPAL's isolated Codex login is missing. Run in Terminal: " + command
+                "OPAL's isolated Codex login is missing. Run these commands in Terminal:\n"
+                f"mkdir -p {quote(str(backend.codex_home))}\n" + command
             )
         return result
