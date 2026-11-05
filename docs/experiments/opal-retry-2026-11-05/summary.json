@@ -1,0 +1,652 @@
+{
+  "runs": {
+    "control": {
+      "metrics_sha256": "8b453bed889dbb3f73e836a14aeac28d42fc929667d16f995e4af2174fe1b493",
+      "report": {
+        "run_dir": "artifacts/gru-opal-retry-control",
+        "backend": "adam",
+        "configured_agent": {
+          "model": null,
+          "effort": null,
+          "max_tokens": null,
+          "decisions": null,
+          "schedule": null
+        },
+        "runtime": null,
+        "status": "plain_adam",
+        "metrics_available": true,
+        "events_available": false,
+        "classification": {
+          "accuracy": 0.5669064748201439,
+          "macro_f1": 0.476035042857085,
+          "best_epoch": 1
+        },
+        "decision_counts": null,
+        "scheduled_updates": null,
+        "unreached_scheduled_updates": null,
+        "end_update": null,
+        "final_program_version": null,
+        "first_applied_update": null,
+        "agent_wait_seconds": null,
+        "cost_usd": null,
+        "unknown_cost_decisions": null,
+        "usage": {
+          "source": "unavailable",
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "decisions": [],
+        "soft_token_cap": null,
+        "soft_token_cap_exceeded": null,
+        "selected_checkpoint_update": 312,
+        "checkpoint_precedes_first_change": null
+      },
+      "classes": {
+        "0": {
+          "precision": 0.7009345794392523,
+          "recall": 0.39893617021276595,
+          "f1": 0.5084745762711864,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5877901109989909,
+          "recall": 0.7694848084544254,
+          "f1": 0.6664759725400458,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48249027237354086,
+          "recall": 0.5321888412017167,
+          "f1": 0.5061224489795918,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4971751412429379,
+          "recall": 0.1437908496732026,
+          "f1": 0.22306717363751585,
+          "support": 612
+        }
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5323149236192715,
+          "macro_f1": 0.44881595768303406
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.5010266940451745,
+          "macro_f1": 0.4495234158471828
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.6649214659685864,
+          "macro_f1": 0.5167769869900516
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.0381132041484369,
+          "validation_loss": 0.9438928190752757,
+          "validation_macro_f1": 0.476035042857085,
+          "validation_accuracy": 0.5669064748201439
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.8978898218241814,
+          "validation_loss": 0.9566794152740095,
+          "validation_macro_f1": 0.4333425842300473,
+          "validation_accuracy": 0.5122302158273381
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.8761495654719845,
+          "validation_loss": 0.9689154814473159,
+          "validation_macro_f1": 0.4618587766257211,
+          "validation_accuracy": 0.49712230215827335
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.8627460151492042,
+          "validation_loss": 0.9458277576261287,
+          "validation_macro_f1": 0.4750747737169604,
+          "validation_accuracy": 0.5302158273381294
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.8513628046036915,
+          "validation_loss": 0.9907201346733587,
+          "validation_macro_f1": 0.46674645115819774,
+          "validation_accuracy": 0.4852517985611511
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.8404424043124769,
+          "validation_loss": 0.959832971473392,
+          "validation_macro_f1": 0.46209835690978973,
+          "validation_accuracy": 0.5370503597122303
+        }
+      ],
+      "elapsed_seconds": 12.022445624999818,
+      "config": {
+        "prepare_config": "prepare.yaml",
+        "output_dir": "../artifacts/gru-opal-retry-control",
+        "seed": 42,
+        "epochs": 20,
+        "batch_size": 64,
+        "context_epochs": 10,
+        "hidden_size": 32,
+        "learning_rate": 0.001,
+        "patience": 5,
+        "gradient_clip": 1.0,
+        "device": "auto"
+      },
+      "features": [
+        "heart_rate_mean",
+        "heart_rate_std",
+        "heart_rate_min",
+        "heart_rate_max",
+        "motion_magnitude_mean",
+        "motion_magnitude_std"
+      ],
+      "packages": {
+        "python": "3.11.16",
+        "numpy": "2.4.6",
+        "pandas": "3.1.0",
+        "scikit_learn": "1.9.1",
+        "torch": "2.15.0"
+      }
+    },
+    "keep": {
+      "metrics_sha256": "18498226322e84f9821b0bfa789be8178eb25dc8e971d5ca9339f079315c4775",
+      "report": {
+        "run_dir": "artifacts/gru-opal-retry-keep",
+        "backend": "keep",
+        "configured_agent": {
+          "model": null,
+          "effort": null,
+          "max_tokens": null,
+          "decisions": 1,
+          "schedule": [
+            50
+          ]
+        },
+        "runtime": null,
+        "status": "offline_keep_control",
+        "metrics_available": true,
+        "events_available": true,
+        "classification": {
+          "accuracy": 0.5669064748201439,
+          "macro_f1": 0.476035042857085,
+          "best_epoch": 1
+        },
+        "decision_counts": {
+          "requested": 1,
+          "applied": 0,
+          "kept": 1,
+          "rejected": 0,
+          "load_failed": 0,
+          "reverted": 0
+        },
+        "scheduled_updates": [
+          50
+        ],
+        "unreached_scheduled_updates": [],
+        "end_update": 1872,
+        "final_program_version": 0,
+        "first_applied_update": null,
+        "agent_wait_seconds": 0.0,
+        "cost_usd": 0.0,
+        "unknown_cost_decisions": [],
+        "usage": {
+          "source": "unavailable",
+          "input_tokens": null,
+          "output_tokens": null
+        },
+        "decisions": [
+          {
+            "k": 1,
+            "requested_at": 50,
+            "seconds": 0.0,
+            "returncode": 0,
+            "backend_error": null,
+            "errors": [],
+            "usage": null
+          }
+        ],
+        "soft_token_cap": null,
+        "soft_token_cap_exceeded": null,
+        "selected_checkpoint_update": 312,
+        "checkpoint_precedes_first_change": null
+      },
+      "classes": {
+        "0": {
+          "precision": 0.7009345794392523,
+          "recall": 0.39893617021276595,
+          "f1": 0.5084745762711864,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.5877901109989909,
+          "recall": 0.7694848084544254,
+          "f1": 0.6664759725400458,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.48249027237354086,
+          "recall": 0.5321888412017167,
+          "f1": 0.5061224489795918,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.4971751412429379,
+          "recall": 0.1437908496732026,
+          "f1": 0.22306717363751585,
+          "support": 612
+        }
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5323149236192715,
+          "macro_f1": 0.44881595768303406
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.5010266940451745,
+          "macro_f1": 0.4495234158471828
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.6649214659685864,
+          "macro_f1": 0.5167769869900516
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.0381132041484369,
+          "validation_loss": 0.9438928190752757,
+          "validation_macro_f1": 0.476035042857085,
+          "validation_accuracy": 0.5669064748201439
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.8978898218241814,
+          "validation_loss": 0.9566794152740095,
+          "validation_macro_f1": 0.4333425842300473,
+          "validation_accuracy": 0.5122302158273381
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.8761495654719845,
+          "validation_loss": 0.9689154814473159,
+          "validation_macro_f1": 0.4618587766257211,
+          "validation_accuracy": 0.49712230215827335
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.8627460151492042,
+          "validation_loss": 0.9458277576261287,
+          "validation_macro_f1": 0.4750747737169604,
+          "validation_accuracy": 0.5302158273381294
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.8513628046036915,
+          "validation_loss": 0.9907201346733587,
+          "validation_macro_f1": 0.46674645115819774,
+          "validation_accuracy": 0.4852517985611511
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.8404424043124769,
+          "validation_loss": 0.959832971473392,
+          "validation_macro_f1": 0.46209835690978973,
+          "validation_accuracy": 0.5370503597122303
+        }
+      ],
+      "elapsed_seconds": 11.371670833003009,
+      "config": {
+        "prepare_config": "prepare.yaml",
+        "output_dir": "../artifacts/gru-opal-retry-keep",
+        "seed": 42,
+        "epochs": 20,
+        "batch_size": 64,
+        "context_epochs": 10,
+        "hidden_size": 32,
+        "learning_rate": 0.001,
+        "patience": 5,
+        "gradient_clip": 1.0,
+        "device": "auto",
+        "optimizer_agent": {
+          "backend": "keep",
+          "goal": "Reduce training loss for the causal four-class sleep-stage GRU",
+          "decisions": 1,
+          "every": 50,
+          "schedule": [
+            50
+          ]
+        }
+      },
+      "features": [
+        "heart_rate_mean",
+        "heart_rate_std",
+        "heart_rate_min",
+        "heart_rate_max",
+        "motion_magnitude_mean",
+        "motion_magnitude_std"
+      ],
+      "packages": {
+        "python": "3.11.16",
+        "numpy": "2.4.6",
+        "pandas": "3.1.0",
+        "scikit_learn": "1.9.1",
+        "torch": "2.15.0"
+      }
+    },
+    "codex": {
+      "metrics_sha256": "198231726dc46cdf4531d47b36b5f1dfd1a0bc57c1ce95ec923eb2510ed516e0",
+      "report": {
+        "run_dir": "artifacts/gru-opal-retry-codex",
+        "backend": "codex",
+        "configured_agent": {
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "max_tokens": 20000,
+          "decisions": 1,
+          "schedule": [
+            50
+          ]
+        },
+        "runtime": {
+          "binary": "tools/opal-codex/node_modules/.bin/codex",
+          "version": "codex-cli 0.160.1",
+          "logged_in": true
+        },
+        "status": "changes_applied",
+        "metrics_available": true,
+        "events_available": true,
+        "classification": {
+          "accuracy": 0.5658273381294964,
+          "macro_f1": 0.48361357447968856,
+          "best_epoch": 10
+        },
+        "decision_counts": {
+          "requested": 1,
+          "applied": 1,
+          "kept": 0,
+          "rejected": 0,
+          "load_failed": 0,
+          "reverted": 0
+        },
+        "scheduled_updates": [
+          50
+        ],
+        "unreached_scheduled_updates": [],
+        "end_update": 4680,
+        "final_program_version": 1,
+        "first_applied_update": 50,
+        "agent_wait_seconds": 255.2,
+        "cost_usd": null,
+        "unknown_cost_decisions": [
+          1
+        ],
+        "usage": {
+          "source": "end_event",
+          "input_tokens": 179991,
+          "cached_input_tokens": 163712,
+          "uncached_input_tokens": 16279,
+          "output_tokens": 7758,
+          "reasoning_output_tokens": 2866,
+          "total_tokens": 187749,
+          "note": "Cached input and reasoning output are subsets, not extra tokens"
+        },
+        "decisions": [
+          {
+            "k": 1,
+            "requested_at": 50,
+            "seconds": 255.2,
+            "returncode": 0,
+            "backend_error": null,
+            "errors": [],
+            "usage": {
+              "input_tokens": 179991,
+              "cached_input_tokens": 163712,
+              "output_tokens": 7758,
+              "reasoning_output_tokens": 2866
+            }
+          }
+        ],
+        "soft_token_cap": 20000,
+        "soft_token_cap_exceeded": true,
+        "selected_checkpoint_update": 3120,
+        "checkpoint_precedes_first_change": false
+      },
+      "classes": {
+        "0": {
+          "precision": 0.5290697674418605,
+          "recall": 0.48404255319148937,
+          "f1": 0.5055555555555555,
+          "support": 188
+        },
+        "1": {
+          "precision": 0.6019874476987448,
+          "recall": 0.7602377807133421,
+          "f1": 0.6719206071220082,
+          "support": 1514
+        },
+        "2": {
+          "precision": 0.5395189003436426,
+          "recall": 0.3369098712446352,
+          "f1": 0.4147952443857332,
+          "support": 466
+        },
+        "3": {
+          "precision": 0.42962962962962964,
+          "recall": 0.28431372549019607,
+          "f1": 0.3421828908554572,
+          "support": 612
+        }
+      },
+      "participants": {
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5840188014101058,
+          "macro_f1": 0.4987875366270952
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.473305954825462,
+          "macro_f1": 0.4568421046181245
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.643979057591623,
+          "macro_f1": 0.4790452034280833
+        }
+      },
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.0092041905220135,
+          "validation_loss": 0.9589213403866446,
+          "validation_macro_f1": 0.4330191956144539,
+          "validation_accuracy": 0.5517985611510792
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.8680903778072343,
+          "validation_loss": 0.9888513847220716,
+          "validation_macro_f1": 0.4657202125913539,
+          "validation_accuracy": 0.5212230215827338
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.8390960348078353,
+          "validation_loss": 1.0321188360667057,
+          "validation_macro_f1": 0.4347761817088617,
+          "validation_accuracy": 0.4758992805755396
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.8094159342447279,
+          "validation_loss": 0.959849391909812,
+          "validation_macro_f1": 0.4507028206751407,
+          "validation_accuracy": 0.5510791366906475
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.7828203166694059,
+          "validation_loss": 1.050930270960005,
+          "validation_macro_f1": 0.4627966327467085,
+          "validation_accuracy": 0.5370503597122303
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.7610239836404908,
+          "validation_loss": 1.0579080686294775,
+          "validation_macro_f1": 0.45126659832254695,
+          "validation_accuracy": 0.5334532374100719
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.733870247313891,
+          "validation_loss": 1.1073832448437917,
+          "validation_macro_f1": 0.47685923216677106,
+          "validation_accuracy": 0.5413669064748201
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.7163531193289112,
+          "validation_loss": 1.187169603864066,
+          "validation_macro_f1": 0.46293421763560494,
+          "validation_accuracy": 0.5388489208633094
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.6954516786999705,
+          "validation_loss": 1.155961240452828,
+          "validation_macro_f1": 0.47909068996393045,
+          "validation_accuracy": 0.5510791366906475
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.6769502579759087,
+          "validation_loss": 1.1644146239586013,
+          "validation_macro_f1": 0.48361357447968856,
+          "validation_accuracy": 0.5658273381294964
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.6564117844015754,
+          "validation_loss": 1.2375751633009464,
+          "validation_macro_f1": 0.44004465096956447,
+          "validation_accuracy": 0.5363309352517985
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.64185206146424,
+          "validation_loss": 1.2691122356078608,
+          "validation_macro_f1": 0.43614941124629086,
+          "validation_accuracy": 0.4845323741007194
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.6229116913067294,
+          "validation_loss": 1.3423815776547081,
+          "validation_macro_f1": 0.43290707932533395,
+          "validation_accuracy": 0.5320143884892087
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.6112703230188631,
+          "validation_loss": 1.4378419674986558,
+          "validation_macro_f1": 0.4204640039431907,
+          "validation_accuracy": 0.5032374100719424
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.5937000207037679,
+          "validation_loss": 1.3540894495497504,
+          "validation_macro_f1": 0.45603215359376037,
+          "validation_accuracy": 0.5316546762589928
+        }
+      ],
+      "elapsed_seconds": 280.88694700000633,
+      "config": {
+        "prepare_config": "prepare.yaml",
+        "output_dir": "../artifacts/gru-opal-retry-codex",
+        "seed": 42,
+        "epochs": 20,
+        "batch_size": 64,
+        "context_epochs": 10,
+        "hidden_size": 32,
+        "learning_rate": 0.001,
+        "patience": 5,
+        "gradient_clip": 1.0,
+        "device": "auto",
+        "optimizer_agent": {
+          "backend": "codex",
+          "goal": "Reduce training loss for the causal four-class sleep-stage GRU",
+          "decisions": 1,
+          "every": 50,
+          "model": "gpt-6.1-sol",
+          "effort": "high",
+          "max_tokens": 20000,
+          "schedule": [
+            50
+          ],
+          "binary": "tools/opal-codex/node_modules/.bin/codex"
+        }
+      },
+      "features": [
+        "heart_rate_mean",
+        "heart_rate_std",
+        "heart_rate_min",
+        "heart_rate_max",
+        "motion_magnitude_mean",
+        "motion_magnitude_std"
+      ],
+      "packages": {
+        "python": "3.11.16",
+        "numpy": "2.4.6",
+        "pandas": "3.1.0",
+        "scikit_learn": "1.9.1",
+        "torch": "2.15.0"
+      }
+    }
+  },
+  "applied_program_sha256": {
+    "analysis.py": "29781f131f4afe3702dd72b0779840004939ed69cde685cbafc0c995f8524a4a",
+    "updater.py": "0c88064a6716ead8b3229b803d8e42cf4906c1da707179a0248bd6a3936537cd"
+  }
+}

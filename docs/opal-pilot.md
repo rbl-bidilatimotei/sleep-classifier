@@ -145,3 +145,6 @@ Execute each labelled retry training cell interactively after setting those flag
 The installation cell and readiness check do not train models.
 HTML report export always skips training, even if a training flag is True.
 The report lists missing retry results as not_started and separates them from historical results.
+
+The [successful retry results](experiments/opal-retry-2026-11-05/README.md) close this pilot milestone.
+The integration worked; its small single-seed gain does not establish a general advantage.

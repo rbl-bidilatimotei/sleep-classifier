@@ -217,3 +217,6 @@ Live training requires a separate explicit opt-in; the default report runs prefl
 
 The [first OPAL pilot diagnostics](docs/experiments/opal-pilot-2026-11-05/README.md) distinguish failed agent decisions from successful training.
 Notebook 10 includes full status reporting and a [pinned-CLI retry](docs/opal-compatibility-notes.md).
+
+The [successful OPAL retry](docs/experiments/opal-retry-2026-11-05/README.md) applied an optimizer change and reached 0.4836 macro-F1.
+OPAL remains optional; the next experiment uses conventional Adam and grouped participant validation.

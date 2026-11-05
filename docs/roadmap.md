@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-04. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-05. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -10,22 +10,20 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Measure majority, logistic-regression, and class-weighted references
 - Train the first GRU and compare five controlled settings on MPS
 - Verify OPAL's offline keep wrapper with synthetic inputs
+- Replicate the GRU patience comparison across three seeds
+- Complete a live Codex-powered OPAL pilot with one applied optimizer change
 
-The [measured GRU comparison](experiments/gru-followup-2026-11-04/README.md) is the current experiment reference.
-The real-data trials used Adam. Live reactive optimization remains untested.
+The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
+[successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
+OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Compare the reference and patience-twelve recipes with three shared seeds.
-Report best-checkpoint macro-F1, class scores, participant scores, and variation across seeds.
-Use fixed features and participants. Record all runs, including weaker results.
+Evaluate the fixed GRU recipe across five participant-disjoint development folds.
+Use all 26 development participants and keep the three final-test participants reserved.
+Fit a fresh scaler and model in each fold. Record every fold and participant result.
+Checkpoint selection uses each development validation fold; these are development-CV results, not an independent final test.
 Prepare the scripts, YAML settings, and notebook for Timo to run.
-
-Prepare a separate Codex-powered OPAL pilot against an identical Adam recipe.
-Reuse OPAL's experimental Codex backend rather than maintain a fork.
-Agree on the account and token budget before launching live agent calls.
-Preserve generated programs and decision records with the experiment provenance.
-See the [OPAL assessment](reactive-optimizer-assessment.md) for integration and execution requirements.
 
 ## Model and evaluation milestones
 
