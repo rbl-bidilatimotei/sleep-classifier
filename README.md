@@ -220,3 +220,6 @@ Notebook 10 includes full status reporting and a [pinned-CLI retry](docs/opal-co
 
 The [successful OPAL retry](docs/experiments/opal-retry-2026-11-05/README.md) applied an optimizer change and reached 0.4836 macro-F1.
 OPAL remains optional; the next experiment uses conventional Adam and grouped participant validation.
+
+The next [grouped development experiment](docs/grouped-validation.md) is prepared in [notebook 11](notebooks/11_grouped_validation.ipynb).
+Read the [learning review](docs/learning-review.md) for the evidence and open questions so far.

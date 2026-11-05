@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: gru.yaml
+output_dir: ../artifacts/gru-grouped-validation
+folds: 5
+split_seed: 42
