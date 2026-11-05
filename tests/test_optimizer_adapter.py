@@ -64,6 +64,10 @@ def test_live_backend_requires_separate_opt_in(tmp_path, monkeypatch):
 
 
 def test_live_backend_passes_explicit_soft_token_budget(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "sleep_classifier.optimizer_adapter.CodexRuntime.resolve_binary",
+        Mock(return_value="/test/codex"),
+    )
     wrapper = Mock()
     monkeypatch.setattr(
         "sleep_classifier.optimizer_adapter.import_module",
@@ -78,6 +82,7 @@ def test_live_backend_passes_explicit_soft_token_budget(tmp_path, monkeypatch):
         "timeout": 300,
         "unavailable_timeout": 60,
         "retries": 0,
+        "binary": "/test/codex",
     }
 
 

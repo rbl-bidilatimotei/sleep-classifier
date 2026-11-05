@@ -74,3 +74,31 @@ Thus validation affects how long training continues, even though metrics are not
 No final test observations enter this pilot.
 One live run is exploratory evidence. It cannot establish that reactive optimization is generally better.
 Confirm promising settings across seeds and grouped development folds.
+
+## Codex CLI discovery and login
+
+The desktop app does not guarantee a codex entry on the notebook process's PATH.
+uv installs the Python environment; the Codex CLI is an external executable.
+Discovery prefers optimizer_agent.binary, then CODEX_BINARY, then PATH.
+On macOS, it also checks the CLI bundled in ChatGPT.app under /Applications or ~/Applications.
+An invalid explicit executable raises an error instead of silently choosing another installation.
+
+The local app-bundled executable was verified on 2026-11-05 as codex-cli 0.166.0-alpha.6.
+No additional package installation was needed on this machine.
+For another machine without that executable, install the official @openai/codex CLI through npm.
+See [official installation guidance](https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex).
+Do not install an unrelated Python package named codex into the venv.
+
+Run this no-inference readiness check before training:
+
+```bash
+uv run --locked --group gru --group notebook --group opal python -m sleep_classifier.gru_training \
+  --config configs/gru-opal-codex.yaml --check-agent
+```
+
+If the isolated login is missing, the check prints the exact Terminal command.
+Complete that interactive login yourself, then rerun the readiness check.
+It uses OPAL's separate ~/.codex-opal home, not the current desktop login.
+No credentials are copied or printed. No model requests run during this check.
+Live training checks readiness before creating the output directory.
+Normal --check remains a data/model preflight and does not check authentication.

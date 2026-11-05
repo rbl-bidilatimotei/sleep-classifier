@@ -19,6 +19,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from sleep_classifier.baseline import CLASS_LABELS, PreparedFeatureDataset
+from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.gru_model import CausalGRUClassifier
 from sleep_classifier.logging_utils import configure_logging
@@ -188,6 +189,8 @@ class GRUExperiment:
         if settings:
             if settings["backend"] == "codex" and not allow_live_agent:
                 raise RuntimeError("Live OPAL requires explicit --allow-live-agent opt-in")
+            if settings["backend"] == "codex":
+                CodexRuntime.check(settings.get("binary"))
             self.output_dir.mkdir(parents=True, exist_ok=False)
 
         adam = torch.optim.Adam(model.parameters(), lr=float(self.settings["learning_rate"]))
@@ -516,6 +519,9 @@ def main() -> None:
     operation.add_argument(
         "--check", action="store_true", help="Validate loading and forward pass only"
     )
+    operation.add_argument(
+        "--check-agent", action="store_true", help="Check Codex CLI and login without inference"
+    )
     parser.add_argument(
         "--allow-live-agent",
         action="store_true",
@@ -526,7 +532,14 @@ def main() -> None:
         parser.error("--allow-live-agent requires --train")
     configure_logging()
     experiment = GRUExperiment(args.config)
-    if args.check:
+    if args.check_agent:
+        settings = yaml.safe_load(args.config.read_text())
+        TrainingConfig(settings)
+        agent = settings.get("optimizer_agent") or {}
+        if agent.get("backend") != "codex":
+            parser.error("--check-agent requires a Codex optimizer recipe")
+        LOGGER.info("Codex runtime ready: %s", CodexRuntime.check(agent.get("binary")))
+    elif args.check:
         experiment.run_check()
     else:
         LOGGER.info("GRU metrics saved: %s", experiment.run(allow_live_agent=args.allow_live_agent))

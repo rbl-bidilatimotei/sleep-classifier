@@ -5,6 +5,8 @@ from typing import Any
 
 import torch
 
+from sleep_classifier.codex_runtime import CodexRuntime
+
 
 class AgentOptimizerSettings:
     """Validate the bounded optimizer-agent pilot settings."""
@@ -17,7 +19,16 @@ class AgentOptimizerSettings:
         if not self.values:
             return
 
-        allowed = {"backend", "goal", "decisions", "every", "model", "effort", "max_tokens"}
+        allowed = {
+            "backend",
+            "goal",
+            "decisions",
+            "every",
+            "model",
+            "effort",
+            "max_tokens",
+            "binary",
+        }
         if set(self.values) - allowed:
             raise ValueError("Unknown optimizer_agent settings")
         if self.values.get("backend") not in ("keep", "codex"):
@@ -34,7 +45,7 @@ class AgentOptimizerSettings:
 
         if self.values["backend"] == "codex":
             self._validate_codex()
-        elif set(self.values) & {"model", "effort", "max_tokens"}:
+        elif set(self.values) & {"model", "effort", "max_tokens", "binary"}:
             raise ValueError("The keep backend does not accept model settings")
 
     def _validate_codex(self) -> None:
@@ -43,6 +54,9 @@ class AgentOptimizerSettings:
             raise ValueError("Codex requires an explicit model")
         if self.values.get("effort") not in ("high", "xhigh"):
             raise ValueError("Codex effort must be high or xhigh")
+        binary = self.values.get("binary")
+        if binary is not None and (not isinstance(binary, str) or not binary.strip()):
+            raise ValueError("Codex binary must be a nonempty string")
         tokens = self.values.get("max_tokens")
         if type(tokens) is not int or tokens <= 0:
             raise ValueError("Codex max_tokens must be a positive integer")
@@ -67,7 +81,12 @@ class AgentOptimizerSettings:
         if self.values["backend"] == "codex":
             options["backend_options"] = {
                 key: self.values[key] for key in ("model", "effort", "max_tokens")
-            } | {"timeout": 300, "unavailable_timeout": 60, "retries": 0}
+            } | {
+                "timeout": 300,
+                "unavailable_timeout": 60,
+                "retries": 0,
+                "binary": CodexRuntime.resolve_binary(self.values.get("binary")),
+            }
         return options
 
 

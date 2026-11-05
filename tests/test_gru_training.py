@@ -285,3 +285,27 @@ def test_pilot_configs_preserve_the_same_model_recipe():
         recipe.pop("optimizer_agent")
         recipe["output_dir"] = control["output_dir"]
         assert recipe == control
+
+
+def test_runtime_failure_precedes_run_directory_creation(tmp_path, monkeypatch):
+    from unittest.mock import Mock
+
+    path = _config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings["optimizer_agent"] = {
+        "backend": "codex",
+        "goal": "Reduce training loss",
+        "decisions": 1,
+        "every": 1,
+        "model": "gpt-6.1-sol",
+        "effort": "high",
+        "max_tokens": 1000,
+    }
+    path.write_text(yaml.safe_dump(settings))
+    monkeypatch.setattr(
+        "sleep_classifier.gru_training.CodexRuntime.check",
+        Mock(side_effect=RuntimeError("isolated login is missing")),
+    )
+    with pytest.raises(RuntimeError, match="isolated login is missing"):
+        GRUExperiment(path).run(allow_live_agent=True)
+    assert not (tmp_path / "results").exists()
