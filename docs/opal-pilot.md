@@ -137,3 +137,11 @@ The live token allowance remains a soft 20,000-token cap and can be exceeded wit
 Existing results remain unchanged in their original directories.
 Do not claim success until an applied decision appears and passes its update trial without reversion.
 A successful integration still does not guarantee a better classifier.
+
+### Executing the retry cells
+
+Setting RUN_RETRY_CONTROL, RUN_RETRY_KEEP, and RUN_RETRY_LIVE only enables their conditional cells.
+Execute each labelled retry training cell interactively after setting those flags.
+The installation cell and readiness check do not train models.
+HTML report export always skips training, even if a training flag is True.
+The report lists missing retry results as not_started and separates them from historical results.

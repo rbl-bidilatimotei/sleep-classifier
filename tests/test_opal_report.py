@@ -171,3 +171,37 @@ def test_interrupted_run_is_not_complete(tmp_path):
         ],
     )
     assert OpalRunReport(tmp_path).build()["status"] == "interrupted"
+
+
+def test_notebook_displays_not_started_rows_for_missing_retries(tmp_path):
+    from unittest.mock import Mock
+
+    import yaml
+
+    nbformat = pytest.importorskip("nbformat")
+    source = Path(__file__).resolve().parents[1] / "notebooks/10_opal_pilot.ipynb"
+    notebook = nbformat.read(source, as_version=4)
+    cell = next(
+        cell
+        for cell in notebook.cells
+        if cell.cell_type == "code" and "records = []" in cell.source
+    )
+    configs = tmp_path / "configs"
+    configs.mkdir()
+    for prefix in ("gru-opal", "gru-opal-retry"):
+        for kind in ("control", "keep", "codex"):
+            recipe = f"{prefix}-{kind}"
+            (configs / f"{recipe}.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "output_dir": f"../artifacts/{recipe}",
+                    }
+                )
+            )
+    namespace = {"ROOT": tmp_path, "logger": Mock(), "display": Mock(), "json": json}
+    exec(cell.source, namespace)
+    records = namespace["records"]
+    assert len(records) == 6
+    assert all(record["status"] == "not_started" for record in records)
+    assert sum(record["group"] == "Retry" for record in records) == 3
+    assert not (tmp_path / "artifacts").exists()
