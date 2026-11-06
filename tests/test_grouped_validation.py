@@ -270,3 +270,34 @@ def test_synthetic_real_fold_training_fits_each_scaler_on_its_training_people(tm
         expected_mean = np.mean([float(person) + 0.5 for person in fold["train"]])
         np.testing.assert_allclose(checkpoint["scaler_mean"], expected_mean)
     assert summary["aggregate"]["eligible_epochs"] == 16
+
+
+def test_synthetic_transformer_folds_use_generic_predictions(tmp_path: Path) -> None:
+    """Run tiny Transformer folds without changing the grouped evaluation interface.
+
+    Args:
+        tmp_path (Path): Temporary root for synthetic development participants.
+    """
+    path = _configuration(tmp_path)
+    model_path = tmp_path / "gru.yaml"
+    settings = yaml.safe_load(model_path.read_text())
+    settings.pop("hidden_size")
+    settings["model_type"] = "transformer"
+    settings["transformer"] = {
+        "d_model": 8, "nhead": 2, "num_layers": 1, "feedforward_dim": 16,
+        "dropout": 0.0, "max_context": 2,
+    }
+    model_path.write_text(yaml.safe_dump(settings))
+
+    experiment = GroupedValidationExperiment(path)
+    experiment.prepare()
+    summary = json.loads(experiment.run().read_text())
+    pooled = pd.read_csv(experiment.output_dir / "development_predictions.csv")
+
+    assert summary["status"] == "complete"
+    assert summary["aggregate"]["eligible_epochs"] == 16
+    assert "prediction" in pooled
+    assert "gru_prediction" not in pooled
+    assert len(pooled) == 16
+    for fold in summary["plan"]["folds"]:
+        assert (experiment.output_dir / fold["name"] / "results/model_checkpoint.pt").is_file()
