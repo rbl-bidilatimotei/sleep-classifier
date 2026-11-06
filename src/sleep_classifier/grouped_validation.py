@@ -397,6 +397,12 @@ class GroupedValidationExperiment:
         for result in results:
             path = Path(result["metrics_path"]).parent / "validation_predictions.csv"
             frame = pd.read_csv(path, dtype={"participant_id": str})
+
+            if "prediction" not in frame.columns and "gru_prediction" in frame.columns:
+                frame = frame.rename(columns={"gru_prediction": "prediction"})
+            if "prediction" not in frame.columns:
+                raise ValueError("Fold predictions require a prediction column")
+
             frame["fold"] = result["fold"]
             expected = set(result["participants"])
 
@@ -411,7 +417,7 @@ class GroupedValidationExperiment:
             raise ValueError("Validation predictions must cover all development participants")
 
         pooled = pd.concat(frames, ignore_index=True)
-        for column in ("target", "gru_prediction"):
+        for column in ("target", "prediction"):
             if not pooled[column].isin(CLASS_LABELS).all():
                 raise ValueError("Validation prediction labels must be in 0..3")
 
@@ -421,19 +427,23 @@ class GroupedValidationExperiment:
         if pooled.duplicated(["participant_id", "time"]).any():
             raise ValueError("Out-of-fold prediction epochs must be unique")
 
-        pooled.to_csv(self.output_dir / "development_predictions.csv", index=False)
+        exported = pooled
+        if self.model_settings.get("model_type", "gru") == "gru":
+            exported = pooled.rename(columns={"prediction": "gru_prediction"})
+
+        exported.to_csv(self.output_dir / "development_predictions.csv", index=False)
         precision, recall, f1, support = precision_recall_fscore_support(
-            pooled.target, pooled.gru_prediction, labels=CLASS_LABELS, zero_division=0
+            pooled.target, pooled.prediction, labels=CLASS_LABELS, zero_division=0
         )
         scores = [result["macro_f1"] for result in results]
 
         return {
             "mean_fold_macro_f1": mean(scores),
             "sample_std_fold_macro_f1": stdev(scores),
-            "pooled_accuracy": accuracy_score(pooled.target, pooled.gru_prediction),
+            "pooled_accuracy": accuracy_score(pooled.target, pooled.prediction),
             "pooled_macro_f1": float(f1.mean()),
             "confusion_matrix": confusion_matrix(
-                pooled.target, pooled.gru_prediction, labels=CLASS_LABELS
+                pooled.target, pooled.prediction, labels=CLASS_LABELS
             ).tolist(),
             "classes": {
                 str(label): {

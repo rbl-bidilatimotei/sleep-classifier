@@ -22,8 +22,8 @@ from torch.utils.data import DataLoader
 from sleep_classifier.baseline import CLASS_LABELS, PreparedFeatureDataset
 from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.features import FEATURE_COLUMNS
-from sleep_classifier.gru_model import CausalGRUClassifier
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.model_factory import ModelFactory
 from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
@@ -32,7 +32,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class TrainingConfig:
-    """Validate and hold GRU training settings."""
+    """Validate training settings and the selected model architecture."""
 
     def __init__(self, values: dict[str, object]) -> None:
         """Initialize and validate the training configuration.
@@ -50,7 +50,6 @@ class TrainingConfig:
             "epochs",
             "batch_size",
             "context_epochs",
-            "hidden_size",
             "patience",
         )
 
@@ -70,6 +69,8 @@ class TrainingConfig:
 
         if values.get("device", "auto") not in ("auto", "cpu", "cuda", "mps"):
             raise ValueError("device must be 'auto', 'cpu', 'cuda', or 'mps'")
+
+        ModelFactory(values)
 
 
     def device(self) -> torch.device:
@@ -141,10 +142,10 @@ class EarlyStopping:
 
 
 class GRUExperiment:
-    """Train and evaluate a causal GRU on prepared development participants."""
+    """Train a configured causal sequence model on prepared development participants."""
 
     def __init__(self, config_path: Path) -> None:
-        """Initialize the GRU experiment with the given configuration path.
+        """Initialize the sequence experiment with the given configuration path.
 
         Args:
             config_path (Path): The path to the training configuration file.
@@ -172,6 +173,7 @@ class GRUExperiment:
             logits = context["model"](batch["features"].to(context["device"]), batch["lengths"])
 
         result = {
+            "model_type": context["model_type"],
             "train_rows": len(context["dataset"]["partitions"]["train"]),
             "validation_rows": len(context["validation_frame"]),
             "train_sequences": len(context["train_data"]),
@@ -184,7 +186,7 @@ class GRUExperiment:
                 parameter.numel() for parameter in context["model"].parameters()
             ),
         }
-        LOGGER.info("GRU check passed: %s", json.dumps(result, sort_keys=True))
+        LOGGER.info("Neural model check passed: %s", json.dumps(result, sort_keys=True))
 
         return result
 
@@ -204,7 +206,8 @@ class GRUExperiment:
         optimizer = self._create_optimizer(context["model"], len(train_loader), allow_live_agent)
         criterion = nn.CrossEntropyLoss()
         LOGGER.info(
-            "Training GRU: train_sequences=%d validation_sequences=%d device=%s",
+            "Training %s: train_sequences=%d validation_sequences=%d device=%s",
+            context["model_type"],
             len(context["train_data"]),
             len(context["validation_data"]),
             context["device"],
@@ -232,7 +235,7 @@ class GRUExperiment:
         self._write_optimizer_report()
 
         LOGGER.info(
-            "GRU results saved: path=%s elapsed_seconds=%.2f",
+            "Neural model results saved: path=%s elapsed_seconds=%.2f",
             self.output_dir,
             perf_counter() - started,
         )
@@ -467,6 +470,12 @@ class GRUExperiment:
         metrics["best_epoch"] = best_epoch
         metrics["history"] = history
         metrics["config"] = self.settings
+
+        factory = ModelFactory(self.settings)
+        metrics["model_type"] = factory.model_type
+        metrics["model_config"] = factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS))
+        metrics["parameter_count"] = sum(parameter.numel() for parameter in model.parameters())
+
         metrics["features"] = list(FEATURE_COLUMNS)
         metrics["provenance"] = context["dataset"]["provenance"]
         metrics["device"] = str(device)
@@ -498,7 +507,7 @@ class GRUExperiment:
             raise ValueError("Validation sequence targets do not align with validation rows")
 
 
-    def _prepare(self):
+    def _prepare(self) -> dict[str, Any]:
         """Load development data, fit training-only scaling, and build model."""
         self.settings = yaml.safe_load(self.config_path.read_text())
         self.config = TrainingConfig(self.settings)
@@ -523,11 +532,8 @@ class GRUExperiment:
         )
         self._seed(int(self.settings["seed"]))
         device = self.config.device()
-        model = CausalGRUClassifier(
-            input_size=len(FEATURE_COLUMNS),
-            hidden_size=int(self.settings["hidden_size"]),
-            num_classes=len(CLASS_LABELS),
-        ).to(device)
+        factory = ModelFactory(self.settings)
+        model = factory.build(len(FEATURE_COLUMNS), len(CLASS_LABELS)).to(device)
         LOGGER.info(
             "Loaded prepared rows: train_rows=%d validation_rows=%d train_sequences=%d "
             "validation_sequences=%d scaler_fit=train_only",
@@ -544,6 +550,7 @@ class GRUExperiment:
             "validation_data": validation_data,
             "validation_frame": validation,
             "model": model,
+            "model_type": factory.model_type,
             "device": device,
         }
 
@@ -761,7 +768,7 @@ class GRUExperiment:
         """
         columns = ["participant_id"] + (["time"] if "time" in frame.columns else []) + ["target"]
         table = frame.loc[:, columns].reset_index(drop=True).copy()
-        table["gru_prediction"] = predictions
+        table[ModelFactory(self.settings).prediction_column] = predictions
         for label in CLASS_LABELS:
             table[f"probability_{label}"] = probabilities[:, label]
 
@@ -772,27 +779,25 @@ class GRUExperiment:
         self,
         model: nn.Module,
         scaler: StandardScaler,
-        metrics: dict[str, float],
+        metrics: dict[str, Any],
         predictions: pd.DataFrame
     ) -> None:
         """Save the model checkpoint, metrics, and predictions to the output directory.
 
         Args:
-            model (nn.Module): The trained GRU model.
+            model (nn.Module): The trained sequence classifier.
             scaler (StandardScaler): The scaler used for feature normalization.
-            metrics (dict[str, float]): Evaluation metrics for the model.
+            metrics (dict[str, Any]): Metrics and reproducibility metadata.
             predictions (pd.DataFrame): Data frame containing predictions.
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        config = {
-            "input_size": len(FEATURE_COLUMNS),
-            "hidden_size": int(self.settings["hidden_size"]),
-            "num_classes": len(CLASS_LABELS),
-        }
+        factory = ModelFactory(self.settings)
+        config = factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS))
         checkpoint = {
             "state_dict": {
                 name: tensor.detach().cpu() for name, tensor in model.state_dict().items()
             },
+            "model_type": factory.model_type,
             "model_config": config,
             "features": list(FEATURE_COLUMNS),
             "scaler_mean": scaler.mean_.tolist(),
@@ -800,14 +805,16 @@ class GRUExperiment:
             "context_epochs": int(self.settings["context_epochs"]),
             "training_config": self.settings,
         }
-        torch.save(checkpoint, self.output_dir / "gru_checkpoint.pt")
+        torch.save(checkpoint, self.output_dir / factory.checkpoint_filename)
         (self.output_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
         predictions.to_csv(self.output_dir / "validation_predictions.csv", index=False)
 
 
 def main() -> None:
     """Run the configured command-line operation."""
-    parser = argparse.ArgumentParser(description="Train or check the causal GRU experiment")
+    parser = argparse.ArgumentParser(
+        description="Train or check a configured causal sequence experiment"
+    )
     parser.add_argument("--config", type=Path, required=True)
     operation = parser.add_mutually_exclusive_group(required=True)
     operation.add_argument("--train", action="store_true", help="Confirm the requested model fit")
@@ -839,7 +846,10 @@ def main() -> None:
     elif args.check:
         experiment.run_check()
     else:
-        LOGGER.info("GRU metrics saved: %s", experiment.run(allow_live_agent=args.allow_live_agent))
+        LOGGER.info(
+            "Neural model metrics saved: %s",
+            experiment.run(allow_live_agent=args.allow_live_agent),
+        )
 
 
 if __name__ == "__main__":

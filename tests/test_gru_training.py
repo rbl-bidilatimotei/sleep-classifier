@@ -323,3 +323,67 @@ def test_retry_configs_preserve_model_and_schedule_early_intervention():
             assert agent["binary"] == "tools/opal-codex/node_modules/.bin/codex"
         recipe["output_dir"] = control["output_dir"]
         assert recipe == control
+
+
+def _transformer_config(tmp_path: Path) -> Path:
+    """Build a tiny Transformer recipe over synthetic prepared features.
+
+    Args:
+        tmp_path (Path): Temporary root for features and configuration.
+    """
+    path = _config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings.pop("hidden_size")
+    settings["model_type"] = "transformer"
+    settings["transformer"] = {
+        "d_model": 8, "nhead": 2, "num_layers": 1, "feedforward_dim": 16,
+        "dropout": 0.0, "max_context": 2,
+    }
+    path.write_text(yaml.safe_dump(settings))
+
+    return path
+
+
+def test_transformer_preflight_uses_the_shared_loader_without_artifacts(tmp_path: Path) -> None:
+    """Check Transformer batches without creating an optimizer or model results.
+
+    Args:
+        tmp_path (Path): Temporary root for synthetic prepared features.
+    """
+    experiment = GRUExperiment(_transformer_config(tmp_path))
+    result = experiment.run_check()
+
+    assert result["model_type"] == "transformer"
+    assert result["input_shape"] == [2, 2, len(FEATURE_COLUMNS)]
+    assert result["logit_shape"] == [2, 4]
+    assert result["scaler_mean"] == [1.0] * len(FEATURE_COLUMNS)
+    assert not (tmp_path / "results").exists()
+
+
+def test_synthetic_transformer_training_exports_portable_model_metadata(tmp_path: Path) -> None:
+    """Train the tiny Transformer through the same loop and restore its checkpoint.
+
+    Args:
+        tmp_path (Path): Temporary root for synthetic features and model artifacts.
+    """
+    from sleep_classifier.model_factory import ModelFactory
+    from sleep_classifier.transformer_model import CausalTransformerClassifier
+
+    path = _transformer_config(tmp_path)
+    metrics_path = GRUExperiment(path).run()
+    metrics = json.loads(metrics_path.read_text())
+    predictions = pd.read_csv(metrics_path.parent / "validation_predictions.csv")
+    checkpoint = torch.load(metrics_path.parent / "model_checkpoint.pt", weights_only=True)
+    restored = ModelFactory.from_checkpoint(checkpoint)
+
+    assert metrics["model_type"] == checkpoint["model_type"] == "transformer"
+    parameter_count = sum(parameter.numel() for parameter in restored.parameters())
+    assert metrics["parameter_count"] == parameter_count
+    assert checkpoint["model_config"] == metrics["model_config"]
+    assert checkpoint["scaler_mean"] == [1.0] * len(FEATURE_COLUMNS)
+    assert "prediction" in predictions
+    assert "gru_prediction" not in predictions
+    assert not (metrics_path.parent / "gru_checkpoint.pt").exists()
+    assert isinstance(restored, CausalTransformerClassifier)
+    assert not restored.training
+    assert len(predictions) == 2
