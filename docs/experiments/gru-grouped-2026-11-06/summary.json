@@ -1,0 +1,902 @@
+{
+  "source_summary_sha256": "962d4a42dd4e62e0292e305fcc7a12e9413b6c74a538ada19c36476b94d12a78",
+  "status": "complete",
+  "plan": {
+    "folds": [
+      {
+        "name": "fold-01",
+        "train": [
+          "1360686",
+          "1449548",
+          "1455390",
+          "1818471",
+          "2598705",
+          "2638030",
+          "3997827",
+          "4426783",
+          "5383425",
+          "5498603",
+          "5797046",
+          "6220552",
+          "8173033",
+          "8258170",
+          "844359",
+          "8530312",
+          "8686948",
+          "8692923",
+          "9106476",
+          "9961348"
+        ],
+        "validation": [
+          "1066528",
+          "4018081",
+          "4314139",
+          "5132496",
+          "781756",
+          "9618981"
+        ]
+      },
+      {
+        "name": "fold-02",
+        "train": [
+          "1066528",
+          "1455390",
+          "1818471",
+          "2638030",
+          "3997827",
+          "4018081",
+          "4314139",
+          "4426783",
+          "5132496",
+          "5383425",
+          "5797046",
+          "6220552",
+          "781756",
+          "8173033",
+          "8258170",
+          "844359",
+          "8530312",
+          "8686948",
+          "8692923",
+          "9618981",
+          "9961348"
+        ],
+        "validation": [
+          "1360686",
+          "1449548",
+          "2598705",
+          "5498603",
+          "9106476"
+        ]
+      },
+      {
+        "name": "fold-03",
+        "train": [
+          "1066528",
+          "1360686",
+          "1449548",
+          "2598705",
+          "2638030",
+          "3997827",
+          "4018081",
+          "4314139",
+          "4426783",
+          "5132496",
+          "5498603",
+          "5797046",
+          "781756",
+          "8173033",
+          "8258170",
+          "844359",
+          "8530312",
+          "8692923",
+          "9106476",
+          "9618981",
+          "9961348"
+        ],
+        "validation": [
+          "1455390",
+          "1818471",
+          "5383425",
+          "6220552",
+          "8686948"
+        ]
+      },
+      {
+        "name": "fold-04",
+        "train": [
+          "1066528",
+          "1360686",
+          "1449548",
+          "1455390",
+          "1818471",
+          "2598705",
+          "2638030",
+          "3997827",
+          "4018081",
+          "4314139",
+          "4426783",
+          "5132496",
+          "5383425",
+          "5498603",
+          "5797046",
+          "6220552",
+          "781756",
+          "844359",
+          "8686948",
+          "9106476",
+          "9618981"
+        ],
+        "validation": [
+          "8173033",
+          "8258170",
+          "8530312",
+          "8692923",
+          "9961348"
+        ]
+      },
+      {
+        "name": "fold-05",
+        "train": [
+          "1066528",
+          "1360686",
+          "1449548",
+          "1455390",
+          "1818471",
+          "2598705",
+          "4018081",
+          "4314139",
+          "5132496",
+          "5383425",
+          "5498603",
+          "6220552",
+          "781756",
+          "8173033",
+          "8258170",
+          "8530312",
+          "8686948",
+          "8692923",
+          "9106476",
+          "9618981",
+          "9961348"
+        ],
+        "validation": [
+          "2638030",
+          "3997827",
+          "4426783",
+          "5797046",
+          "844359"
+        ]
+      }
+    ],
+    "development": [
+      "1066528",
+      "1360686",
+      "1449548",
+      "1455390",
+      "1818471",
+      "2598705",
+      "2638030",
+      "3997827",
+      "4018081",
+      "4314139",
+      "4426783",
+      "5132496",
+      "5383425",
+      "5498603",
+      "5797046",
+      "6220552",
+      "781756",
+      "8173033",
+      "8258170",
+      "844359",
+      "8530312",
+      "8686948",
+      "8692923",
+      "9106476",
+      "9618981",
+      "9961348"
+    ],
+    "reserved_test": [
+      "46343",
+      "7749105",
+      "8000685"
+    ],
+    "split_seed": 42,
+    "training_seed": 42,
+    "maximum_epochs": 100,
+    "checkpoint_selection": "best macro-F1 on each development validation fold",
+    "independent_outer_test": false
+  },
+  "results": [
+    {
+      "fold": "fold-01",
+      "metrics_path": "artifacts/gru-grouped-validation/fold-01/results/metrics.json",
+      "metrics_sha256": "851528f3eb643d1a2770e93c84fe9ef85f4089482abbff87341969c34a125b6b",
+      "accuracy": 0.6132548506649226,
+      "macro_f1": 0.5115137228361498,
+      "best_epoch": 11,
+      "classes": {
+        "0": {
+          "precision": 0.7262357414448669,
+          "recall": 0.3694390715667311,
+          "f1": 0.4897435897435897,
+          "support": 517
+        },
+        "1": {
+          "precision": 0.6372249388753056,
+          "recall": 0.811284046692607,
+          "f1": 0.7137966449845943,
+          "support": 2570
+        },
+        "2": {
+          "precision": 0.5901162790697675,
+          "recall": 0.32954545454545453,
+          "f1": 0.42291666666666666,
+          "support": 616
+        },
+        "3": {
+          "precision": 0.4717514124293785,
+          "recall": 0.3778280542986425,
+          "f1": 0.41959798994974873,
+          "support": 884
+        }
+      },
+      "coverage": {
+        "scored_epochs": 4814,
+        "eligible_epochs": 4587,
+        "label_bearing_epochs": 4814,
+        "fraction": 0.9528458662235147
+      },
+      "participants": {
+        "1066528": {
+          "scored_epochs": 952,
+          "eligible_epochs": 754,
+          "label_bearing_epochs": 952,
+          "coverage": 0.792016806722689,
+          "accuracy": 0.4535809018567639,
+          "macro_f1": 0.25867406694701084
+        },
+        "4018081": {
+          "scored_epochs": 510,
+          "eligible_epochs": 490,
+          "label_bearing_epochs": 510,
+          "coverage": 0.9607843137254902,
+          "accuracy": 0.563265306122449,
+          "macro_f1": 0.5220746502040409
+        },
+        "4314139": {
+          "scored_epochs": 961,
+          "eligible_epochs": 961,
+          "label_bearing_epochs": 961,
+          "coverage": 1.0,
+          "accuracy": 0.6649323621227887,
+          "macro_f1": 0.4602327465119679
+        },
+        "5132496": {
+          "scored_epochs": 465,
+          "eligible_epochs": 464,
+          "label_bearing_epochs": 465,
+          "coverage": 0.9978494623655914,
+          "accuracy": 0.6875,
+          "macro_f1": 0.5231833858097943
+        },
+        "781756": {
+          "scored_epochs": 981,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 981,
+          "coverage": 0.9928644240570846,
+          "accuracy": 0.6519507186858317,
+          "macro_f1": 0.3513469944222594
+        },
+        "9618981": {
+          "scored_epochs": 945,
+          "eligible_epochs": 944,
+          "label_bearing_epochs": 945,
+          "coverage": 0.9989417989417989,
+          "accuracy": 0.6377118644067796,
+          "macro_f1": 0.5376811397988722
+        }
+      }
+    },
+    {
+      "fold": "fold-02",
+      "metrics_path": "artifacts/gru-grouped-validation/fold-02/results/metrics.json",
+      "metrics_sha256": "62aeac8e5846ba4d98f3bad623b1a08ade7ccc0521240e31c331c1e364124868",
+      "accuracy": 0.563845050215208,
+      "macro_f1": 0.42899049874050843,
+      "best_epoch": 2,
+      "classes": {
+        "0": {
+          "precision": 0.7051282051282052,
+          "recall": 0.27848101265822783,
+          "f1": 0.3992740471869328,
+          "support": 395
+        },
+        "1": {
+          "precision": 0.6016025641025641,
+          "recall": 0.8048885077186964,
+          "f1": 0.6885546588407924,
+          "support": 2332
+        },
+        "2": {
+          "precision": 0.40529531568228105,
+          "recall": 0.28347578347578345,
+          "f1": 0.3336127409891031,
+          "support": 702
+        },
+        "3": {
+          "precision": 0.41445783132530123,
+          "recall": 0.22841965471447542,
+          "f1": 0.2945205479452055,
+          "support": 753
+        }
+      },
+      "coverage": {
+        "scored_epochs": 4560,
+        "eligible_epochs": 4182,
+        "label_bearing_epochs": 4560,
+        "fraction": 0.9171052631578948
+      },
+      "participants": {
+        "1360686": {
+          "scored_epochs": 948,
+          "eligible_epochs": 919,
+          "label_bearing_epochs": 948,
+          "coverage": 0.9694092827004219,
+          "accuracy": 0.5701849836779108,
+          "macro_f1": 0.4573070569515237
+        },
+        "1449548": {
+          "scored_epochs": 953,
+          "eligible_epochs": 851,
+          "label_bearing_epochs": 953,
+          "coverage": 0.8929695697796433,
+          "accuracy": 0.5828437132784959,
+          "macro_f1": 0.5110749544664881
+        },
+        "2598705": {
+          "scored_epochs": 954,
+          "eligible_epochs": 711,
+          "label_bearing_epochs": 954,
+          "coverage": 0.7452830188679245,
+          "accuracy": 0.5330520393811533,
+          "macro_f1": 0.372416149068323
+        },
+        "5498603": {
+          "scored_epochs": 744,
+          "eligible_epochs": 741,
+          "label_bearing_epochs": 744,
+          "coverage": 0.9959677419354839,
+          "accuracy": 0.6194331983805668,
+          "macro_f1": 0.5097503477560583
+        },
+        "9106476": {
+          "scored_epochs": 961,
+          "eligible_epochs": 960,
+          "label_bearing_epochs": 961,
+          "coverage": 0.9989594172736732,
+          "accuracy": 0.5208333333333334,
+          "macro_f1": 0.25953762359410765
+        }
+      }
+    },
+    {
+      "fold": "fold-03",
+      "metrics_path": "artifacts/gru-grouped-validation/fold-03/results/metrics.json",
+      "metrics_sha256": "6f55082f2e98e0e3bc1e79e65284deb0008d776c872934b884b1f2b5944e4667",
+      "accuracy": 0.5569699499165276,
+      "macro_f1": 0.49002426021474743,
+      "best_epoch": 6,
+      "classes": {
+        "0": {
+          "precision": 0.494949494949495,
+          "recall": 0.4152542372881356,
+          "f1": 0.45161290322580644,
+          "support": 236
+        },
+        "1": {
+          "precision": 0.6577110956036287,
+          "recall": 0.6565656565656566,
+          "f1": 0.6571378769391668,
+          "support": 2871
+        },
+        "2": {
+          "precision": 0.5843270868824532,
+          "recall": 0.4783821478382148,
+          "f1": 0.5260736196319018,
+          "support": 717
+        },
+        "3": {
+          "precision": 0.3006134969325153,
+          "recall": 0.3543388429752066,
+          "f1": 0.32527264106211473,
+          "support": 968
+        }
+      },
+      "coverage": {
+        "scored_epochs": 4799,
+        "eligible_epochs": 4792,
+        "label_bearing_epochs": 4799,
+        "fraction": 0.9985413627839134
+      },
+      "participants": {
+        "1455390": {
+          "scored_epochs": 955,
+          "eligible_epochs": 950,
+          "label_bearing_epochs": 955,
+          "coverage": 0.9947643979057592,
+          "accuracy": 0.7147368421052631,
+          "macro_f1": 0.34908470080284454
+        },
+        "1818471": {
+          "scored_epochs": 958,
+          "eligible_epochs": 958,
+          "label_bearing_epochs": 958,
+          "coverage": 1.0,
+          "accuracy": 0.5334029227557411,
+          "macro_f1": 0.43046891504298224
+        },
+        "5383425": {
+          "scored_epochs": 976,
+          "eligible_epochs": 974,
+          "label_bearing_epochs": 976,
+          "coverage": 0.9979508196721312,
+          "accuracy": 0.3860369609856263,
+          "macro_f1": 0.46621923528401454
+        },
+        "6220552": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.6010471204188481,
+          "macro_f1": 0.5148065027097285
+        },
+        "8686948": {
+          "scored_epochs": 955,
+          "eligible_epochs": 955,
+          "label_bearing_epochs": 955,
+          "coverage": 1.0,
+          "accuracy": 0.5539267015706806,
+          "macro_f1": 0.5153794281811878
+        }
+      }
+    },
+    {
+      "fold": "fold-04",
+      "metrics_path": "artifacts/gru-grouped-validation/fold-04/results/metrics.json",
+      "metrics_sha256": "6be4a26b4e3d5483b047b95d17134b306be7cb55854a1260a42494272f56f53f",
+      "accuracy": 0.5954370905805286,
+      "macro_f1": 0.506260965542104,
+      "best_epoch": 6,
+      "classes": {
+        "0": {
+          "precision": 0.4856396866840731,
+          "recall": 0.5054347826086957,
+          "f1": 0.49533954727030627,
+          "support": 368
+        },
+        "1": {
+          "precision": 0.5983250620347395,
+          "recall": 0.8243589743589743,
+          "f1": 0.6933860531991373,
+          "support": 2340
+        },
+        "2": {
+          "precision": 0.5412621359223301,
+          "recall": 0.38917975567190227,
+          "f1": 0.4527918781725888,
+          "support": 573
+        },
+        "3": {
+          "precision": 0.7303921568627451,
+          "recall": 0.2600349040139616,
+          "f1": 0.3835263835263835,
+          "support": 1146
+        }
+      },
+      "coverage": {
+        "scored_epochs": 4530,
+        "eligible_epochs": 4427,
+        "label_bearing_epochs": 4530,
+        "fraction": 0.9772626931567329
+      },
+      "participants": {
+        "8173033": {
+          "scored_epochs": 955,
+          "eligible_epochs": 954,
+          "label_bearing_epochs": 955,
+          "coverage": 0.9989528795811519,
+          "accuracy": 0.550314465408805,
+          "macro_f1": 0.46020792958130347
+        },
+        "8258170": {
+          "scored_epochs": 972,
+          "eligible_epochs": 969,
+          "label_bearing_epochs": 972,
+          "coverage": 0.9969135802469136,
+          "accuracy": 0.5696594427244582,
+          "macro_f1": 0.41165781236015203
+        },
+        "8530312": {
+          "scored_epochs": 947,
+          "eligible_epochs": 868,
+          "label_bearing_epochs": 947,
+          "coverage": 0.9165786694825766,
+          "accuracy": 0.6129032258064516,
+          "macro_f1": 0.5243152569975481
+        },
+        "8692923": {
+          "scored_epochs": 936,
+          "eligible_epochs": 936,
+          "label_bearing_epochs": 936,
+          "coverage": 1.0,
+          "accuracy": 0.6271367521367521,
+          "macro_f1": 0.5393371818189774
+        },
+        "9961348": {
+          "scored_epochs": 720,
+          "eligible_epochs": 700,
+          "label_bearing_epochs": 720,
+          "coverage": 0.9722222222222222,
+          "accuracy": 0.6285714285714286,
+          "macro_f1": 0.40345739206580933
+        }
+      }
+    },
+    {
+      "fold": "fold-05",
+      "metrics_path": "artifacts/gru-grouped-validation/fold-05/results/metrics.json",
+      "metrics_sha256": "bac9e82b2b8aeab230d98e0c62ccb38e628024981f9f5cb7bf9b28c9e31b27ba",
+      "accuracy": 0.6404661016949152,
+      "macro_f1": 0.4812030759918918,
+      "best_epoch": 15,
+      "classes": {
+        "0": {
+          "precision": 0.7126436781609196,
+          "recall": 0.4793814432989691,
+          "f1": 0.5731895223420647,
+          "support": 388
+        },
+        "1": {
+          "precision": 0.6463806970509384,
+          "recall": 0.8890117994100295,
+          "f1": 0.7485253027010246,
+          "support": 2712
+        },
+        "2": {
+          "precision": 0.5824175824175825,
+          "recall": 0.10371819960861056,
+          "f1": 0.1760797342192691,
+          "support": 511
+        },
+        "3": {
+          "precision": 0.5846394984326019,
+          "recall": 0.3363390441839495,
+          "f1": 0.4270177447052089,
+          "support": 1109
+        }
+      },
+      "coverage": {
+        "scored_epochs": 4722,
+        "eligible_epochs": 4720,
+        "label_bearing_epochs": 4722,
+        "fraction": 0.9995764506565015
+      },
+      "participants": {
+        "2638030": {
+          "scored_epochs": 948,
+          "eligible_epochs": 948,
+          "label_bearing_epochs": 948,
+          "coverage": 1.0,
+          "accuracy": 0.7120253164556962,
+          "macro_f1": 0.5847360542648553
+        },
+        "3997827": {
+          "scored_epochs": 958,
+          "eligible_epochs": 958,
+          "label_bearing_epochs": 958,
+          "coverage": 1.0,
+          "accuracy": 0.605427974947808,
+          "macro_f1": 0.3835583435712703
+        },
+        "4426783": {
+          "scored_epochs": 980,
+          "eligible_epochs": 980,
+          "label_bearing_epochs": 980,
+          "coverage": 1.0,
+          "accuracy": 0.6510204081632653,
+          "macro_f1": 0.4375254173404784
+        },
+        "5797046": {
+          "scored_epochs": 939,
+          "eligible_epochs": 939,
+          "label_bearing_epochs": 939,
+          "coverage": 1.0,
+          "accuracy": 0.6900958466453674,
+          "macro_f1": 0.5096762550316671
+        },
+        "844359": {
+          "scored_epochs": 897,
+          "eligible_epochs": 895,
+          "label_bearing_epochs": 897,
+          "coverage": 0.9977703455964325,
+          "accuracy": 0.5385474860335195,
+          "macro_f1": 0.41967109834412875
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "mean_fold_macro_f1": 0.4835985046650803,
+    "sample_std_fold_macro_f1": 0.03287061477410914,
+    "pooled_accuracy": 0.5944601021666374,
+    "pooled_macro_f1": 0.4914476881376419,
+    "confusion_matrix": [
+      [
+        771,
+        963,
+        27,
+        143
+      ],
+      [
+        344,
+        10187,
+        789,
+        1505
+      ],
+      [
+        17,
+        1939,
+        1021,
+        142
+      ],
+      [
+        129,
+        3123,
+        88,
+        1520
+      ]
+    ],
+    "classes": {
+      "0": {
+        "precision": 0.6114195083267249,
+        "recall": 0.40493697478991597,
+        "f1": 0.4872037914691943,
+        "support": 1904
+      },
+      "1": {
+        "precision": 0.6283617073772514,
+        "recall": 0.7943079922027291,
+        "f1": 0.7016565072149327,
+        "support": 12825
+      },
+      "2": {
+        "precision": 0.5303896103896104,
+        "recall": 0.3273485091375441,
+        "f1": 0.4048374306106265,
+        "support": 3119
+      },
+      "3": {
+        "precision": 0.459214501510574,
+        "recall": 0.31275720164609055,
+        "f1": 0.37209302325581395,
+        "support": 4860
+      }
+    },
+    "participants": {
+      "1066528": {
+        "scored_epochs": 952,
+        "eligible_epochs": 754,
+        "label_bearing_epochs": 952,
+        "coverage": 0.792016806722689,
+        "accuracy": 0.4535809018567639,
+        "macro_f1": 0.25867406694701084
+      },
+      "4018081": {
+        "scored_epochs": 510,
+        "eligible_epochs": 490,
+        "label_bearing_epochs": 510,
+        "coverage": 0.9607843137254902,
+        "accuracy": 0.563265306122449,
+        "macro_f1": 0.5220746502040409
+      },
+      "4314139": {
+        "scored_epochs": 961,
+        "eligible_epochs": 961,
+        "label_bearing_epochs": 961,
+        "coverage": 1.0,
+        "accuracy": 0.6649323621227887,
+        "macro_f1": 0.4602327465119679
+      },
+      "5132496": {
+        "scored_epochs": 465,
+        "eligible_epochs": 464,
+        "label_bearing_epochs": 465,
+        "coverage": 0.9978494623655914,
+        "accuracy": 0.6875,
+        "macro_f1": 0.5231833858097943
+      },
+      "781756": {
+        "scored_epochs": 981,
+        "eligible_epochs": 974,
+        "label_bearing_epochs": 981,
+        "coverage": 0.9928644240570846,
+        "accuracy": 0.6519507186858317,
+        "macro_f1": 0.3513469944222594
+      },
+      "9618981": {
+        "scored_epochs": 945,
+        "eligible_epochs": 944,
+        "label_bearing_epochs": 945,
+        "coverage": 0.9989417989417989,
+        "accuracy": 0.6377118644067796,
+        "macro_f1": 0.5376811397988722
+      },
+      "1360686": {
+        "scored_epochs": 948,
+        "eligible_epochs": 919,
+        "label_bearing_epochs": 948,
+        "coverage": 0.9694092827004219,
+        "accuracy": 0.5701849836779108,
+        "macro_f1": 0.4573070569515237
+      },
+      "1449548": {
+        "scored_epochs": 953,
+        "eligible_epochs": 851,
+        "label_bearing_epochs": 953,
+        "coverage": 0.8929695697796433,
+        "accuracy": 0.5828437132784959,
+        "macro_f1": 0.5110749544664881
+      },
+      "2598705": {
+        "scored_epochs": 954,
+        "eligible_epochs": 711,
+        "label_bearing_epochs": 954,
+        "coverage": 0.7452830188679245,
+        "accuracy": 0.5330520393811533,
+        "macro_f1": 0.372416149068323
+      },
+      "5498603": {
+        "scored_epochs": 744,
+        "eligible_epochs": 741,
+        "label_bearing_epochs": 744,
+        "coverage": 0.9959677419354839,
+        "accuracy": 0.6194331983805668,
+        "macro_f1": 0.5097503477560583
+      },
+      "9106476": {
+        "scored_epochs": 961,
+        "eligible_epochs": 960,
+        "label_bearing_epochs": 961,
+        "coverage": 0.9989594172736732,
+        "accuracy": 0.5208333333333334,
+        "macro_f1": 0.25953762359410765
+      },
+      "1455390": {
+        "scored_epochs": 955,
+        "eligible_epochs": 950,
+        "label_bearing_epochs": 955,
+        "coverage": 0.9947643979057592,
+        "accuracy": 0.7147368421052631,
+        "macro_f1": 0.34908470080284454
+      },
+      "1818471": {
+        "scored_epochs": 958,
+        "eligible_epochs": 958,
+        "label_bearing_epochs": 958,
+        "coverage": 1.0,
+        "accuracy": 0.5334029227557411,
+        "macro_f1": 0.43046891504298224
+      },
+      "5383425": {
+        "scored_epochs": 976,
+        "eligible_epochs": 974,
+        "label_bearing_epochs": 976,
+        "coverage": 0.9979508196721312,
+        "accuracy": 0.3860369609856263,
+        "macro_f1": 0.46621923528401454
+      },
+      "6220552": {
+        "scored_epochs": 955,
+        "eligible_epochs": 955,
+        "label_bearing_epochs": 955,
+        "coverage": 1.0,
+        "accuracy": 0.6010471204188481,
+        "macro_f1": 0.5148065027097285
+      },
+      "8686948": {
+        "scored_epochs": 955,
+        "eligible_epochs": 955,
+        "label_bearing_epochs": 955,
+        "coverage": 1.0,
+        "accuracy": 0.5539267015706806,
+        "macro_f1": 0.5153794281811878
+      },
+      "8173033": {
+        "scored_epochs": 955,
+        "eligible_epochs": 954,
+        "label_bearing_epochs": 955,
+        "coverage": 0.9989528795811519,
+        "accuracy": 0.550314465408805,
+        "macro_f1": 0.46020792958130347
+      },
+      "8258170": {
+        "scored_epochs": 972,
+        "eligible_epochs": 969,
+        "label_bearing_epochs": 972,
+        "coverage": 0.9969135802469136,
+        "accuracy": 0.5696594427244582,
+        "macro_f1": 0.41165781236015203
+      },
+      "8530312": {
+        "scored_epochs": 947,
+        "eligible_epochs": 868,
+        "label_bearing_epochs": 947,
+        "coverage": 0.9165786694825766,
+        "accuracy": 0.6129032258064516,
+        "macro_f1": 0.5243152569975481
+      },
+      "8692923": {
+        "scored_epochs": 936,
+        "eligible_epochs": 936,
+        "label_bearing_epochs": 936,
+        "coverage": 1.0,
+        "accuracy": 0.6271367521367521,
+        "macro_f1": 0.5393371818189774
+      },
+      "9961348": {
+        "scored_epochs": 720,
+        "eligible_epochs": 700,
+        "label_bearing_epochs": 720,
+        "coverage": 0.9722222222222222,
+        "accuracy": 0.6285714285714286,
+        "macro_f1": 0.40345739206580933
+      },
+      "2638030": {
+        "scored_epochs": 948,
+        "eligible_epochs": 948,
+        "label_bearing_epochs": 948,
+        "coverage": 1.0,
+        "accuracy": 0.7120253164556962,
+        "macro_f1": 0.5847360542648553
+      },
+      "3997827": {
+        "scored_epochs": 958,
+        "eligible_epochs": 958,
+        "label_bearing_epochs": 958,
+        "coverage": 1.0,
+        "accuracy": 0.605427974947808,
+        "macro_f1": 0.3835583435712703
+      },
+      "4426783": {
+        "scored_epochs": 980,
+        "eligible_epochs": 980,
+        "label_bearing_epochs": 980,
+        "coverage": 1.0,
+        "accuracy": 0.6510204081632653,
+        "macro_f1": 0.4375254173404784
+      },
+      "5797046": {
+        "scored_epochs": 939,
+        "eligible_epochs": 939,
+        "label_bearing_epochs": 939,
+        "coverage": 1.0,
+        "accuracy": 0.6900958466453674,
+        "macro_f1": 0.5096762550316671
+      },
+      "844359": {
+        "scored_epochs": 897,
+        "eligible_epochs": 895,
+        "label_bearing_epochs": 897,
+        "coverage": 0.9977703455964325,
+        "accuracy": 0.5385474860335195,
+        "macro_f1": 0.41967109834412875
+      }
+    },
+    "validation_participants": 26,
+    "eligible_epochs": 22708,
+    "independent_outer_test": false
+  }
+}

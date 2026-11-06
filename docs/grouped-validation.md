@@ -1,6 +1,6 @@
 # Grouped development validation
 
-Status: prepared for Timo to run. No measured fold-training results exist yet.
+Status: completed by Timo. See the [measured results](experiments/gru-grouped-2026-11-06/README.md).
 
 ## Question
 
@@ -84,6 +84,6 @@ On 2026-11-05, all five development folds were prepared and frozen to MPS.
 Fold sizes are 20/6, then four folds of 21/5 training/validation participants.
 Fold one's no-gradient preflight passed with 18,121 training and 4,587 validation examples.
 Its batch shape was 64 × 10 × 6, with four output logits and 3,972 parameters.
-No participant-data optimization or grouped accuracy result exists yet.
+That preflight did not optimize model parameters. Timo subsequently completed all five training runs.
 On this checkout, skip preparation and enable only the notebook's training flag when ready.
 A fresh checkout must prepare its own derived folders first.

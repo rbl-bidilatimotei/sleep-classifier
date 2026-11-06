@@ -77,6 +77,7 @@ def analyze(config_path: Path) -> Path:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()

@@ -9,12 +9,14 @@ Read docs/first-experiment.md before changing the experiment protocol.
 Keep reusable operations in src/sleep_classifier; notebooks import these modules
 and explain experiments. Expose reproducible operations through python -m entry
 points. YAML contains only settings used by implemented code. Use uv and maintain
-uv.lock. Use type hints and Google-style docstrings for every non-dunder function or method.
+uv.lock. Use type hints and Google-style docstrings for every function and method, including dunder methods.
 For methods with parameters, always add Args entries with names, types, and concise descriptions.
 Omit self and cls from Args. Do not add an empty Args section to parameter-free methods.
 Static methods follow the same rule. Avoid nested functions; document their parameters if one is necessary.
-Dunder methods and tests may omit docstrings. Add Returns and Raises when useful.
+New or changed test helpers and test functions also require concise docstrings. Add Returns and Raises when useful.
+Parameterize every collection annotation, including nested collections; use dict[str, Any] when values vary.
 Keep summaries short and separate logical blocks with blank lines.
+Preserve two blank lines between methods where they improve readability; do not collapse user spacing.
 Comments explain non-obvious decisions.
 
 Keep raw data immutable and verify checksums. Preserve raw ordering in audits;
@@ -45,7 +47,7 @@ to smaller models when useful. Review and test their changes before delivery.
 Use cohesive classes for operations with state or configuration. Keep utility functions small.
 Split large methods into named steps. Avoid nested functions unless the design requires them.
 Use specific names that describe the operation and data. Separate logical blocks with blank lines.
-Use class and method docstrings when useful. Omit module-level docstrings and __init__.py docstrings.
+Every function and method requires a docstring. Omit module-level docstrings and __init__.py docstrings.
 
 Prepare training notebooks and commands for Timo to execute. Run real-data training only after explicit authorization.
 Synthetic training tests for tiny models and EDA execution are permitted.

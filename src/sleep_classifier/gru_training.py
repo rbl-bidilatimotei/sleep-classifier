@@ -7,6 +7,7 @@ import platform
 import random
 from pathlib import Path
 from time import perf_counter
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -33,7 +34,15 @@ LOGGER = logging.getLogger(__name__)
 class TrainingConfig:
     """Validate and hold GRU training settings."""
 
-    def __init__(self, values: dict) -> None:
+    def __init__(self, values: dict[str, object]) -> None:
+        """Initialize and validate the training configuration.
+
+        Args:
+            values (dict[str, object]): The training configuration values.
+
+        Raises:
+            ValueError: If any configuration value is invalid.
+        """
         self.values = values
         AgentOptimizerSettings(values.get("optimizer_agent"))
         integer_settings = (
@@ -44,23 +53,31 @@ class TrainingConfig:
             "hidden_size",
             "patience",
         )
+
         for name in integer_settings:
             value = values[name]
             if isinstance(value, bool) or not isinstance(value, int):
                 raise ValueError(f"{name} must be an integer")
             if (name == "seed" and value < 0) or (name != "seed" and value <= 0):
                 raise ValueError(f"{name} must be positive")
+
         for name in ("learning_rate", "gradient_clip"):
             value = values[name]
             if isinstance(value, bool) or not isinstance(value, (int, float)):
                 raise ValueError(f"{name} must be numeric")
             if not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be positive")
+
         if values.get("device", "auto") not in ("auto", "cpu", "cuda", "mps"):
             raise ValueError("device must be 'auto', 'cpu', 'cuda', or 'mps'")
 
+
     def device(self) -> torch.device:
-        """Select CUDA, MPS, then CPU for automatic device selection."""
+        """Select CUDA, MPS, then CPU for automatic device selection.
+
+        Returns:
+            torch.device: The selected device for training.
+        """
         requested = self.values.get("device", "auto")
         if requested == "cuda" and not torch.cuda.is_available():
             raise RuntimeError("CUDA was requested but is unavailable")
@@ -80,14 +97,29 @@ class EarlyStopping:
     """Track and restore the model state with the best validation score."""
 
     def __init__(self, patience: int) -> None:
+        """Initialize the early stopping mechanism.
+
+        Args:
+            patience (int): The number of epochs to wait for improvement before stopping.
+        """
         self.patience = patience
         self.best_score = -1.0
         self.best_epoch = 0
         self.stale_epochs = 0
         self.best_state = None
 
+
     def update(self, model, epoch: int, score: float) -> bool:
-        """Record a new best state or report whether patience is exhausted."""
+        """Record a new best state or report whether patience is exhausted.
+
+        Args:
+            model (nn.Module): The model being trained.
+            epoch (int): The current epoch number.
+            score (float): The validation score for the current epoch.
+
+        Returns:
+            bool: True if the patience has been exhausted, False otherwise.
+        """
         if score > self.best_score:
             self.best_score = score
             self.best_epoch = epoch
@@ -98,7 +130,11 @@ class EarlyStopping:
         return self.stale_epochs >= self.patience
 
     def restore(self, model) -> None:
-        """Load the best recorded state into the model."""
+        """Load the best recorded state into the model.
+
+        Args:
+            model (nn.Module): Model receiving the selected checkpoint.
+        """
         if self.best_state is None:
             raise RuntimeError("Training did not produce a best model state")
         model.load_state_dict(self.best_state)
@@ -108,21 +144,33 @@ class GRUExperiment:
     """Train and evaluate a causal GRU on prepared development participants."""
 
     def __init__(self, config_path: Path) -> None:
+        """Initialize the GRU experiment with the given configuration path.
+
+        Args:
+            config_path (Path): The path to the training configuration file.
+        """
         self.config_path = config_path
-        self.settings: dict = {}
+        self.settings: dict[str, object] = {}
         self.config: TrainingConfig | None = None
-        self.agent_runtime: dict | None = None
+        self.agent_runtime: dict[str, Any] | None = None
         self.prepared_dir = Path()
         self.output_dir = Path()
 
-    def run_check(self) -> dict:
-        """Validate configured inputs and model shapes without optimization."""
+
+    def run_check(self) -> dict[str, object]:
+        """Validate configured inputs and model shapes without optimization.
+
+        Returns:
+            dict[str, object]: A dictionary containing the results of the check.
+        """
         context = self._prepare()
         collator = SequenceBatchCollator()
         batch_size = min(int(self.settings["batch_size"]), len(context["train_data"]))
         batch = collator([context["train_data"][index] for index in range(batch_size)])
+
         with torch.no_grad():
             logits = context["model"](batch["features"].to(context["device"]), batch["lengths"])
+
         result = {
             "train_rows": len(context["dataset"]["partitions"]["train"]),
             "validation_rows": len(context["validation_frame"]),
@@ -137,13 +185,18 @@ class GRUExperiment:
             ),
         }
         LOGGER.info("GRU check passed: %s", json.dumps(result, sort_keys=True))
+
         return result
+
 
     def run(self, allow_live_agent: bool = False) -> Path:
         """Train with explicit control over live optimizer-agent calls.
 
         Args:
             allow_live_agent (bool): Permit the configured live OPAL backend.
+
+        Returns:
+            Path: The path to the saved metrics file.
         """
         started = perf_counter()
         context = self._prepare()
@@ -156,6 +209,7 @@ class GRUExperiment:
             len(context["validation_data"]),
             context["device"],
         )
+
         try:
             best_epoch, history = self._fit(
                 context["model"],
@@ -168,18 +222,22 @@ class GRUExperiment:
             )
         finally:
             optimizer.close()
+
         context["optimizer_provenance"] = optimizer.provenance()
         if self.agent_runtime is not None:
             context["optimizer_provenance"]["runtime"] = self.agent_runtime
+
         context["elapsed_seconds"] = perf_counter() - started
         metrics_path = self._finish(context, validation_loader, criterion, best_epoch, history)
         self._write_optimizer_report()
+
         LOGGER.info(
             "GRU results saved: path=%s elapsed_seconds=%.2f",
             self.output_dir,
             perf_counter() - started,
         )
         return metrics_path
+
 
     def _write_optimizer_report(self) -> None:
         """Save operational status separately from selected-checkpoint accuracy."""
@@ -211,6 +269,7 @@ class GRUExperiment:
             if decision.get("backend_error"):
                 LOGGER.warning("Optimizer decision failed: %s", decision["backend_error"])
 
+
     def _create_optimizer(
         self, model: nn.Module, batches: int, allow_live_agent: bool
     ) -> OptimizerAdapter:
@@ -220,6 +279,9 @@ class GRUExperiment:
             model (nn.Module): Initialized training model.
             batches (int): Training batches per epoch.
             allow_live_agent (bool): Permit live agent construction.
+
+        Returns:
+            OptimizerAdapter: The constructed optimizer adapter.
         """
         settings = self.settings.get("optimizer_agent")
         if settings:
@@ -230,6 +292,7 @@ class GRUExperiment:
             self.output_dir.mkdir(parents=True, exist_ok=False)
 
         adam = torch.optim.Adam(model.parameters(), lr=float(self.settings["learning_rate"]))
+
         return OptimizerAdapter.create(
             adam,
             model,
@@ -239,8 +302,16 @@ class GRUExperiment:
             allow_live_agent=allow_live_agent,
         )
 
-    def _build_loaders(self, context: dict) -> tuple[DataLoader, DataLoader]:
-        """Create deterministic train and ordered validation loaders."""
+
+    def _build_loaders(self, context: dict[str, Any]) -> tuple[DataLoader, DataLoader]:
+        """Create deterministic train and ordered validation loaders.
+
+        Args:
+            context (dict[str, Any]): Dictionary containing training and validation datasets.
+
+        Returns:
+            tuple[DataLoader, DataLoader]: Train and validation data loaders.
+        """
         generator = torch.Generator().manual_seed(int(self.settings["seed"]))
         collator = SequenceBatchCollator()
         train_loader = DataLoader(
@@ -258,10 +329,34 @@ class GRUExperiment:
             num_workers=0,
             collate_fn=collator,
         )
+
         return train_loader, validation_loader
 
-    def _fit(self, model, train_loader, validation_loader, optimizer, criterion, device, frame):
-        """Run epochs and restore the checkpoint with the best validation macro-F1."""
+
+    def _fit(
+        self,
+        model: nn.Module,
+        train_loader: DataLoader,
+        validation_loader: DataLoader,
+        optimizer: OptimizerAdapter,
+        criterion: nn.Module,
+        device: torch.device,
+        frame: Any,
+    ) -> tuple[int, list[dict[str, Any]]]:
+        """Run epochs and restore the checkpoint with the best validation macro-F1.
+
+        Args:
+            model (nn.Module): The model to train.
+            train_loader (DataLoader): DataLoader for the training set.
+            validation_loader (DataLoader): DataLoader for the validation set.
+            optimizer (OptimizerAdapter): Optimizer for training.
+            criterion (nn.Module): Loss function.
+            device (torch.device): Device to run the training on.
+            frame (Any): Additional context for the training.
+
+        Returns:
+            tuple[int, list[dict[str, Any]]]: Best epoch and training history.
+        """
         stopping = EarlyStopping(int(self.settings["patience"]))
         history = []
         max_epochs = int(self.settings["epochs"])
@@ -291,12 +386,32 @@ class GRUExperiment:
                 )
                 break
         stopping.restore(model)
+
         return stopping.best_epoch, history
 
+
     def _epoch_summary(
-        self, epoch, train_loss, validation_loss, targets, predictions, frame
-    ) -> dict:
-        """Calculate and log the scalar metrics used by early stopping."""
+        self,
+        epoch: int,
+        train_loss: float,
+        validation_loss: float,
+        targets: torch.Tensor,
+        predictions: torch.Tensor,
+        frame: Any,
+    ) -> dict[str, Any]:
+        """Calculate and log the scalar metrics used by early stopping.
+
+        Args:
+            epoch (int): Current epoch number.
+            train_loss (float): Training loss for the epoch.
+            validation_loss (float): Validation loss for the epoch.
+            targets (torch.Tensor): Ground truth labels.
+            predictions (torch.Tensor): Model predictions.
+            frame (Any): Additional context for the training.
+
+        Returns:
+            dict[str, Any]: Summary of the epoch metrics.
+        """
         metrics = self._metrics(predictions, targets, frame)
         summary = {
             "epoch": epoch,
@@ -315,17 +430,29 @@ class GRUExperiment:
             metrics["macro_f1"],
             metrics["accuracy"],
         )
+
         return summary
 
-    def _finish(self, context, validation_loader, criterion, best_epoch, history) -> Path:
+
+    def _finish(
+        self,
+        context: dict[str, Any],
+        validation_loader: DataLoader,
+        criterion: nn.Module,
+        best_epoch: int,
+        history: list[dict[str, Any]],
+    ) -> Path:
         """Evaluate the restored model and persist validation artifacts.
 
         Args:
-            context (dict): Prepared inputs, model, scaler, and optimizer provenance.
+            context (dict[str, Any]): Prepared inputs, model, scaler, and optimizer provenance.
             validation_loader (DataLoader): Held-out participant batches.
             criterion (nn.Module): Validation loss function.
             best_epoch (int): Selected checkpoint epoch.
-            history (list[dict]): Recorded epoch losses and scores.
+            history (list[dict[str, Any]]): Recorded epoch losses and scores.
+
+        Returns:
+            Path: Path to the persisted metrics JSON file.
         """
         model = context["model"]
         device = context["device"]
@@ -333,7 +460,9 @@ class GRUExperiment:
             model, validation_loader, criterion, device
         )
         validation_frame = context["validation_frame"]
+
         self._assert_target_alignment(targets, validation_frame)
+
         metrics = self._metrics(predictions, targets, validation_frame)
         metrics["best_epoch"] = best_epoch
         metrics["history"] = history
@@ -350,24 +479,35 @@ class GRUExperiment:
             "scikit_learn": sklearn.__version__,
             "torch": torch.__version__,
         }
+
         predictions_table = self._prediction_table(validation_frame, predictions, probabilities)
         self._save(model, context["scaler"], metrics, predictions_table)
+
         return self.output_dir / "metrics.json"
 
+
     def _assert_target_alignment(self, targets: np.ndarray, frame: pd.DataFrame) -> None:
-        """Require sequence evaluation order to match prepared row order."""
+        """Require sequence evaluation order to match prepared row order.
+
+        Args:
+            targets (np.ndarray): Sequence of target labels.
+            frame (pd.DataFrame): Validation DataFrame containing the expected target labels.
+        """
         expected_targets = frame["target"].to_numpy(dtype=int)
         if not np.array_equal(targets, expected_targets):
             raise ValueError("Validation sequence targets do not align with validation rows")
+
 
     def _prepare(self):
         """Load development data, fit training-only scaling, and build model."""
         self.settings = yaml.safe_load(self.config_path.read_text())
         self.config = TrainingConfig(self.settings)
+
         prepare_path = self.config_path.parent / self.settings["prepare_config"]
         prepare_settings = yaml.safe_load(prepare_path.read_text())
         self.prepared_dir = (prepare_path.parent / prepare_settings["output_dir"]).resolve()
         self.output_dir = (self.config_path.parent / self.settings["output_dir"]).resolve()
+
         dataset = PreparedFeatureDataset(self.prepared_dir).load()
         train = dataset["partitions"]["train"]
         validation = (
@@ -396,6 +536,7 @@ class GRUExperiment:
             len(train_data),
             len(validation_data),
         )
+
         return {
             "dataset": dataset,
             "scaler": scaler,
@@ -406,56 +547,104 @@ class GRUExperiment:
             "device": device,
         }
 
+
     def _seed(self, seed: int) -> None:
+        """Set random seeds for reproducibility.
+
+        Args:
+            seed (int): Random seed to set for reproducibility.
+        """
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
 
+
     def _train_epoch(
-        self, model, loader, optimizer, criterion, device, gradient_clip: float
+        self,
+        model: nn.Module,
+        loader: DataLoader,
+        optimizer: torch.optim.Optimizer,
+        criterion: nn.Module,
+        device: torch.device,
+        gradient_clip: float
     ) -> float:
         """Apply one training epoch with the configured optimizer.
 
         Args:
             model (nn.Module): Model updated by this epoch.
             loader (DataLoader): Training batches.
-            optimizer (OptimizerAdapter): Adam or OPAL update interface.
+            optimizer (torch.optim.Optimizer): Adam or OPAL update interface.
             criterion (nn.Module): Training loss function.
             device (torch.device): Device for tensors.
             gradient_clip (float): Maximum gradient norm.
+
+        Returns:
+            float: Average training loss for the epoch.
         """
         model.train()
         total_loss = 0.0
         total_count = 0
+
         for batch in loader:
             features = batch["features"].to(device)
             targets = batch["targets"].to(device)
+
             optimizer.zero_grad(set_to_none=True)
+
             loss = criterion(model(features, batch["lengths"]), targets)
             loss.backward()
+
             nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
+
             optimizer.step(loss)
+
             total_loss += float(loss.item()) * len(targets)
             total_count += len(targets)
+
         return total_loss / total_count
 
-    def _evaluate(self, model, loader, criterion, device):
+
+    def _evaluate(
+        self,
+        model: nn.Module,
+        loader: DataLoader,
+        criterion: nn.Module,
+        device: torch.device
+    ) -> tuple[float, np.ndarray, np.ndarray, np.ndarray]:
+        """Evaluate the model on the given data loader.
+
+        Args:
+            model (nn.Module): Model to evaluate.
+            loader (DataLoader): Evaluation batches.
+            criterion (nn.Module): Loss function.
+            device (torch.device): Device for tensors.
+
+        Returns:
+            tuple[float, np.ndarray, np.ndarray, np.ndarray]: Average loss, targets, predictions,
+                and probabilities.
+        """
         model.eval()
         losses = 0.0
         count = 0
         targets_all, predictions_all, probabilities_all = [], [], []
+
         with torch.no_grad():
             for batch in loader:
                 features = batch["features"].to(device)
                 targets = batch["targets"].to(device)
+
                 logits = model(features, batch["lengths"])
                 losses += float(criterion(logits, targets).item()) * len(targets)
+
                 count += len(targets)
+
                 targets_all.extend(targets.cpu().numpy().tolist())
+
                 predictions_all.extend(logits.argmax(dim=1).cpu().numpy().tolist())
                 probabilities_all.extend(torch.softmax(logits, dim=1).cpu().numpy().tolist())
+
         return (
             losses / count,
             np.asarray(targets_all),
@@ -463,7 +652,23 @@ class GRUExperiment:
             np.asarray(probabilities_all),
         )
 
-    def _metrics(self, predictions: np.ndarray, targets: np.ndarray, frame: pd.DataFrame) -> dict:
+
+    def _metrics(
+        self,
+        predictions: np.ndarray,
+        targets: np.ndarray,
+        frame: pd.DataFrame
+    ) -> dict[str, Any]:
+        """Compute evaluation metrics for the given predictions and targets.
+
+        Args:
+            predictions (np.ndarray): Predicted labels.
+            targets (np.ndarray): True labels.
+            frame (pd.DataFrame): Data frame containing additional information.
+
+        Returns:
+            dict[str, Any]: Dictionary containing evaluation metrics.
+        """
         precision, recall, f1, support = precision_recall_fscore_support(
             targets, predictions, labels=CLASS_LABELS, zero_division=0
         )
@@ -486,7 +691,16 @@ class GRUExperiment:
             "participants": self._participant_metrics(frame, predictions),
         }
 
-    def _coverage(self, frame: pd.DataFrame) -> dict:
+
+    def _coverage(self, frame: pd.DataFrame) -> dict[str, Any]:
+        """Compute coverage metrics for the given data frame.
+
+        Args:
+            frame (pd.DataFrame): Data frame containing participant information.
+
+        Returns:
+            dict[str, Any]: Dictionary containing coverage metrics.
+        """
         scored = frame.groupby("participant_id")["scored_epochs"].first()
         return {
             "scored_epochs": int(scored.sum()),
@@ -497,8 +711,18 @@ class GRUExperiment:
             "fraction": float(len(frame) / scored.sum()) if scored.sum() else 0.0,
         }
 
-    def _participant_metrics(self, frame: pd.DataFrame, predictions: np.ndarray) -> dict:
+    def _participant_metrics(self, frame: pd.DataFrame, predictions: np.ndarray) -> dict[str, Any]:
+        """Compute participant-level metrics for the given data frame and predictions.
+
+        Args:
+            frame (pd.DataFrame): Data frame containing participant information.
+            predictions (np.ndarray): Predicted labels.
+
+        Returns:
+            dict[str, Any]: Dictionary containing participant-level metrics.
+        """
         results = {}
+
         for participant_id, indexes in frame.groupby("participant_id").indices.items():
             selected = np.asarray(indexes, dtype=int)
             targets = frame.iloc[selected]["target"].to_numpy(dtype=int)
@@ -515,17 +739,50 @@ class GRUExperiment:
                 "accuracy": float(accuracy_score(targets, predictions[selected])),
                 "macro_f1": float(np.mean(f1)),
             }
+
         return results
 
-    def _prediction_table(self, frame: pd.DataFrame, predictions, probabilities) -> pd.DataFrame:
+
+    def _prediction_table(
+        self,
+        frame: pd.DataFrame,
+        predictions: np.ndarray,
+        probabilities: np.ndarray
+    ) -> pd.DataFrame:
+        """Create aligned validation predictions and probabilities.
+
+        Args:
+            frame (pd.DataFrame): Data frame containing participant information.
+            predictions (np.ndarray): Predicted labels.
+            probabilities (np.ndarray): Predicted probabilities for each class.
+
+        Returns:
+            pd.DataFrame: Data frame containing the prediction table.
+        """
         columns = ["participant_id"] + (["time"] if "time" in frame.columns else []) + ["target"]
         table = frame.loc[:, columns].reset_index(drop=True).copy()
         table["gru_prediction"] = predictions
         for label in CLASS_LABELS:
             table[f"probability_{label}"] = probabilities[:, label]
+
         return table
 
-    def _save(self, model, scaler, metrics: dict, predictions: pd.DataFrame) -> None:
+
+    def _save(
+        self,
+        model: nn.Module,
+        scaler: StandardScaler,
+        metrics: dict[str, float],
+        predictions: pd.DataFrame
+    ) -> None:
+        """Save the model checkpoint, metrics, and predictions to the output directory.
+
+        Args:
+            model (nn.Module): The trained GRU model.
+            scaler (StandardScaler): The scaler used for feature normalization.
+            metrics (dict[str, float]): Evaluation metrics for the model.
+            predictions (pd.DataFrame): Data frame containing predictions.
+        """
         self.output_dir.mkdir(parents=True, exist_ok=True)
         config = {
             "input_size": len(FEATURE_COLUMNS),
@@ -549,6 +806,7 @@ class GRUExperiment:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description="Train or check the causal GRU experiment")
     parser.add_argument("--config", type=Path, required=True)
     operation = parser.add_mutually_exclusive_group(required=True)
@@ -567,7 +825,9 @@ def main() -> None:
     args = parser.parse_args()
     if args.allow_live_agent and not args.train:
         parser.error("--allow-live-agent requires --train")
+
     configure_logging()
+
     experiment = GRUExperiment(args.config)
     if args.check_agent:
         settings = yaml.safe_load(args.config.read_text())

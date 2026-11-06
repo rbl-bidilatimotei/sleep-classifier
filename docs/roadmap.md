@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-05. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-06. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -12,6 +12,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Verify OPAL's offline keep wrapper with synthetic inputs
 - Replicate the GRU patience comparison across three seeds
 - Complete a live Codex-powered OPAL pilot with one applied optimizer change
+- Complete five-fold grouped development validation for the fixed GRU recipe
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -19,11 +20,11 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Evaluate the fixed GRU recipe across five participant-disjoint development folds.
-Use all 26 development participants and keep the three final-test participants reserved.
-Fit a fresh scaler and model in each fold. Record every fold and participant result.
-Checkpoint selection uses each development validation fold; these are development-CV results, not an independent final test.
-Prepare the scripts, YAML settings, and notebook for Timo to run.
+Compare a small causal Transformer against the measured GRU on the same five development folds.
+Reuse the six features, coverage policy, training seed, learning rate, and checkpoint selection rule.
+Report paired fold differences, pooled scores, class scores, and participant results.
+Document the model-size and dropout differences rather than claiming a pure attention ablation.
+Prepare training for Timo to execute. Keep the final test set reserved.
 
 ## Model and evaluation milestones
 

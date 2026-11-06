@@ -21,6 +21,13 @@ class OpalSmokeExperiment:
     """Compare Adam with OPAL's offline keep backend on synthetic sequences."""
 
     def __init__(self, output_dir: Path, steps: int = 100, device: str = "cpu") -> None:
+        """Initialize the OPAL smoke experiment.
+
+        Args:
+            output_dir (Path): Directory to store experiment outputs.
+            steps (int): Number of training steps to simulate.
+            device (str): Device to run the experiment on ("cpu" or "mps").
+        """
         if steps < 2:
             raise ValueError("steps must be at least two")
         if device not in ("cpu", "mps"):
@@ -30,6 +37,7 @@ class OpalSmokeExperiment:
         self.output_dir = output_dir
         self.steps = steps
         self.device = torch.device(device)
+
 
     def run(self) -> dict[str, object]:
         """Check loss and parameter agreement without data files or agent calls.
@@ -63,7 +71,8 @@ class OpalSmokeExperiment:
         )
         return summary
 
-    def _make_batches(self, generator: torch.Generator) -> list[tuple]:
+
+    def _make_batches(self, generator: torch.Generator) -> list[tuple[Any, ...]]:
         """Generate synthetic batches for the experiment.
 
         Args:
@@ -84,8 +93,9 @@ class OpalSmokeExperiment:
 
         return batches
 
+
     def _run_trial(
-        self, initial_state: dict[str, torch.Tensor], batches: list[tuple], opal=None
+        self, initial_state: dict[str, torch.Tensor], batches: list[tuple[Any, ...]], opal=None
     ) -> dict[str, Any]:
         """Run a single training trial with the given model state and batches.
 
@@ -130,7 +140,10 @@ class OpalSmokeExperiment:
             "elapsed_seconds": perf_counter() - started,
         }
 
-    def _updates(self, model, optimizer, batches: list[tuple], wrapped: bool) -> list[float]:
+
+    def _updates(
+        self, model, optimizer, batches: list[tuple[Any, ...]], wrapped: bool
+    ) -> list[float]:
         """Perform model updates for the given batches.
 
         Args:
@@ -154,7 +167,9 @@ class OpalSmokeExperiment:
             else:
                 optimizer.step()
             losses.append(float(loss.item()))
+
         return losses
+
 
     def _compare(self, plain: dict[str, Any], wrapped: dict[str, Any]) -> dict[str, Any]:
         """Compare the results of plain and wrapped optimizer runs.
@@ -197,8 +212,14 @@ class OpalSmokeExperiment:
             "wrapped_losses": wrapped["losses"],
         }
 
+
     @staticmethod
-    def _parameter_digest(state: dict) -> str:
+    def _parameter_digest(state: dict[str, torch.Tensor]) -> str:
+        """Hash model tensors in a stable parameter-name order.
+
+        Args:
+            state (dict[str, torch.Tensor]): Model state tensors.
+        """
         digest = hashlib.sha256()
         for name, value in sorted(state.items()):
             digest.update(name.encode())
@@ -207,6 +228,7 @@ class OpalSmokeExperiment:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description="Check OPAL with synthetic data and no agent")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--steps", type=int, default=100)

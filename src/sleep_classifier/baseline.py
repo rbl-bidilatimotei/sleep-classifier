@@ -5,6 +5,7 @@ import platform
 import re
 from pathlib import Path
 from time import perf_counter
+from typing import Any
 
 import joblib
 import numpy as np
@@ -14,7 +15,7 @@ import yaml
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sleep_classifier.features import FEATURE_COLUMNS
@@ -28,43 +29,67 @@ class PreparedFeatureDataset:
     """Read eligible train and validation rows from prepared participant tables."""
 
     def __init__(self, prepared_dir: Path) -> None:
-        """Store the prepared feature directory."""
+        """Store the prepared feature directory.
+
+        Args:
+            prepared_dir (Path): Directory containing prepared feature tables.
+        """
         self.prepared_dir = prepared_dir
 
-    def load(self) -> dict:
-        """Load only provenance-listed train and validation participants."""
+    def load(self) -> dict[str, dict[str, pd.DataFrame]]:
+        """Load only provenance-listed train and validation participants.
+
+        Returns:
+            dict[str, dict[str, pd.DataFrame]]: Loaded train and val partitions with provenance.
+        """
         provenance_path = self.prepared_dir / "provenance.json"
         if not provenance_path.is_file():
             raise FileNotFoundError(f"Prepared provenance is missing: {provenance_path}")
+
         provenance = json.loads(provenance_path.read_text())
         feature_columns = provenance.get("feature_columns")
         if feature_columns is not None and tuple(feature_columns) != FEATURE_COLUMNS:
             raise ValueError("Prepared provenance feature columns do not match the baseline schema")
+
         split = provenance.get("split", {})
         train_ids = split.get("train")
         validation_ids = split.get("validation")
+
         if not isinstance(train_ids, list) or not isinstance(validation_ids, list):
             raise ValueError("Provenance must contain train and validation participant lists")
         if set(train_ids) & set(validation_ids):
             raise ValueError("Train and validation participants must be disjoint")
+
         test_ids = set(split.get("test", []))
         if (set(train_ids) | set(validation_ids)) & test_ids:
             raise ValueError("Development participants overlap the test partition")
+
         self._validate_participant_ids(train_ids + validation_ids + list(test_ids))
+
         participant_meta = {
             (item["partition"], item["participant_id"]): item
             for item in provenance.get("participants", [])
         }
         loaded = {"provenance": provenance, "partitions": {}}
+
         for partition, participant_ids in (("train", train_ids), ("validation", validation_ids)):
             loaded["partitions"][partition] = self._load_partition(
                 partition, participant_ids, participant_meta
             )
+
         self._validate_rows(loaded["partitions"])
+
         return loaded
 
     def _validate_participant_ids(self, participant_ids: list[str]) -> None:
-        """Reject unsafe or duplicate participant identifiers."""
+        """Reject unsafe or duplicate participant identifiers.
+
+        Args:
+            participant_ids (list[str]): List of participant identifiers to validate.
+
+        Raises:
+            ValueError: If participant IDs are not unique or contain invalid characters.
+        """
         if len(participant_ids) != len(set(participant_ids)):
             raise ValueError("Participant IDs must be unique across partitions")
         valid_id = re.compile(r"[A-Za-z0-9_-]+")
@@ -77,9 +102,22 @@ class PreparedFeatureDataset:
             )
 
     def _load_partition(
-        self, partition: str, participant_ids: list[str], metadata: dict
+        self, partition: str, participant_ids: list[str], metadata: dict[
+            tuple[str, str], dict[
+                str, Any
+            ]
+        ]
     ) -> pd.DataFrame:
-        """Load and reconcile all participant tables for one split."""
+        """Load and reconcile all participant tables for one split.
+
+        Args:
+            partition (str): The partition name, e.g., "train" or "validation".
+            participant_ids (list[str]): List of participant identifiers to load.
+            metadata (dict[tuple[str, str], dict[str, Any]]): Metadata for each participant.
+
+        Returns:
+            pd.DataFrame: Concatenated DataFrame of all participants in the partition.
+        """
         frames = []
         for participant_id in participant_ids:
             raw = self._read_participant(partition, participant_id)
@@ -88,6 +126,7 @@ class PreparedFeatureDataset:
                 raise ValueError(
                     f"Provenance lacks participant counts for {partition}/{participant_id}"
                 )
+
             eligible_count = int(participant_meta["eligible_epochs"])
             scored_count = int((raw["target"] != -1).sum())
             frame = raw.loc[raw["eligible"].astype(bool) & (raw["target"] != -1)].copy()
@@ -96,28 +135,45 @@ class PreparedFeatureDataset:
                     f"Eligible epoch count mismatch for {partition}/{participant_id}: "
                     f"provenance={eligible_count}, table={len(frame)}"
                 )
+
             if frame.empty:
                 raise ValueError(f"No eligible rows for {partition}/{participant_id}")
             frame["participant_id"] = participant_id
             frame["eligible_epochs"] = eligible_count
             frame["scored_epochs"] = scored_count
             frames.append(frame)
+
         return pd.concat(frames, ignore_index=True) if frames else self._empty()
 
     def _read_participant(self, partition: str, participant_id: str) -> pd.DataFrame:
-        """Read one participant table and require the expected schema."""
+        """Read one participant table and require the expected schema.
+
+        Args:
+            partition (str): The partition name, e.g., "train" or "validation".
+            participant_id (str): The participant identifier.
+
+        Returns:
+            pd.DataFrame: The participant's data with the expected schema.
+        """
         path = self.prepared_dir / partition / f"{participant_id}.csv"
         if not path.is_file():
             raise FileNotFoundError(f"Prepared participant table is missing: {path}")
+
         frame = pd.read_csv(path)
         required = set(FEATURE_COLUMNS) | {"target", "eligible"}
         missing = required - set(frame.columns)
         if missing:
             raise ValueError(f"Prepared table {path} is missing columns: {sorted(missing)}")
+
         return frame
 
+
     def _empty(self) -> pd.DataFrame:
-        """Create the expected empty partition schema."""
+        """Create the expected empty partition schema.
+
+        Returns:
+            pd.DataFrame: An empty DataFrame with the expected columns.
+        """
         return pd.DataFrame(
             columns=[
                 *FEATURE_COLUMNS,
@@ -129,12 +185,24 @@ class PreparedFeatureDataset:
         )
 
     def _validate_rows(self, partitions: dict[str, pd.DataFrame]) -> None:
-        """Reject invalid targets and non-finite feature values."""
+        """Reject invalid targets and non-finite feature values.
+
+        Args:
+            partitions (dict[str, pd.DataFrame]): Dictionary of partition names to DataFrames.
+
+        Raises:
+            ValueError: If any partition has:
+                - no eligible labeled rows
+                - non-finite features
+                - invalid targets
+        """
         for partition, frame in partitions.items():
             if frame.empty:
                 raise ValueError(f"Partition has no eligible labeled rows: {partition}")
+
             features = frame.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
             raw_targets = frame["target"].to_numpy(dtype=float)
+
             if not np.isfinite(features).all():
                 raise ValueError(f"Feature values must be finite in {partition}")
             if not np.isfinite(raw_targets).all() or not np.isin(raw_targets, CLASS_LABELS).all():
@@ -145,13 +213,23 @@ class BaselineExperiment:
     """Fit majority and scaled logistic-regression baselines on train participants."""
 
     def __init__(self, config_path: Path) -> None:
-        """Store the baseline configuration path."""
+        """Store the baseline configuration path.
+
+        Args:
+            config_path (Path): Path to the baseline configuration file.
+        """
         self.config_path = config_path
 
+
     def run(self) -> Path:
-        """Fit on training participants and evaluate validation participants."""
+        """Fit on training participants and evaluate validation participants.
+
+        Returns:
+            Path: Path to the CSV file containing the evaluation results.
+        """
         started = perf_counter()
         LOGGER.info("Stage 1/4: loading settings and prepared train/validation rows")
+
         settings, prepared_dir, output_dir = self._load_settings()
         dataset = PreparedFeatureDataset(prepared_dir).load()
         train_rows = len(dataset["partitions"]["train"])
@@ -163,10 +241,19 @@ class BaselineExperiment:
             perf_counter() - started,
         )
         pipeline, majority = self._fit_models(dataset["partitions"]["train"], settings)
+
         return self._save_results(settings, dataset, pipeline, majority, output_dir)
 
+
     def export_validation_predictions(self, destination: Path) -> Path:
-        """Export predictions from saved models without fitting either classifier."""
+        """Export predictions from saved models without fitting either classifier.
+
+        Args:
+            destination (Path): Path to the CSV file where predictions will be saved.
+
+        Returns:
+            Path: Path to the CSV file containing the exported predictions.
+        """
         if destination.suffix != ".csv":
             raise ValueError("Prediction destination must be a CSV file")
 
@@ -179,35 +266,65 @@ class BaselineExperiment:
         destination.parent.mkdir(parents=True, exist_ok=True)
         predictions.to_csv(destination, index=False)
         LOGGER.info("Saved-model validation predictions exported without fitting: %s", destination)
+
         return destination
 
-    def _load_settings(self) -> tuple[dict, Path, Path]:
-        """Read baseline and preparation paths from the configuration files."""
+
+    def _load_settings(self) -> tuple[dict[str, Any], Path, Path]:
+        """Read baseline and preparation paths from the configuration files.
+
+        Returns:
+            tuple[dict[str, Any], Path, Path]: Baseline settings, prepared data directory, and
+                output dir.
+        """
         settings = yaml.safe_load(self.config_path.read_text())
         class_weight = settings.get("class_weight")
         if class_weight not in (None, "balanced"):
             raise ValueError("class_weight must be null or 'balanced'")
+
         prepare_path = self.config_path.parent / settings["prepare_config"]
         prepare_settings = yaml.safe_load(prepare_path.read_text())
         prepared_dir = (prepare_path.parent / prepare_settings["output_dir"]).resolve()
+
         output_dir = (self.config_path.parent / settings["output_dir"]).resolve()
+
         return settings, prepared_dir, output_dir
 
-    def _fit_models(self, train: pd.DataFrame, settings: dict):
-        """Fit both classifiers using training rows only."""
+
+    def _fit_models(self, train: pd.DataFrame, settings: dict[str, Any]) -> tuple[Pipeline, Any]:
+        """Fit both classifiers using training rows only.
+
+        Args:
+            train (pd.DataFrame): Training data containing features and target.
+            settings (dict[str, Any]): Baseline settings.
+
+        Returns:
+            tuple[Pipeline, Any]: Fitted logistic regression pipeline and majority classifier.
+        """
         x_train = train.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
         y_train = train["target"].to_numpy(dtype=int)
         pipeline = self._build_logistic_pipeline(settings)
         self._fit_logistic_regression(pipeline, x_train, y_train, len(train), settings)
         majority = self._fit_majority_classifier(x_train, y_train, len(train))
+
         return pipeline, majority
 
-    def _build_logistic_pipeline(self, settings: dict):
-        """Create the scaled logistic-regression pipeline from baseline settings."""
+
+    def _build_logistic_pipeline(self, settings: dict[str, Any]):
+        """Create the scaled logistic-regression pipeline from baseline settings.
+
+        Args:
+            settings (dict[str, Any]): Baseline settings.
+
+        Returns:
+            Pipeline: Scaled logistic regression pipeline.
+        """
         class_weight = settings.get("class_weight")
         if class_weight not in (None, "balanced"):
             raise ValueError("class_weight must be null or 'balanced'")
+
         seed = int(settings["seed"])
+
         return make_pipeline(
             StandardScaler(),
             LogisticRegression(
@@ -218,15 +335,31 @@ class BaselineExperiment:
             ),
         )
 
+
     def _fit_logistic_regression(
-        self, pipeline, x_train: np.ndarray, y_train: np.ndarray, row_count: int, settings: dict
+        self,
+        pipeline: Pipeline,
+        x_train: np.ndarray,
+        y_train: np.ndarray,
+        row_count: int,
+        settings: dict[str, Any]
     ) -> None:
-        """Fit logistic regression and report the optimizer's iteration count."""
+        """Fit logistic regression and report the optimizer's iteration count.
+
+        Args:
+            pipeline (Pipeline): Logistic regression pipeline.
+            x_train (np.ndarray): Training features.
+            y_train (np.ndarray): Training labels.
+            row_count (int): Number of training rows.
+            settings (dict[str, Any]): Baseline settings.
+        """
         max_iter = int(settings["max_iter"])
         started = perf_counter()
         LOGGER.info("Stage 2/4: fitting logistic regression on train_rows=%d", row_count)
+
         pipeline.fit(x_train, y_train)
         actual_iterations = int(np.max(pipeline.named_steps["logisticregression"].n_iter_))
+
         LOGGER.info(
             "Stage 2/4 complete: logistic_regression iteration_cap=%d actual_iterations=%d "
             "elapsed_seconds=%.2f",
@@ -234,6 +367,7 @@ class BaselineExperiment:
             actual_iterations,
             perf_counter() - started,
         )
+
         if actual_iterations >= max_iter:
             LOGGER.warning(
                 "Logistic regression reached the configured iteration cap (%d); "
@@ -241,10 +375,20 @@ class BaselineExperiment:
                 max_iter,
             )
 
+
     def _fit_majority_classifier(
         self, x_train: np.ndarray, y_train: np.ndarray, row_count: int
     ) -> DummyClassifier:
-        """Fit and time the most-frequent-class reference classifier."""
+        """Fit and time the most-frequent-class reference classifier.
+
+        Args:
+            x_train (np.ndarray): Training features.
+            y_train (np.ndarray): Training labels.
+            row_count (int): Number of training rows.
+
+        Returns:
+            DummyClassifier: Fitted majority classifier.
+        """
         started = perf_counter()
         LOGGER.info("Stage 3/4: fitting majority classifier on train_rows=%d", row_count)
         majority = DummyClassifier(strategy="most_frequent").fit(x_train, y_train)
@@ -255,9 +399,25 @@ class BaselineExperiment:
         return majority
 
     def _save_results(
-        self, settings: dict, dataset: dict, pipeline, majority, output_dir: Path
+        self,
+        settings: dict[str, Any],
+        dataset: dict[str, Any],
+        pipeline: Pipeline,
+        majority: DummyClassifier,
+        output_dir: Path
     ) -> Path:
-        """Persist fitted estimators and validation metrics."""
+        """Persist fitted estimators and validation metrics.
+
+        Args:
+            settings (dict[str, Any]): Configuration settings.
+            dataset (dict[str, Any]): Dataset information.
+            pipeline (Pipeline): Fitted logistic regression pipeline.
+            majority (DummyClassifier): Fitted majority classifier.
+            output_dir (Path): Directory to persist results.
+
+        Returns:
+            Path: Path to the persisted metrics file.
+        """
         started = perf_counter()
         validation = dataset["partitions"]["validation"]
         LOGGER.info(
@@ -281,17 +441,31 @@ class BaselineExperiment:
         )
         return metrics_path
 
+
     def _build_result_payload(
         self,
-        settings: dict,
-        dataset: dict,
-        pipeline,
-        majority,
+        settings: dict[str, Any],
+        dataset: dict[str, Any],
+        pipeline: Pipeline,
+        majority: DummyClassifier,
         x_validation: np.ndarray,
         y_validation: np.ndarray,
         validation: pd.DataFrame,
-    ) -> dict:
-        """Calculate the unchanged metrics and provenance payload."""
+    ) -> dict[str, Any]:
+        """Calculate the unchanged metrics and provenance payload.
+
+        Args:
+            settings (dict[str, Any]): Configuration settings.
+            dataset (dict[str, Any]): Dataset information.
+            pipeline (Pipeline): Fitted logistic regression pipeline.
+            majority (DummyClassifier): Fitted majority classifier.
+            x_validation (np.ndarray): Validation features.
+            y_validation (np.ndarray): Validation labels.
+            validation (pd.DataFrame): Validation dataframe.
+
+        Returns:
+            dict[str, Any]: Result payload containing metrics and provenance information.
+        """
         return {
             "config": settings,
             "features": list(FEATURE_COLUMNS),
@@ -321,38 +495,92 @@ class BaselineExperiment:
             },
         }
 
-    def _build_prediction_table(self, validation: pd.DataFrame, pipeline, majority) -> pd.DataFrame:
-        """Create row-aligned validation predictions and logistic probabilities."""
+
+    def _build_prediction_table(
+        self,
+        validation: pd.DataFrame,
+        pipeline: Pipeline,
+        majority: DummyClassifier,
+    ) -> pd.DataFrame:
+        """Create row-aligned validation predictions and logistic probabilities.
+
+        Args:
+            validation (pd.DataFrame): Validation dataframe.
+            pipeline (Pipeline): Fitted logistic regression pipeline.
+            majority (DummyClassifier): Fitted majority classifier.
+
+        Returns:
+            pd.DataFrame: Prediction table with row-aligned predictions and probabilities.
+        """
         features = validation.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
         columns = ["participant_id"]
         if "time" in validation.columns:
             columns.append("time")
+
         columns.append("target")
         predictions = validation.loc[:, columns].reset_index(drop=True).copy()
         predictions["majority_prediction"] = majority.predict(features)
         predictions["logistic_regression_prediction"] = pipeline.predict(features)
         estimator = pipeline.named_steps["logisticregression"]
         probabilities = pipeline.predict_proba(features)
+
         for index, label in enumerate(estimator.classes_):
             predictions[f"logistic_probability_{label}"] = probabilities[:, index]
+
         return predictions
 
+
     def _persist_results(
-        self, output_dir: Path, pipeline, majority, result: dict, prediction_table: pd.DataFrame
+        self,
+        output_dir: Path,
+        pipeline: Pipeline,
+        majority: DummyClassifier,
+        result: dict[str, Any],
+        prediction_table: pd.DataFrame
     ) -> Path:
-        """Persist fitted estimators and validation metrics."""
+        """Persist fitted estimators and validation metrics.
+
+        Args:
+            output_dir (Path): Directory to store results.
+            pipeline (Pipeline): Fitted logistic regression pipeline.
+            majority (DummyClassifier): Fitted majority classifier.
+            result (dict[str, Any]): Validation metrics.
+            prediction_table (pd.DataFrame): Row-aligned predictions and probabilities.
+
+        Returns:
+            Path: Path to the persisted metrics JSON file.
+        """
         output_dir.mkdir(parents=True, exist_ok=True)
         models_dir = output_dir / "models"
         models_dir.mkdir(parents=True, exist_ok=True)
+
         joblib.dump(pipeline, models_dir / "logistic_regression.joblib")
         joblib.dump(majority, models_dir / "majority.joblib")
+
         metrics_path = output_dir / "metrics.json"
         metrics_path.write_text(json.dumps(result, indent=2) + "\n")
+
         prediction_table.to_csv(output_dir / "validation_predictions.csv", index=False)
+
         return metrics_path
 
-    def _metrics(self, predictions: np.ndarray, targets: np.ndarray, frame: pd.DataFrame) -> dict:
-        """Calculate aggregate and per-participant validation metrics."""
+
+    def _metrics(
+        self,
+        predictions: np.ndarray,
+        targets: np.ndarray,
+        frame: pd.DataFrame
+    ) -> dict[str, Any]:
+        """Calculate aggregate and per-participant validation metrics.
+
+        Args:
+            predictions (np.ndarray): Predicted labels.
+            targets (np.ndarray): True labels.
+            frame (pd.DataFrame): Data frame containing participant information.
+
+        Returns:
+            dict[str, Any]: Dictionary containing aggregate and per-participant metrics.
+        """
         precision, recall, f1, support = precision_recall_fscore_support(
             targets, predictions, labels=CLASS_LABELS, zero_division=0
         )
@@ -375,8 +603,16 @@ class BaselineExperiment:
             "participants": self._participant_metrics(frame, predictions),
         }
 
-    def _coverage(self, frame: pd.DataFrame) -> dict:
-        """Report retained eligible rows over label-bearing prepared rows."""
+
+    def _coverage(self, frame: pd.DataFrame) -> dict[str, Any]:
+        """Report retained eligible rows over label-bearing prepared rows.
+
+        Args:
+            frame (pd.DataFrame): Data frame containing participant information.
+
+        Returns:
+            dict[str, Any]: Dictionary containing coverage metrics.
+        """
         scored = frame.groupby("participant_id")["scored_epochs"].first()
         return {
             "scored_epochs": int(scored.sum()),
@@ -387,8 +623,17 @@ class BaselineExperiment:
             "fraction": float(len(frame) / scored.sum()) if scored.sum() else 0.0,
         }
 
-    def _participant_metrics(self, frame: pd.DataFrame, predictions: np.ndarray) -> dict:
-        """Calculate participant metrics with participant-specific coverage."""
+
+    def _participant_metrics(self, frame: pd.DataFrame, predictions: np.ndarray) -> dict[str, Any]:
+        """Calculate participant metrics with participant-specific coverage.
+
+        Args:
+            frame (pd.DataFrame): Data frame containing participant information.
+            predictions (np.ndarray): Predicted labels.
+
+        Returns:
+            dict[str, Any]: Dictionary containing participant-specific metrics.
+        """
         results = {}
         for participant_id, indexes in frame.groupby("participant_id").indices.items():
             selected = np.asarray(indexes, dtype=int)
@@ -407,10 +652,12 @@ class BaselineExperiment:
                 "accuracy": float(accuracy_score(targets, predicted)),
                 "macro_f1": float(np.mean(f1)),
             }
+
         return results
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description="Fit baseline sleep-stage classifiers")
     parser.add_argument("--config", type=Path, required=True)
     operation = parser.add_mutually_exclusive_group(required=True)

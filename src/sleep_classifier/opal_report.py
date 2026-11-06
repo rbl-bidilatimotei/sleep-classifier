@@ -12,15 +12,24 @@ class OpalRunReport:
     """Describe saved optimizer decisions without loading programs or credentials."""
 
     def __init__(self, run_dir: Path) -> None:
+        """Initialize the OpalRunReport with the directory containing the run data.
+
+        Args:
+            run_dir (Path): Directory containing the run data.
+        """
         self.run_dir = run_dir
         self.opal_dir = run_dir / "opal"
 
+
     @staticmethod
-    def _read_object(path: Path) -> dict:
+    def _read_object(path: Path) -> dict[str, object]:
         """Read a JSON object with an actionable corruption error.
 
         Args:
             path (Path): Saved metadata file.
+
+        Returns:
+            dict[str, object]: Parsed JSON object from the file.
         """
         try:
             value = json.loads(path.read_text())
@@ -28,10 +37,16 @@ class OpalRunReport:
             raise ValueError(f"Invalid JSON in {path}") from error
         if not isinstance(value, dict):
             raise ValueError(f"Expected a JSON object in {path}")
+
         return value
 
-    def _read_events(self) -> list[dict]:
-        """Read events and reject malformed or truncated lines."""
+
+    def _read_events(self) -> list[dict[str, object]]:
+        """Read events and reject malformed or truncated lines.
+
+        Returns:
+            list[dict[str, object]]: List of parsed event objects.
+        """
         path = self.opal_dir / "events.jsonl"
         if not path.exists():
             return []
@@ -46,8 +61,13 @@ class OpalRunReport:
             events.append(event)
         return events
 
-    def _read_decisions(self) -> list[dict]:
-        """Select operational fields while excluding prompts and raw transcripts."""
+
+    def _read_decisions(self) -> list[dict[str, object]]:
+        """Select operational fields while excluding prompts and raw transcripts.
+
+        Returns:
+            list[dict[str, object]]: List of filtered decision responses.
+        """
         decisions = []
         fields = ("k", "requested_at", "seconds", "returncode", "backend_error", "errors", "usage")
         for path in sorted((self.opal_dir / "decisions").glob("*/response.json")):
@@ -55,13 +75,17 @@ class OpalRunReport:
             decisions.append({key: response.get(key) for key in fields})
         return decisions
 
+
     @staticmethod
-    def _usage(end: dict, decisions: list[dict]) -> dict:
+    def _usage(end: dict[str, object], decisions: list[dict[str, object]]) -> dict[str, object]:
         """Prefer end-of-run usage and avoid double-counting response records.
 
         Args:
-            end (dict): Last end or interruption event.
-            decisions (list[dict]): Filtered decision responses.
+            end (dict[str, object]): Last end or interruption event.
+            decisions (list[dict[str, object]]): Filtered decision responses.
+
+        Returns:
+            dict[str, object]: Aggregated usage information with source and token counts.
         """
         usage = end.get("usage")
         source = "end_event"
@@ -104,14 +128,22 @@ class OpalRunReport:
             "note": "Cached input and reasoning output are subsets, not extra tokens",
         }
 
+
     @staticmethod
-    def _status(backend: str | None, events: list[dict], end: dict) -> str:
+    def _status(
+        backend: str | None,
+        events: list[dict[str, object]],
+        end: dict[str, object]
+    ) -> str:
         """Classify operational success separately from classification accuracy.
 
         Args:
             backend (str | None): Recorded optimizer backend.
-            events (list[dict]): Validated run events.
-            end (dict): End or interruption event, if present.
+            events (list[dict[str, object]]): Validated run events.
+            end (dict[str, object]): End or interruption event, if present.
+
+        Returns:
+            str: Status classification of the operational run.
         """
         if not events:
             return "plain_adam" if backend == "adam" else "unknown_missing_events"
@@ -121,32 +153,43 @@ class OpalRunReport:
             return "interrupted"
         if backend == "keep":
             return "offline_keep_control"
+
         applied = any(event["kind"] == "applied" for event in events)
         failed = any(event["kind"] in ("rejected", "load_failed", "crashed") for event in events)
         if not applied:
             return "failed_no_changes_applied" if failed else "no_changes_applied"
         if any(event["kind"] == "reverted" for event in events):
             return "changes_applied_with_reversions"
+
         return "changes_applied"
 
-    def build(self) -> dict:
-        """Build a read-only summary from available metrics and OPAL records."""
+
+    def build(self) -> dict[str, object]:
+        """Build a read-only summary from available metrics and OPAL records.
+
+        Returns:
+            dict[str, object]: Summary of the run, including status, metrics, and OPAL records.
+        """
         metrics_path = self.run_dir / "metrics.json"
         metrics = self._read_object(metrics_path) if metrics_path.exists() else {}
         events = self._read_events()
         decisions = self._read_decisions()
+
         start = next((event for event in events if event["kind"] == "start"), {})
         end = next(
             (event for event in reversed(events) if event["kind"] in ("end", "interrupted")), {}
         )
+
         agent = metrics.get("optimizer", {}).get("agent", {})
         backend = start.get("backend", agent.get("backend"))
         if not backend and metrics and not metrics.get("config", {}).get("optimizer_agent"):
             backend = "adam"
+
         schedule = next(
             (event["schedule"] for event in reversed(events) if "schedule" in event), None
         )
         end_update = end.get("update")
+
         counts = {
             kind: sum(event["kind"] == kind for event in events)
             for kind in ("requested", "applied", "kept", "rejected", "load_failed", "reverted")
@@ -156,6 +199,7 @@ class OpalRunReport:
             for event in events
             if event["kind"] == "applied" and "applied_at" in event
         ]
+
         result = {
             "run_dir": str(self.run_dir),
             "backend": backend,
@@ -190,12 +234,14 @@ class OpalRunReport:
         result["soft_token_cap_exceeded"] = total > cap if total is not None and cap else None
         history = metrics.get("history", [])
         updates = metrics.get("optimizer", {}).get("updates")
+
         if history and isinstance(updates, int) and updates % len(history) == 0:
             checkpoint_update = metrics["best_epoch"] * (updates // len(history))
             result["selected_checkpoint_update"] = checkpoint_update
             result["checkpoint_precedes_first_change"] = (
                 checkpoint_update < min(applied_updates) if applied_updates else None
             )
+
         return result
 
 
@@ -205,9 +251,11 @@ def main() -> None:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+
     configure_logging()
     report = OpalRunReport(args.run_dir).build()
     content = json.dumps(report, indent=2)
+
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(content + "\n")

@@ -34,7 +34,7 @@ def epoch_coverage(frame: pd.DataFrame, labels: pd.DataFrame, bin_seconds: int =
     Args:
         frame (pd.DataFrame): Sensor observations with a `time` column.
         labels (pd.DataFrame): Labels with unique, sorted `time` values.
-        bin_seconds (int): Width of fixed bins that divide a 30-second epoch.
+        bin_seconds (int): Width of fixed bins that divide a 30-second epoch. Defaults to 1 second.
 
     Returns:
         pd.DataFrame: Epoch starts, sample counts, occupied-bin fractions, and gaps.
@@ -46,6 +46,7 @@ def epoch_coverage(frame: pd.DataFrame, labels: pd.DataFrame, bin_seconds: int =
         raise ValueError("bin_seconds must be a positive integer divisor of 30")
     if "time" not in labels.columns:
         raise ValueError("Labels must contain a time column")
+
     label_times = labels["time"].to_numpy(dtype=float)
     if not np.isfinite(label_times).all():
         raise ValueError("Label times must be finite")
@@ -81,6 +82,7 @@ def epoch_coverage(frame: pd.DataFrame, labels: pd.DataFrame, bin_seconds: int =
                 "largest_observation_gap": largest_gap,
             }
         )
+
     return pd.DataFrame(
         rows,
         columns=["time", "sample_count", "occupied_bin_fraction", "largest_observation_gap"],
@@ -98,7 +100,9 @@ def step_bins(frame: pd.DataFrame) -> pd.DataFrame:
     """
     if "steps" not in frame.columns:
         raise ValueError("Step frame must contain a steps column")
+
     rows = deduplicate_sensor(frame)
     result = pd.DataFrame({"start": rows["time"], "steps": rows["steps"]})
     result["end"] = rows["time"].shift(-1)
+
     return result[["start", "end", "steps"]].reset_index(drop=True)
