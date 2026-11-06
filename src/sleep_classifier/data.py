@@ -138,6 +138,7 @@ def download_subject(root: Path, subject: str) -> None:
     """
     fetch_file(BASE_URL + "SHA256SUMS.txt", root / "SHA256SUMS.txt")
     checksums = manifest(root)
+
     paths = [Path("LICENSE.txt")] + [
         sensor_path(root, subject, sensor).relative_to(root) for sensor in SENSORS
     ]
@@ -228,7 +229,8 @@ def summarize(frame: pd.DataFrame, sensor: str) -> dict[str, Any]:
     if sensor == "steps":
         result["negative_counts"] = int((frame.steps < 0).sum())
         result["fractional_counts"] = int((frame.steps % 1 != 0).sum())
-        # Only bins whose next timestamp is observed have a known endpoint.
+
+        # Only bins whose next timestamp is observed have a known endpoint
         result["complete_bins_in_previous_24h"] = int(
             ((times >= -86400) & (times.shift(-1) <= 0) & (times.shift(-1) > times)).sum()
         )
@@ -248,6 +250,7 @@ def audit_subject(root: Path, subject: str) -> dict[str, Any]:
     """
     checksums = manifest(root)
     result = {"subject_id": subject, "dataset": BASE_URL, "sensors": {}}
+
     for sensor in SENSORS:
         path = sensor_path(root, subject, sensor)
         digest = sha256(path)
@@ -257,14 +260,18 @@ def audit_subject(root: Path, subject: str) -> dict[str, Any]:
             "sha256": digest,
             **summarize(load_sensor(path, sensor), sensor),
         }
+
     return result
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=["download", "audit"])
     parser.add_argument("--config", type=Path, required=True)
+
     args = parser.parse_args()
+
     configure_logging()
     config = load_config(args.config)
 

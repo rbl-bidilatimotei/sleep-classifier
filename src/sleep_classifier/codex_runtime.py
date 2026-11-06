@@ -3,6 +3,7 @@ import shutil
 from importlib import import_module
 from pathlib import Path
 from shlex import quote
+from typing import Any
 
 
 class CodexRuntime:
@@ -14,6 +15,9 @@ class CodexRuntime:
 
         Args:
             configured (str | None): Optional executable path or command name.
+
+        Returns:
+            str: Resolved path to the Codex binary.
         """
         requested = configured or os.environ.get("CODEX_BINARY")
         if requested:
@@ -37,11 +41,14 @@ class CodexRuntime:
         )
 
     @classmethod
-    def check(cls, configured: str | None = None) -> dict:
+    def check(cls, configured: str | None = None) -> dict[str, Any]:
         """Check version and isolated authentication without a model request.
 
         Args:
             configured (str | None): Optional executable path or command name.
+
+        Returns:
+            dict[str, Any]: Dictionary containing the check results.
         """
         binary = cls.resolve_binary(configured)
         backend = import_module("opal.backends.codex").CodexBackend(binary=binary)

@@ -16,7 +16,13 @@ ALLOWED_OVERRIDES = {"context_epochs", "learning_rate", "patience", "hidden_size
 
 
 class GRUExperimentSuite:
+
     def __init__(self, config_path: Path) -> None:
+        """Initialize the GRU experiment suite.
+
+        Args:
+            config_path (Path): Path to the YAML configuration file for the experiment suite.
+        """
         self.config_path = config_path.resolve()
         settings = yaml.safe_load(self.config_path.read_text())
         self.base_path = (self.config_path.parent / settings["base_config"]).resolve()
@@ -28,6 +34,7 @@ class GRUExperimentSuite:
         recipes = self._validate_trials(settings["trials"])
         self.seeds = self._validate_seeds(settings.get("seeds"))
         self.trials = self._expand_seeds(recipes) if self.seeds else recipes
+
 
     def _validate_seeds(self, seeds: list[int] | None) -> list[int] | None:
         """Require a small set of distinct nonnegative training seeds.
@@ -46,13 +53,18 @@ class GRUExperimentSuite:
             raise ValueError("Seeds must be nonnegative integers")
         if len(set(seeds)) != len(seeds):
             raise ValueError("Seeds must be unique")
+
         return seeds
 
-    def _expand_seeds(self, recipes: list[dict]) -> list[dict]:
+
+    def _expand_seeds(self, recipes: list[dict[str, object]]) -> list[dict[str, object]]:
         """Pair every recipe with the same initialization and loader seeds.
 
         Args:
-            recipes (list[dict]): Validated comparison recipes.
+            recipes (list[dict[str, object]]): Validated comparison recipes.
+
+        Returns:
+            list[dict[str, object]]: Expanded list of recipes paired with each seed.
         """
         return [
             recipe
@@ -61,14 +73,18 @@ class GRUExperimentSuite:
             for recipe in recipes
         ]
 
+
     def _validate_trials(self, trials: list[dict[str, object]]) -> list[dict[str, object]]:
         """Require one reference and at most four single-setting comparisons.
 
         Args:
             trials (list[dict[str, object]]): Named recipes and their optional overrides.
 
+        Returns:
+            list[dict[str, object]]: Validated list of trials.
+
         Raises:
-            ValueError: If recipes violate the comparison policy.
+            ValueError: If trials violate the comparison policy.
         """
         if not isinstance(trials, list) or not 2 <= len(trials) <= 5:
             raise ValueError("A suite requires two to five trials")
@@ -101,6 +117,7 @@ class GRUExperimentSuite:
 
         return trials
 
+
     def plan(self) -> dict[str, object]:
         """Describe trials without loading participant data or creating outputs.
 
@@ -118,6 +135,7 @@ class GRUExperimentSuite:
             ),
             "trials": self.trials,
         }
+
 
     def run(self) -> Path:
         """Run all trials sequentially and preserve partial results after failures.
@@ -153,6 +171,7 @@ class GRUExperimentSuite:
 
         return self._save_summary(summary)
 
+
     def _write_trial_config(self, trial: dict[str, object], device: str, config_dir: Path) -> Path:
         """Resolve source paths and isolate each trial's artifacts.
 
@@ -174,6 +193,7 @@ class GRUExperimentSuite:
         config_path = config_dir / f"{trial['name']}.yaml"
         config_path.write_text(yaml.safe_dump(settings, sort_keys=False))
         return config_path
+
 
     def _read_result(self, trial: dict[str, object], metrics_path: Path) -> dict[str, object]:
         """Keep comparison scores and a hash of each complete metrics artifact.
@@ -246,6 +266,7 @@ class GRUExperimentSuite:
 
         return {"recipes": aggregates, "paired": paired}
 
+
     def _save_summary(self, summary: dict[str, object]) -> Path:
         """Replace the summary atomically after each completed trial.
 
@@ -265,6 +286,7 @@ class GRUExperimentSuite:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description="Plan or run bounded GRU comparisons")
     parser.add_argument("--config", type=Path, required=True)
     operation = parser.add_mutually_exclusive_group(required=True)

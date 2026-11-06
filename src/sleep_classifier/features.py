@@ -13,7 +13,7 @@ FEATURE_COLUMNS = (
 )
 
 TARGET_MAP = {-1: -1, 0: 0, 1: 1, 2: 1, 3: 2, 4: 2, 5: 3}
-RULE_THRESHOLDS = {
+RULE_THRESHOLDS: set[str] = {
     "max_heart_gap_seconds",
     "min_heart_readings",
     "min_motion_bin_fraction",
@@ -24,15 +24,32 @@ RULE_THRESHOLDS = {
 class EpochFeatureBuilder:
     """Build sensor summaries and eligibility for labeled 30-second epochs."""
 
-    def __init__(self, rule: dict) -> None:
-        """Store and validate the coverage rule used for eligibility."""
+    def __init__(self, rule: dict[str, float]) -> None:
+        """Store and validate the coverage rule used for eligibility.
+
+        Args:
+            rule (dict[str, float]): The coverage rule thresholds.
+
+        Raises:
+            ValueError: If the rule is invalid.
+        """
         self.rule = rule
         self.thresholds = self._validate_rule(rule)
+
 
     def build(
         self, heart: pd.DataFrame, motion: pd.DataFrame, labels: pd.DataFrame
     ) -> pd.DataFrame:
-        """Create feature, coverage, target, and segment columns."""
+        """Create feature, coverage, target, and segment columns.
+
+        Args:
+            heart (pd.DataFrame): Heart rate sensor data.
+            motion (pd.DataFrame): Motion sensor data.
+            labels (pd.DataFrame): Sleep stage labels.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing features, coverage, target, and segment columns.
+        """
         self._validate_frames(heart, motion, labels)
         targets = self._targets(labels)
         heart_clean = deduplicate_sensor(heart)
@@ -52,10 +69,20 @@ class EpochFeatureBuilder:
         result["segment_id"] = self._segment_ids(label_times, result["eligible"].to_numpy())
         return result
 
+
     def _validate_frames(
         self, heart: pd.DataFrame, motion: pd.DataFrame, labels: pd.DataFrame
     ) -> None:
-        """Check required columns before processing sensor frames."""
+        """Check required columns before processing sensor frames.
+
+        Args:
+            heart (pd.DataFrame): Heart rate sensor data.
+            motion (pd.DataFrame): Motion sensor data.
+            labels (pd.DataFrame): Sleep stage labels.
+
+        Raises:
+            ValueError: If any required columns are missing.
+        """
         required = {
             "heart": (heart, {"time", "heart_rate"}),
             "motion": (motion, {"time", "x", "y", "z"}),
@@ -66,8 +93,19 @@ class EpochFeatureBuilder:
                 missing = sorted(columns - set(frame.columns))
                 raise ValueError(f"{name} frame is missing columns: {missing}")
 
+
     def _targets(self, labels: pd.DataFrame) -> np.ndarray:
-        """Map source sleep stages to the four-class target scheme."""
+        """Map source sleep stages to the four-class target scheme.
+
+        Args:
+            labels (pd.DataFrame): Sleep stage labels.
+
+        Returns:
+            np.ndarray: Array of target class indices.
+
+        Raises:
+            ValueError: If labels contain invalid stages.
+        """
         stage = labels["stage"].to_numpy(dtype=float)
         if not np.isfinite(stage).all() or not np.isin(stage, list(TARGET_MAP)).all():
             raise ValueError("Labels must use source stages -1 through 5")
@@ -76,16 +114,41 @@ class EpochFeatureBuilder:
     def _coverage(
         self, heart: pd.DataFrame, motion: pd.DataFrame, labels: pd.DataFrame
     ) -> dict[str, pd.DataFrame]:
-        """Calculate heart-rate and motion coverage for each epoch."""
+        """Calculate heart-rate and motion coverage for each epoch.
+
+        Args:
+            heart (pd.DataFrame): Heart rate sensor data.
+            motion (pd.DataFrame): Motion sensor data.
+            labels (pd.DataFrame): Sleep stage labels.
+
+        Returns:
+            dict[str, pd.DataFrame]: Coverage information for heart rate and motion.
+        """
         return {
             "heart": epoch_coverage(heart, labels),
             "motion": epoch_coverage(motion, labels),
         }
 
+
     def _sensor_arrays(
         self, heart: pd.DataFrame, motion: pd.DataFrame
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """Validate sensor values and return arrays for epoch summaries."""
+        """Validate sensor values and return arrays for epoch summaries.
+
+        Args:
+            heart (pd.DataFrame): Heart rate sensor data.
+            motion (pd.DataFrame): Motion sensor data.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Arrays of:
+                - heart times
+                - motion times
+                - heart rate values
+                -motion magnitude
+
+        Raises:
+            ValueError: If sensor times or values are not finite.
+        """
         heart_times = heart["time"].to_numpy(dtype=float)
         motion_times = motion["time"].to_numpy(dtype=float)
         if not np.isfinite(heart_times).all() or not np.isfinite(motion_times).all():
@@ -96,6 +159,7 @@ class EpochFeatureBuilder:
             raise ValueError("Sensor values must be finite")
         return heart_times, motion_times, hr_values, np.sqrt(np.square(axes).sum(axis=1))
 
+
     def _summarize_epochs(
         self,
         label_times: np.ndarray,
@@ -104,7 +168,18 @@ class EpochFeatureBuilder:
         heart_values: np.ndarray,
         magnitude: np.ndarray,
     ) -> pd.DataFrame:
-        """Summarize heart rate and motion magnitude in half-open epochs."""
+        """Summarize heart rate and motion magnitude in half-open epochs.
+
+        Args:
+            label_times (np.ndarray): Array of label start times.
+            heart_times (np.ndarray): Array of heart rate sensor times.
+            motion_times (np.ndarray): Array of motion sensor times.
+            heart_values (np.ndarray): Array of heart rate values.
+            magnitude (np.ndarray): Array of motion magnitudes.
+
+        Returns:
+            pd.DataFrame: DataFrame containing summarized features for each epoch.
+        """
         feature_rows = []
         for start in label_times:
             hr_left, hr_right = np.searchsorted(heart_times, [start, start + 30])
@@ -123,8 +198,15 @@ class EpochFeatureBuilder:
             )
         return pd.DataFrame(feature_rows, columns=FEATURE_COLUMNS)
 
+
     def _append_coverage(self, result: pd.DataFrame, coverage: dict[str, pd.DataFrame]) -> None:
-        """Add coverage measurements to the feature table."""
+        """Add coverage measurements to the feature table.
+
+        Args:
+            result (pd.DataFrame): DataFrame containing summarized features for each epoch.
+            coverage (dict[str, pd.DataFrame]): Dictionary of coverage summaries for each sensor
+                prefix.
+        """
         for prefix, summary in coverage.items():
             for column in (
                 "sample_count",
@@ -133,8 +215,18 @@ class EpochFeatureBuilder:
             ):
                 result[f"{prefix}_{column}"] = summary[column].to_numpy()
 
-    def _validate_rule(self, rule: dict) -> dict[str, float]:
-        """Validate and normalize coverage thresholds."""
+    def _validate_rule(self, rule: dict[str, float]) -> dict[str, float]:
+        """Validate and normalize coverage thresholds.
+
+        Args:
+            rule (dict[str, float]): Dictionary containing coverage threshold values.
+
+        Returns:
+            dict[str, float]: Dictionary of validated and normalized coverage thresholds.
+
+        Raises:
+            ValueError: If any threshold is missing, not finite, or outside its valid range.
+        """
         if not RULE_THRESHOLDS.issubset(rule):
             raise ValueError(f"Rule is missing thresholds: {sorted(RULE_THRESHOLDS - set(rule))}")
         thresholds = {key: float(rule[key]) for key in RULE_THRESHOLDS}
@@ -150,8 +242,16 @@ class EpochFeatureBuilder:
             raise ValueError("Rule thresholds are outside their valid ranges")
         return thresholds
 
+
     def _eligible_epochs(self, result: pd.DataFrame) -> pd.Series:
-        """Mark epochs that meet coverage thresholds and have scored targets."""
+        """Mark epochs that meet coverage thresholds and have scored targets.
+
+        Args:
+            result (pd.DataFrame): DataFrame containing epoch features.
+
+        Returns:
+            pd.Series: Boolean series indicating eligible epochs.
+        """
         return (
             (result.heart_sample_count >= self.thresholds["min_heart_readings"])
             & (result.heart_largest_observation_gap <= self.thresholds["max_heart_gap_seconds"])
@@ -162,7 +262,15 @@ class EpochFeatureBuilder:
         )
 
     def _segment_ids(self, times: np.ndarray, eligible: np.ndarray) -> np.ndarray:
-        """Assign contiguous IDs to adjacent eligible epochs."""
+        """Assign contiguous IDs to adjacent eligible epochs.
+
+        Args:
+            times (np.ndarray): Array of epoch times.
+            eligible (np.ndarray): Boolean array indicating eligible epochs.
+
+        Returns:
+            np.ndarray: Array of segment IDs, with -1 for ineligible epochs.
+        """
         segment_ids = np.full(len(times), -1, dtype=int)
         current_segment = -1
         previous_valid = False
@@ -180,6 +288,17 @@ def build_epoch_features(
     heart: pd.DataFrame,
     motion: pd.DataFrame,
     labels: pd.DataFrame,
-    rule: dict,
+    rule: dict[str, float],
 ) -> pd.DataFrame:
+    """Build epoch features from heart rate, motion, and label data.
+
+    Args:
+        heart (pd.DataFrame): DataFrame containing heart rate data.
+        motion (pd.DataFrame): DataFrame containing motion data.
+        labels (pd.DataFrame): DataFrame containing target labels.
+        rule (dict[str, float]): Dictionary of coverage thresholds.
+
+    Returns:
+        pd.DataFrame: DataFrame containing computed epoch features.
+    """
     return EpochFeatureBuilder(rule).build(heart, motion, labels)

@@ -10,6 +10,12 @@ from sleep_classifier import cohort, development
 
 
 def test_development_report_loads_only_development_subjects(tmp_path, monkeypatch):
+    """Verify development coverage excludes reserved test observations.
+
+    Args:
+        tmp_path (Path): Isolated experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Sensor-loader replacements.
+    """
     inventory = {
         "participants": [
             {
@@ -67,7 +73,7 @@ def test_development_report_loads_only_development_subjects(tmp_path, monkeypatc
 
     monkeypatch.setattr(development, "sha256", lambda _: "hash")
     monkeypatch.setattr(development, "load_sensor", read)
-    output = development.analyze(settings)
+    output = development.analyze_sleep_coverage(settings)
     assert loaded == set(split["train"] + split["validation"])
     table = pd.read_csv(output / "participants.csv")
     assert table.scored_epochs.tolist() == [1] * 4

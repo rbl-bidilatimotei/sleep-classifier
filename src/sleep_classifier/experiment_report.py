@@ -2,6 +2,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import joblib
 import matplotlib
@@ -20,36 +21,79 @@ from sleep_classifier.logging_utils import configure_logging
 class ExperimentComparisonReport:
     """Compare saved baseline metrics and export compact figures and a summary."""
 
-    def __init__(self, reference_metrics: Path, comparison_metrics: Path, output_dir: Path):
-        """Store metrics paths and the report destination."""
+    def __init__(self, reference_metrics: Path, comparison_metrics: Path, output_dir: Path) -> None:
+        """Store metrics paths and the report destination.
+
+        Args:
+            reference_metrics (Path): Path to the reference metrics JSON file.
+            comparison_metrics (Path): Path to the comparison metrics JSON file.
+            output_dir (Path): Directory where the report will be saved.
+        """
         self.reference_path = Path(reference_metrics)
         self.comparison_path = Path(comparison_metrics)
         self.output_dir = Path(output_dir)
 
     def run(self) -> Path:
-        """Validate saved runs and generate a report without fitting models."""
+        """Validate saved runs and generate a report without fitting models.
+
+        Returns:
+            Path: Path to the generated summary JSON file.
+        """
         reference = self._read_metrics(self.reference_path)
         comparison = self._read_metrics(self.comparison_path)
+
         self._validate(reference, comparison)
         self._guard_output()
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
         matrices = self._plot_confusion(reference, comparison)
         self._plot_scores(reference, comparison)
+
         coefficient_path = self._plot_coefficients()
         timeline_path = self._plot_timelines()
+
         summary = self._summary(reference, comparison, matrices, coefficient_path, timeline_path)
         summary_path = self.output_dir / "summary.json"
         summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+
         self._write_readme(summary)
+
         return summary_path
 
     @staticmethod
-    def _read_metrics(path: Path) -> dict:
+    def _read_metrics(path: Path) -> dict[str, object]:
+        """Read metrics from a JSON file.
+
+        Args:
+            path (Path): Path to the metrics JSON file.
+
+        Raises:
+            FileNotFoundError: If the metrics file does not exist.
+
+        Returns:
+            dict[str, object]: Parsed metrics from the JSON file.
+        """
         if not path.is_file():
             raise FileNotFoundError(f"Metrics file does not exist: {path}")
         return json.loads(path.read_text())
 
-    def _validate(self, reference: dict, comparison: dict) -> None:
+    def _validate(self, reference: dict[str, object], comparison: dict[str, object]) -> None:
+        """Validate that reference and comparison metrics are compatible.
+
+        Args:
+            reference (dict[str, object]): Reference metrics to validate.
+            comparison (dict[str, object]): Comparison metrics to validate.
+
+        Raises:
+            ValueError: If reference and comparison features differ.
+            ValueError: If reference and comparison classes differ.
+            ValueError: If reference and comparison provenance split differ.
+            ValueError: If reference and comparison provenance rule differ.
+            ValueError: If reference and comparison provenance source_inventory differ.
+            ValueError: If run configs differ in unsupported ways.
+            ValueError: If per-class supports differ for a model.
+            ValueError: If coverage counts differ for a model.
+        """
         for key in ("features", "classes"):
             if reference.get(key) != comparison.get(key):
                 raise ValueError(f"Reference and comparison {key} differ")
@@ -57,6 +101,7 @@ class ExperimentComparisonReport:
             "split"
         ):
             raise ValueError("Reference and comparison provenance split differ")
+
         for key in ("rule", "source_inventory"):
             first = reference.get("provenance", {}).get(key)
             second = comparison.get("provenance", {}).get(key)
@@ -66,6 +111,7 @@ class ExperimentComparisonReport:
             comparison.get("config", {})
         ):
             raise ValueError("Run configs may differ only in class_weight and output_dir")
+
         for model_name in ("majority", "logistic_regression"):
             first = reference.get("models", {}).get(model_name)
             second = comparison.get("models", {}).get(model_name)
@@ -74,24 +120,52 @@ class ExperimentComparisonReport:
                     raise ValueError(f"Per-class supports differ for {model_name}")
                 if self._coverage(first) != self._coverage(second):
                     raise ValueError(f"Coverage counts differ for {model_name}")
+
         if not {"majority", "logistic_regression"}.issubset(reference.get("models", {})):
             raise ValueError("Reference metrics must contain majority and logistic_regression")
         if "logistic_regression" not in comparison.get("models", {}):
             raise ValueError("Comparison metrics must contain logistic_regression")
 
     @staticmethod
-    def _config_for_comparison(config: dict) -> dict:
+    def _config_for_comparison(config: dict[str, object]) -> dict[str, object]:
+        """Return a config dictionary suitable for comparison, ignoring class_weight and output_dir.
+
+        Args:
+            config (dict[str, object]): The configuration dictionary to process.
+
+        Returns:
+            dict[str, object]: A copy of the configuration dictionary with class_weight and
+                output_dir removed.
+        """
         result = dict(config)
         result.pop("class_weight", None)
         result.pop("output_dir", None)
         return result
 
     @staticmethod
-    def _supports(metrics: dict) -> list[int]:
+    def _supports(metrics: dict[str, object]) -> list[int]:
+        """Return the per-class support counts from the metrics.
+
+        Args:
+            metrics (dict[str, object]): The metrics dictionary containing class support
+                information.
+
+        Returns:
+            list[int]: A list of support counts for each class.
+        """
         return [int(metrics["classes"][str(label)]["support"]) for label in range(4)]
 
     @staticmethod
-    def _coverage(metrics: dict) -> dict:
+    def _coverage(metrics: dict[str, object]) -> dict[str, object]:
+        """Return the coverage information from the metrics.
+
+        Args:
+            metrics (dict[str, object]): The metrics dictionary containing coverage information.
+
+        Returns:
+            dict[str, object]: A dictionary with keys 'scored_epochs', 'eligible_epochs', and
+                'label_bearing_epochs'.
+        """
         coverage = metrics.get("coverage", {})
         return {
             key: coverage.get(key)
@@ -99,12 +173,32 @@ class ExperimentComparisonReport:
         }
 
     def _guard_output(self) -> None:
+        """Ensure the output directory does not conflict with raw metrics input paths.
+
+        Raises:
+            ValueError: If the output directory contains or replaces a raw metrics input.
+        """
         out = self.output_dir.resolve()
         for raw in (self.reference_path.resolve(), self.comparison_path.resolve()):
             if out == raw or out in raw.parents:
                 raise ValueError("Output directory cannot contain or replace a raw metrics input")
 
-    def _plot_confusion(self, reference: dict, comparison: dict) -> dict:
+    def _plot_confusion(
+        self,
+        reference: dict[str, object],
+        comparison: dict[str, object]
+    ) -> dict[str, object]:
+        """Plot the confusion matrices for the reference and comparison models.
+
+        Args:
+            reference (dict[str, object]): The reference metrics dictionary containing CM
+                information.
+            comparison (dict[str, object]): The comparison metrics dictionary.
+
+        Returns:
+            dict[str, object]: Dictionary containing the normalized confusion matrices for each
+                model.
+        """
         models = [
             ("Majority reference", reference["models"]["majority"]),
             ("Reference\nlogistic regression", reference["models"]["logistic_regression"]),
@@ -112,7 +206,9 @@ class ExperimentComparisonReport:
         ]
         labels = reference["classes"]
         class_names = [self._class_name(label) for label in labels]
+
         fig, axes = plt.subplots(1, 3, figsize=(12, 3.8), constrained_layout=True)
+
         normalized = {}
         for ax, (title, metrics) in zip(axes, models):
             counts = np.asarray(metrics["confusion_matrix"], dtype=int)
@@ -150,10 +246,18 @@ class ExperimentComparisonReport:
             "True-row normalized confusion matrices (percent; raw counts shown)", fontsize=9
         )
         fig.savefig(self.output_dir / "confusion_matrices.png", dpi=150)
+
         plt.close(fig)
+
         return normalized
 
-    def _plot_scores(self, reference: dict, comparison: dict) -> None:
+    def _plot_scores(self, reference: dict[str, object], comparison: dict[str, object]) -> None:
+        """Plot per-class recall and F1 scores for reference and comparison models.
+
+        Args:
+            reference (dict[str, object]): The reference metrics dictionary.
+            comparison (dict[str, object]): The comparison metrics dictionary.
+        """
         pairs = [
             ("Majority", reference["models"]["majority"]),
             ("Reference LR", reference["models"]["logistic_regression"]),
@@ -163,7 +267,9 @@ class ExperimentComparisonReport:
         class_names = [self._class_name(label) for label in classes]
         x = np.arange(len(classes))
         width = 0.24
+
         fig, axes = plt.subplots(1, 2, figsize=(7.4, 2.8), constrained_layout=True)
+
         for axis, metric in zip(axes, ("recall", "f1")):
             for index, (name, model) in enumerate(pairs):
                 values = [model["classes"][str(label)][metric] for label in classes]
@@ -181,6 +287,11 @@ class ExperimentComparisonReport:
         plt.close(fig)
 
     def _plot_coefficients(self) -> str | None:
+        """Plot the coefficients of the reference and comparison logistic regression models.
+
+        Returns:
+            str | None: The path to the saved figure, or None if the models are not available.
+        """
         paths = [
             self.reference_path.parent / "models" / "logistic_regression.joblib",
             self.comparison_path.parent / "models" / "logistic_regression.joblib",
@@ -226,14 +337,22 @@ class ExperimentComparisonReport:
         return "standardized_coefficients.png"
 
     def _plot_timelines(self) -> str | None:
+        """Plot participant timelines for the reference and comparison predictions.
+
+        Returns:
+            str | None: The path to the saved figure, or None if the comparison predictions are not
+                available.
+        """
         reference_csv = self._prediction_file(self.reference_path.parent)
         comparison_csv = self._prediction_file(self.comparison_path.parent)
         if comparison_csv is None:
             return None
+
         datasets = {"Balanced": pd.read_csv(comparison_csv)}
         if reference_csv is not None:
             datasets["Reference"] = pd.read_csv(reference_csv)
             self._validate_prediction_alignment(datasets["Reference"], datasets["Balanced"])
+
         participants = sorted(datasets["Balanced"]["participant_id"].astype(str).unique())
         fig, axes = plt.subplots(
             len(participants),
@@ -245,6 +364,7 @@ class ExperimentComparisonReport:
         )
         for axis, participant in zip(axes[:, 0], participants):
             self._timeline_axis(axis, participant, datasets)
+
         times = pd.to_numeric(datasets["Balanced"]["time"], errors="raise") / 3600
         axes[0, 0].set_xlim(float(times.min()), float(times.max()) + 30 / 3600)
         cmap, norm = self._stage_colors()
@@ -258,12 +378,22 @@ class ExperimentComparisonReport:
             fraction=0.025,
             pad=0.015,
         ).set_ticklabels([self._class_name(label) for label in range(4)])
+
         fig.savefig(self.output_dir / "participant_timelines.png", dpi=150)
         plt.close(fig)
+
         return "participant_timelines.png"
 
     @staticmethod
     def _prediction_file(directory: Path) -> Path | None:
+        """Return the path to the prediction file in the given directory, if it exists.
+
+        Args:
+            directory (Path): The directory to search for the prediction file.
+
+        Returns:
+            Path | None: The path to the prediction file, or None if it does not exist.
+        """
         return next(
             (
                 candidate
@@ -278,6 +408,13 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _timeline_axis(axis, participant: str, datasets: dict[str, pd.DataFrame]) -> None:
+        """Plot the timeline for a single participant on the given axis.
+
+        Args:
+            axis (matplotlib.axes.Axes): The matplotlib axis to plot on.
+            participant (str): The participant ID.
+            datasets (dict[str, pd.DataFrame]): The datasets containing predictions and targets.
+        """
         predictions = {
             name: ExperimentComparisonReport._participant_rows(frame, participant, name)
             for name, frame in datasets.items()
@@ -301,11 +438,24 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _stage_colors() -> tuple[ListedColormap, BoundaryNorm]:
+        """Return the colormap and normalization for sleep stages.
+
+        Returns:
+            tuple[ListedColormap, BoundaryNorm]: The colormap and normalization for sleep stages.
+        """
         cmap = ListedColormap(["#455a64", "#4c9f70", "#38598c", "#b45f8c"])
         return cmap, BoundaryNorm(np.arange(-0.5, 4.5), cmap.N)
 
     @staticmethod
     def _plot_ribbon(axis, frame: pd.DataFrame, column: str, row: int) -> None:
+        """Plot a ribbon for the given participant's predictions on the axis.
+
+        Args:
+            axis (matplotlib.axes.Axes): The matplotlib axis to plot on.
+            frame (pd.DataFrame): The DataFrame containing the predictions.
+            column (str): The column name of the predictions.
+            row (int): The row index for the ribbon.
+        """
         colors = ["#455a64", "#4c9f70", "#38598c", "#b45f8c"]
         epoch_hours = 30 / 3600
         for time, stage in zip(frame["time_hours"], frame[column]):
@@ -323,14 +473,22 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _validate_prediction_alignment(reference: pd.DataFrame, comparison: pd.DataFrame) -> None:
+        """Validate that the reference and comparison predictions are aligned.
+
+        Args:
+            reference (pd.DataFrame): The reference predictions.
+            comparison (pd.DataFrame): The comparison predictions.
+        """
         required = {"participant_id", "time", "target"}
         if not required.issubset(reference.columns) or not required.issubset(comparison.columns):
             raise ValueError("Prediction CSVs must contain participant_id, time, and target")
+
         keys = ["participant_id", "time"]
         left = reference[keys + ["target"]].copy()
         right = comparison[keys + ["target"]].copy()
         left["participant_id"] = left["participant_id"].astype(str)
         right["participant_id"] = right["participant_id"].astype(str)
+
         left = left.sort_values(keys).reset_index(drop=True)
         right = right.sort_values(keys).reset_index(drop=True)
         if left.duplicated(keys).any() or right.duplicated(keys).any() or not left.equals(right):
@@ -338,22 +496,45 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _participant_rows(frame: pd.DataFrame, participant: str, model_name: str) -> pd.DataFrame:
+        """Return the rows for a specific participant from the given DataFrame.
+
+        Args:
+            frame (pd.DataFrame): The DataFrame containing predictions and targets.
+            participant (str): The participant ID.
+            model_name (str): The name of the model (for error messages).
+
+        Returns:
+            pd.DataFrame: The filtered and sorted DataFrame for the participant.
+        """
         pred_col = "logistic_regression_prediction"
         required = {"time", "participant_id", "target", pred_col}
         if not required.issubset(frame.columns):
             missing = sorted(required - set(frame.columns))
             raise ValueError(f"{model_name} prediction CSV missing columns: {missing}")
+
         selected = frame.loc[frame["participant_id"].astype(str) == participant].copy()
         selected["time_hours"] = pd.to_numeric(selected["time"], errors="coerce") / 3600
+
         return selected.dropna(subset=["time_hours"]).sort_values("time_hours")
 
     @staticmethod
     def _plot_series(
         axis, frame: pd.DataFrame, column: str, label: str, color: str, width: float
     ) -> None:
+        """Plot a time series from the given DataFrame on the specified axis.
+
+        Args:
+            axis (matplotlib.axes.Axes): The matplotlib axis to plot on.
+            frame (pd.DataFrame): The DataFrame containing the predictions.
+            column (str): The column name of the predictions.
+            label (str): The label for the plot.
+            color (str): The color of the plot line.
+            width (float): The line width.
+        """
         time = frame["time_hours"].to_numpy(dtype=float)
         values = frame[column].to_numpy(dtype=float)
         breaks = np.r_[True, np.diff(time) > (30 / 3600 + 1e-9)]
+
         segments = np.split(np.arange(len(time)), np.flatnonzero(breaks)[1:])
         for index, segment in enumerate(segments):
             if len(segment):
@@ -369,21 +550,48 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _coefficient_grid(coefficients: np.ndarray) -> np.ndarray:
-        """Orient class-by-feature coefficients for feature-row heatmaps."""
+        """Orient class-by-feature coefficients for feature-row heatmaps.
+
+        Args:
+            coefficients (np.ndarray): The class-by-feature coefficient matrix.
+
+        Returns:
+            np.ndarray: The transposed coefficient matrix for feature-row heatmaps.
+        """
         return coefficients.T
 
     @staticmethod
     def _class_name(label: int) -> str:
+        """Return the human-readable class name for the given label.
+
+        Args:
+            label (int): The class label.
+
+        Returns:
+            str: The human-readable class name.
+        """
         return {0: "Wake", 1: "Light", 2: "Deep", 3: "REM"}.get(int(label), str(label))
 
     def _summary(
         self,
-        reference: dict,
-        comparison: dict,
-        matrices: dict,
+        reference: dict[str, Any],
+        comparison: dict[str, Any],
+        matrices: dict[str, Any],
         coefficients: str | None,
         timelines: str | None,
-    ) -> dict:
+    ) -> dict[str, Any]:
+        """Generate a summary of the experiment results.
+
+        Args:
+            reference (dict[str, Any]): The reference experiment results.
+            comparison (dict[str, Any]): The comparison experiment results.
+            matrices (dict[str, Any]): The normalized confusion matrices.
+            coefficients (str | None): The path to the coefficients figure, if available.
+            timelines (str | None): The path to the participant timelines figure, if available.
+
+        Returns:
+            dict[str, Any]: The summary of the experiment results.
+        """
         return {
             "classes": reference["classes"],
             "features": reference["features"],
@@ -420,7 +628,16 @@ class ExperimentComparisonReport:
         }
 
     @staticmethod
-    def _model_summary(reference: dict, comparison: dict) -> dict:
+    def _model_summary(reference: dict[str, Any], comparison: dict[str, Any]) -> dict[str, Any]:
+        """Generate a summary of the models' performance.
+
+        Args:
+            reference (dict[str, Any]): The reference experiment results.
+            comparison (dict[str, Any]): The comparison experiment results.
+
+        Returns:
+            dict[str, Any]: The summary of the models' performance.
+        """
         models = {
             "Majority reference": reference["models"]["majority"],
             "Reference logistic regression": reference["models"]["logistic_regression"],
@@ -454,9 +671,22 @@ class ExperimentComparisonReport:
 
     @staticmethod
     def _file_sha256(path: Path) -> str:
+        """Compute the SHA-256 hash of a file.
+
+        Args:
+            path (Path): The path to the file.
+
+        Returns:
+            str: The SHA-256 hash of the file's contents.
+        """
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    def _write_readme(self, summary: dict) -> None:
+    def _write_readme(self, summary: dict[str, Any]) -> None:
+        """Write the README file for the experiment comparison.
+
+        Args:
+            summary (dict[str, Any]): The summary of the experiment results.
+        """
         validation_count = len(summary["validation_participants"])
         lines = [
             "# Experiment comparison",
@@ -504,6 +734,7 @@ class ExperimentComparisonReport:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description="Report a saved baseline experiment comparison")
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--comparison", type=Path, required=True)

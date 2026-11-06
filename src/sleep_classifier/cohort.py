@@ -40,22 +40,28 @@ def load_config(path: Path) -> dict[str, Any]:
     }
     if not isinstance(config, dict) or set(config) != expected:
         raise ValueError(f"Config must contain exactly {sorted(expected)}")
+
     for key in ("data_dir", "output_dir", "split_path"):
         if not isinstance(config[key], str) or not config[key]:
             raise ValueError(f"{key} must be a nonempty path")
         config[key] = (path.parent / config[key]).resolve()
+
     for key in ("seed", "test_count", "validation_count"):
         if not isinstance(config[key], int) or isinstance(config[key], bool):
             raise ValueError(f"{key} must be an integer")
+
     if config["test_count"] < 1 or config["validation_count"] < 1:
         raise ValueError("test_count and validation_count must be positive")
+
     forced = config["forced_development"]
     if not isinstance(forced, list) or any(
         not isinstance(subject, str) or not re.fullmatch(r"\d+", subject) for subject in forced
     ):
         raise ValueError("forced_development must be a list of quoted numeric IDs")
+
     if len(set(forced)) != len(forced):
         raise ValueError("forced_development IDs must be unique")
+
     return config
 
 
@@ -79,6 +85,7 @@ def _participant_files(root: Path, checksums: dict[str, str]) -> dict[str, dict[
             subject = path.name.removesuffix(suffix)
             if re.fullmatch(r"\d+", subject):
                 result.setdefault(subject, {})[path.parts[0]] = filename
+
     return result
 
 
@@ -243,7 +250,9 @@ def create_split(inventory: dict[str, Any], config: dict[str, Any]) -> dict[str,
     missing_forced = sorted(set(forced) - set(eligible))
     if missing_forced:
         raise ValueError(f"Forced development IDs are not eligible: {missing_forced}")
+
     candidates = [subject for subject in eligible if subject not in forced]
+
     test_count = config["test_count"]
     validation_count = config["validation_count"]
     if test_count + validation_count >= len(eligible):
@@ -257,10 +266,12 @@ def create_split(inventory: dict[str, Any], config: dict[str, Any]) -> dict[str,
     test = sorted(shuffled[:test_count])
     development = sorted(subject for subject in eligible if subject not in test)
     rng.shuffle(development)
+
     validation = sorted(development[:validation_count])
     train = sorted(subject for subject in development if subject not in validation)
     if not train or not validation or not test:
         raise ValueError("All splits must be nonempty")
+
     return {
         "inventory_sha256": hashlib.sha256(
             json.dumps(inventory, sort_keys=True).encode()
@@ -281,8 +292,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("operation", choices=["inventory", "split"])
     parser.add_argument("--config", type=Path, required=True)
+
     args = parser.parse_args()
+
     configure_logging()
+
     config = load_config(args.config)
     inventory_path = config["output_dir"] / "inventory.json"
     if args.operation == "inventory":

@@ -12,6 +12,11 @@ class AgentOptimizerSettings:
     """Validate the bounded optimizer-agent pilot settings."""
 
     def __init__(self, settings: dict[str, Any] | None) -> None:
+        """Initialize and validate the optimizer-agent settings.
+
+        Args:
+            settings (dict[str, Any] | None): Optimizer-agent settings to validate.
+        """
         if settings is not None and not isinstance(settings, dict):
             raise ValueError("optimizer_agent must be a mapping or null")
 
@@ -61,18 +66,22 @@ class AgentOptimizerSettings:
         elif set(self.values) & {"model", "effort", "max_tokens", "binary"}:
             raise ValueError("The keep backend does not accept model settings")
 
+
     def _validate_codex(self) -> None:
         """Require an explicit model and a soft token budget."""
         if not isinstance(self.values.get("model"), str) or not self.values["model"].strip():
             raise ValueError("Codex requires an explicit model")
         if self.values.get("effort") not in ("high", "xhigh"):
             raise ValueError("Codex effort must be high or xhigh")
+
         binary = self.values.get("binary")
         if binary is not None and (not isinstance(binary, str) or not binary.strip()):
             raise ValueError("Codex binary must be a nonempty string")
+
         tokens = self.values.get("max_tokens")
         if type(tokens) is not int or tokens <= 0:
             raise ValueError("Codex max_tokens must be a positive integer")
+
 
     def wrapper_options(self, output_dir: Path) -> dict[str, Any]:
         """Build OPAL options without importing or launching an agent.
@@ -109,9 +118,16 @@ class OptimizerAdapter:
     """Keep Adam and OPAL update calls behind one training interface."""
 
     def __init__(self, optimizer: Any, settings: AgentOptimizerSettings) -> None:
+        """Initialize the optimizer adapter with the given optimizer and settings.
+
+        Args:
+            optimizer (Any): The underlying optimizer instance.
+            settings (AgentOptimizerSettings): Validated optimizer-agent settings.
+        """
         self.optimizer = optimizer
         self.settings = settings
         self.updates = 0
+
 
     @classmethod
     def create(
@@ -146,7 +162,9 @@ class OptimizerAdapter:
             optimizer = import_module("opal").wrap(
                 optimizer, model, total_steps=total_steps, **options
             )
+
         return cls(optimizer, validated)
+
 
     def zero_grad(self, set_to_none: bool = True) -> None:
         """Clear parameter gradients before the next backward pass.
@@ -155,6 +173,7 @@ class OptimizerAdapter:
             set_to_none (bool): Use absent gradients rather than zero-filled tensors.
         """
         self.optimizer.zero_grad(set_to_none=set_to_none)
+
 
     def step(self, loss: torch.Tensor) -> None:
         """Apply one update and retain the actual update count.
@@ -168,10 +187,12 @@ class OptimizerAdapter:
             self.optimizer.step()
         self.updates += 1
 
+
     def close(self) -> None:
         """Finish OPAL records without calling any model summarizer."""
         if self.settings.values:
             self.optimizer.close()
+
 
     def provenance(self) -> dict[str, Any]:
         """Describe the optimizer path and actual update count.

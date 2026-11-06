@@ -15,7 +15,7 @@ from sleep_classifier.logging_utils import configure_logging
 LOGGER = logging.getLogger(__name__)
 
 
-def analyze(config_path: Path) -> Path:
+def analyze_sleep_coverage(config_path: Path) -> Path:
     """Save participant coverage and candidate retention summaries.
 
     Args:
@@ -47,6 +47,11 @@ def analyze(config_path: Path) -> Path:
         LOGGER.info("Analyzing development participant %s", subject)
 
         def read(sensor):
+            """Load one checksum-verified sensor table.
+
+            Args:
+                sensor (str): Sensor name recorded in the inventory.
+            """
             path = sensor_path(config["data_dir"], subject, sensor)
             if sha256(path) != records[subject]["sha256"][sensor]:
                 raise ValueError(f"Raw file changed since inventory: {path}")
@@ -126,11 +131,12 @@ def analyze(config_path: Path) -> Path:
 
 
 def main() -> None:
+    """Run the configured command-line operation."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     args = parser.parse_args()
     configure_logging()
-    output = analyze(args.config)
+    output = analyze_sleep_coverage(args.config)
     LOGGER.info("Development coverage reports written: path=%s", output)
 
 
