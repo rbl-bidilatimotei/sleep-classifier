@@ -59,7 +59,7 @@ See its [fixed protocol](gru-seed-comparison.md) before launching the six runs.
 The [seed results](experiments/gru-seeds-2026-11-04/README.md) are recorded.
 The next [Codex-powered OPAL pilot](opal-pilot.md) is prepared in notebook 10 and remains operator-controlled.
 
-Grouped development validation is prepared in [notebook 11](../notebooks/11_grouped_validation.ipynb).
+Grouped development validation is completed and reproducible through [notebook 11](../notebooks/11_grouped_validation.ipynb).
 Its [protocol](grouped-validation.md) and the [learning review](learning-review.md) separate observed results from hypotheses.
 
 The causal Transformer comparison is prepared in [notebook 12](../notebooks/12_transformer_comparison.ipynb).
