@@ -367,3 +367,156 @@ def test_budget_notebook_reports_completed_runs_and_training_histories(tmp_path:
         assert json.loads(output.read_text())["eligible_epochs"] == 8
     finally:
         plt.close("all")
+
+
+def _write_seed_study(root: Path) -> Path:
+    """Write two synthetic shared-seed budget pairs and their study configuration.
+
+    Args:
+        root (Path): Temporary study directory.
+    """
+    import yaml
+
+    pairs = []
+    for seed in (42, 43):
+        directory = root / f"seed-{seed}"
+        directory.mkdir()
+        reference, candidate = _write_budget_pair(directory)
+        pair = {"seed": seed, "reuse": seed == 42}
+        for role, path in (("reference", reference), ("candidate", candidate)):
+            summary = json.loads(path.read_text())
+            summary["plan"]["training_seed"] = seed
+            for result in summary["results"]:
+                metric_path = Path(result["metrics_path"])
+                metrics = json.loads(metric_path.read_text())
+                metrics["config"]["seed"] = seed
+                metric_path.write_text(json.dumps(metrics))
+                result["metrics_sha256"] = hashlib.sha256(metric_path.read_bytes()).hexdigest()
+            path.write_text(json.dumps(summary))
+            model_path = directory / f"{role}-model.yaml"
+            model_path.write_text(yaml.safe_dump(metrics["config"]))
+            grouped_path = directory / f"{role}-grouped.yaml"
+            grouped_path.write_text(yaml.safe_dump({
+                "base_model_config": str(model_path), "output_dir": str(path.parent), "folds": 2,
+            }))
+            pair[f"{role}_config"] = str(grouped_path)
+        pairs.append(pair)
+    config = root / "study.yaml"
+    config.write_text(yaml.safe_dump({"pairs": pairs, "output_dir": "comparison"}))
+
+    return config
+
+
+def test_seed_study_reuses_existing_seed_and_summarizes_paired_effects(tmp_path: Path) -> None:
+    """Aggregate seed effects without treating repeated epochs as new observations.
+
+    Args:
+        tmp_path (Path): Temporary synthetic study directory.
+    """
+    from sleep_classifier.budget_seed_report import BudgetSeedReport
+
+    study = BudgetSeedReport(_write_seed_study(tmp_path))
+    assert study.plan()["new_fits"] == 4
+    assert study.plan()["maximum_new_epochs"] == 12
+    assert all(row["status"] == "complete" for row in study.status())
+    result = study.build()
+    assert result["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    assert result["sample_std_seed_macro_f1_difference"] == 0
+    assert [entry["seed"] for entry in result["seeds"]] == [42, 43]
+    assert not study.output_dir.exists()
+
+
+@pytest.mark.parametrize(
+    "mutation", ["duplicate", "wrong_seed", "folds", "recipe", "model", "missing"],
+)
+def test_seed_study_rejects_unmatched_or_missing_results(tmp_path: Path, mutation: str) -> None:
+    """Reject duplicate seeds, confounded recipes, changed folds, and incomplete pairs.
+
+    Args:
+        tmp_path (Path): Temporary synthetic study directory.
+        mutation (str): Invalid study or recorded artifact change.
+    """
+    import yaml
+
+    from sleep_classifier.budget_seed_report import BudgetSeedReport
+
+    config = _write_seed_study(tmp_path)
+    settings = yaml.safe_load(config.read_text())
+    if mutation == "duplicate":
+        settings["pairs"][1]["seed"] = 42
+        config.write_text(yaml.safe_dump(settings))
+        with pytest.raises(ValueError, match="unique"):
+            BudgetSeedReport(config)
+        return
+
+    study = BudgetSeedReport(config)
+    case = study.cases[1]
+    if mutation == "missing":
+        Path(case["candidate_summary"]).unlink()
+        assert study.status()[-1]["status"] == "not_started"
+        with pytest.raises(FileNotFoundError):
+            study.build()
+        return
+
+    for role in ("reference", "candidate"):
+        path = Path(case[f"{role}_summary"])
+        summary = json.loads(path.read_text())
+        if mutation == "wrong_seed":
+            summary["plan"]["training_seed"] = 999
+        elif mutation == "folds":
+            summary["plan"]["split_seed"] = 999
+        elif mutation in ("recipe", "model"):
+            for result in summary["results"]:
+                metric_path = Path(result["metrics_path"])
+                metrics = json.loads(metric_path.read_text())
+                if mutation == "recipe":
+                    metrics["config"]["learning_rate"] = 0.01
+                else:
+                    metrics["model_config"] = {"d_model": 32}
+                    metrics["parameter_count"] = 9220
+                metric_path.write_text(json.dumps(metrics))
+                result["metrics_sha256"] = hashlib.sha256(metric_path.read_bytes()).hexdigest()
+        path.write_text(json.dumps(summary))
+
+    with pytest.raises(ValueError, match="seed|recipe|Folds"):
+        study.build()
+
+
+def test_seed_notebook_reports_completed_pairs_without_training(tmp_path: Path) -> None:
+    """Execute completed seed reporting and plot cells using synthetic saved predictions.
+
+    Args:
+        tmp_path (Path): Temporary synthetic study directory.
+    """
+    from unittest.mock import Mock, patch
+
+    from sleep_classifier.budget_seed_report import BudgetSeedReport
+
+    nbformat = pytest.importorskip("nbformat")
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    plt = pytest.importorskip("matplotlib.pyplot")
+    study = BudgetSeedReport(_write_seed_study(tmp_path))
+    notebook = nbformat.read(
+        Path(__file__).resolve().parents[1] / "notebooks/15_transformer_budget_seeds.ipynb",
+        as_version=4,
+    )
+    namespace = {"study": study, "Path": Path, "json": json, "pd": pd,
+                 "logger": Mock(), "display": Mock(),
+                 "PairedArchitectureReport": PairedArchitectureReport}
+    try:
+        for cell in notebook.cells:
+            if cell.cell_type == "code" and (
+                "statuses = study.status()" in cell.source
+                or cell.source.startswith('if all(row["status"]')
+                or cell.source.startswith("if seed_rows:")
+            ):
+                with patch.object(plt, "show"):
+                    exec(cell.source, namespace)
+
+        assert len(namespace["seed_rows"]) == 2
+        report = json.loads((study.output_dir / "summary.json").read_text())
+        assert len(report["seeds"]) == 2
+        assert report["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    finally:
+        plt.close("all")

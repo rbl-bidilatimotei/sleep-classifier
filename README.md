@@ -241,3 +241,6 @@ Use [notebook 14](notebooks/14_transformer_training_budget.ipynb) for the comple
 It tests forty epochs and patience twelve on the same development folds. Training remains explicitly opt-in.
 
 The [measured budget results](docs/experiments/transformer-budget-2026-11-09/README.md) record REM gains and the remaining class trade-offs.
+
+Use [notebook 15](notebooks/15_transformer_budget_seeds.ipynb) for [shared-seed budget replication](docs/transformer-budget-seeds.md).
+It reuses seed 42 and prepares both budgets for seeds 43 and 44. Training stays opt-in.

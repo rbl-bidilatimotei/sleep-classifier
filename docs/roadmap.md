@@ -26,6 +26,7 @@ OPAL remains optional. Conventional Adam is the next reference.
 Replicate both width-16 budgets with shared seeds 43 and 44 on the same five folds.
 Reuse the completed seed-42 results. Keep model, context, features, optimizer, and split membership fixed.
 Assess paired seed-level effects before adding more model capacity or context.
+The [replication protocol](transformer-budget-seeds.md), explicit YAML pairs, and notebook 15 prepare this work.
 The new maximum is twenty fits and 600 epochs. Training remains operator-controlled.
 See the [budget results](experiments/transformer-budget-2026-11-09/README.md) for the evidence and limits.
 
