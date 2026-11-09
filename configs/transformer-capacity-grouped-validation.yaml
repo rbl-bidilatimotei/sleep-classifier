@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-width-32.yaml
+output_dir: ../artifacts/transformer-capacity-grouped-validation
+folds: 5
+split_seed: 42
