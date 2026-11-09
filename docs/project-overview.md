@@ -64,7 +64,11 @@ The soft token cap was exceeded during the active turn. OPAL remains available, 
 
 ## Current engineering direction
 
-The next experiment compares a small causal Transformer against the GRU using the same development folds and feature population.
+The small causal Transformer improved mean fold macro-F1 from 0.4836 to 0.5045 on matched development folds.
+Pooled accuracy rose from 59.45% to 60.86%; Deep recall improved more than REM recall.
+Only half the participants gained macro-F1, and Wake F1 declined.
+See the [measured results](experiments/transformer-grouped-2026-11-09/README.md).
+The next bounded experiment tests a wider single-layer Transformer on the same folds.
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 
