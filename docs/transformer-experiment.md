@@ -1,6 +1,6 @@
 # Small causal Transformer comparison
 
-Status: prepared for Timo to run. No participant-data Transformer training has run.
+Status: completed by Timo on local MPS. See the [measured results](experiments/transformer-grouped-2026-11-09/README.md).
 
 ## Question and controls
 
@@ -117,6 +117,6 @@ On 2026-11-06, the candidate folds were prepared on MPS without optimization.
 Their complete participant plans match the measured GRU plans exactly.
 The default-model and fold-one preflights passed with 64 × 10 × 6 inputs and four output logits.
 Fold one contains 18,121 eligible training and 4,587 validation epochs.
-The candidate has 2,564 parameters. No participant-data Transformer checkpoint or classification result exists yet.
-On this checkout, leave preparation disabled and enable only RUN_TRAINING when ready.
+The candidate has 2,564 parameters. At preparation time, no participant-data Transformer checkpoint or classification result existed.
+The five candidate folds are now complete. Do not rerun training into their existing output directories.
 The existing gru dependency group supplies the shared PyTorch runtime; no new training library is required.

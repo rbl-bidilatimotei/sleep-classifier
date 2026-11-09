@@ -1,6 +1,6 @@
 # Learning review before grouped validation
 
-Updated on 2026-11-06. These conclusions describe development experiments, not final-test performance.
+Updated on 2026-11-09. These conclusions describe development experiments, not final-test performance.
 
 ## What the experiments support
 
@@ -40,5 +40,9 @@ Grouped validation broadened the held-out population before further architecture
 It does not create new independent people or replace an untouched final test.
 The completed [grouped protocol](grouped-validation.md) explicitly states its checkpoint-selection limitation.
 Selected epochs ranged from two to fifteen; early validation peaks were not universal.
-The next [Transformer comparison](transformer-experiment.md) uses identical folds rather than interpreting unmatched scores as progress.
+The completed [Transformer comparison](experiments/transformer-grouped-2026-11-09/README.md) used identical held-out epochs.
+Mean fold macro-F1 improved by 0.02087; pooled accuracy improved by 1.409 percentage points.
+Deep recall improved by 7.278 points, while REM recall improved by only 0.453 points.
+Wake F1 fell. Only half the participants gained macro-F1.
+This supports a bounded capacity test, not a general claim about larger Transformers.
 See the [project overview](project-overview.md) for a newcomer summary of the full experiment history.

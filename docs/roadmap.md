@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-06. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-09. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -13,6 +13,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Replicate the GRU patience comparison across three seeds
 - Complete a live Codex-powered OPAL pilot with one applied optimizer change
 - Complete five-fold grouped development validation for the fixed GRU recipe
+- Complete the matched five-fold causal Transformer comparison
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -20,11 +21,11 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Compare a small causal Transformer against the measured GRU on the same five development folds.
-Reuse the six features, coverage policy, training seed, learning rate, and checkpoint selection rule.
-Report paired fold differences, pooled scores, class scores, and participant results.
-Document the model-size and dropout differences rather than claiming a pure attention ablation.
-Prepare training for Timo to execute. Keep the final test set reserved.
+Compare a wider single-layer Transformer with the measured width-16 Transformer reference.
+Change representation width 16 to 32 and feedforward width 32 to 64 together as one capacity recipe.
+Keep the five folds, context, seed, optimizer, dropout, and checkpoint rules fixed.
+Report paired fold, participant, and class results. Prepare training for Timo; preserve the final test.
+See the [measured comparison](experiments/transformer-grouped-2026-11-09/README.md) for the rationale.
 
 ## Model and evaluation milestones
 
@@ -62,5 +63,5 @@ The next [Codex-powered OPAL pilot](opal-pilot.md) is prepared in notebook 10 an
 Grouped development validation is completed and reproducible through [notebook 11](../notebooks/11_grouped_validation.ipynb).
 Its [protocol](grouped-validation.md) and the [learning review](learning-review.md) separate observed results from hypotheses.
 
-The causal Transformer comparison is prepared in [notebook 12](../notebooks/12_transformer_comparison.ipynb).
+The causal Transformer comparison is completed in [notebook 12](../notebooks/12_transformer_comparison.ipynb).
 See its [fixed protocol](transformer-experiment.md) before training.

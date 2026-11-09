@@ -227,5 +227,7 @@ Read the [learning review](docs/learning-review.md) for the evidence and open qu
 Start with the [project overview](docs/project-overview.md) for the full problem, experiment history, and engineering direction.
 The [completed grouped GRU results](docs/experiments/gru-grouped-2026-11-06/README.md) provide the next architecture comparison reference.
 
-Use [notebook 12](notebooks/12_transformer_comparison.ipynb) for the next [small causal Transformer comparison](docs/transformer-experiment.md).
+Use [notebook 12](notebooks/12_transformer_comparison.ipynb) for the completed [small causal Transformer comparison](docs/transformer-experiment.md).
 It reuses the grouped GRU folds and the shared trainer; paired reporting checks exact held-out epoch alignment.
+
+The [measured Transformer results](docs/experiments/transformer-grouped-2026-11-09/README.md) record paired development gains and participant trade-offs.
