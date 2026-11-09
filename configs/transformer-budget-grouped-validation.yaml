@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-budget-40-12.yaml
+output_dir: ../artifacts/transformer-budget-grouped-validation
+folds: 5
+split_seed: 42

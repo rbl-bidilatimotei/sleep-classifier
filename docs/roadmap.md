@@ -15,6 +15,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete five-fold grouped development validation for the fixed GRU recipe
 - Complete the matched five-fold causal Transformer comparison
 - Complete the width-32 capacity test; retain width 16 as the development reference
+- Complete the width-16 budget test; measure REM gains with forty epochs and patience twelve
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -22,12 +23,11 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: test a longer training budget on the width-16 Transformer.
-Use forty epochs and patience twelve. Keep the model, folds, seed, optimizer, learning rate, and context fixed.
-This proposal needs a separate experiment configuration and notebook before execution.
-Two width-16 folds reached the current epoch limit. The wider model lost macro-F1 in every fold.
-See the [capacity results and training curves](experiments/transformer-capacity-2026-11-09/README.md).
-Keep all participant-data training operator-controlled and preserve the final test.
+Replicate both width-16 budgets with shared seeds 43 and 44 on the same five folds.
+Reuse the completed seed-42 results. Keep model, context, features, optimizer, and split membership fixed.
+Assess paired seed-level effects before adding more model capacity or context.
+The new maximum is twenty fits and 600 epochs. Training remains operator-controlled.
+See the [budget results](experiments/transformer-budget-2026-11-09/README.md) for the evidence and limits.
 
 ## Model and evaluation milestones
 

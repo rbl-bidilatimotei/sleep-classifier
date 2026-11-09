@@ -69,7 +69,9 @@ Pooled accuracy rose from 59.45% to 60.86%; Deep recall improved more than REM r
 Only half the participants gained macro-F1, and Wake F1 declined.
 See the [measured results](experiments/transformer-grouped-2026-11-09/README.md).
 The wider single-layer Transformer then lost macro-F1 in all five folds: mean 0.4828 versus 0.5045.
-Width 16 remains the development reference. A longer training budget is the proposed next controlled question.
+Width 16 remains the development reference. Increasing its budget to forty epochs and patience twelve improved mean fold macro-F1 to 0.5194.
+REM recall rose from 31.73% to 40.27%; Deep F1 declined slightly.
+The next question is whether this paired budget gain repeats with other training seeds.
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 
