@@ -3,7 +3,7 @@ import json
 import math
 from pathlib import Path
 from statistics import mean, stdev
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -21,15 +21,23 @@ CLASS_LABELS = (0, 1, 2, 3)
 class PairedArchitectureReport:
     """Compare completed grouped experiments with matched evaluation populations."""
 
-    def __init__(self, reference_summary: Path, candidate_summary: Path) -> None:
+    def __init__(
+        self, reference_summary: Path, candidate_summary: Path,
+        comparison: Literal["architecture", "training_budget"] = "architecture",
+    ) -> None:
         """Store the two grouped experiment summaries.
 
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
+            comparison (Literal["architecture", "training_budget"]): Permitted recipe differences.
         """
+        if comparison not in ("architecture", "training_budget"):
+            raise ValueError("Unknown paired comparison policy")
+
         self.reference_summary = reference_summary.resolve()
         self.candidate_summary = candidate_summary.resolve()
+        self.comparison = comparison
 
 
     @staticmethod
@@ -67,8 +75,7 @@ class PairedArchitectureReport:
         return summary
 
 
-    @staticmethod
-    def _validate_plans(reference: dict[str, Any], candidate: dict[str, Any]) -> None:
+    def _validate_plans(self, reference: dict[str, Any], candidate: dict[str, Any]) -> None:
         """Require matched participant assignments and evaluation seeds.
 
         Args:
@@ -79,6 +86,8 @@ class PairedArchitectureReport:
             "development", "reserved_test", "split_seed", "training_seed", "maximum_epochs",
             "checkpoint_selection", "independent_outer_test",
         ):
+            if key == "maximum_epochs" and self.comparison == "training_budget":
+                continue
             if key not in reference or key not in candidate or reference[key] != candidate[key]:
                 raise ValueError(f"Grouped plans differ at {key}")
 
@@ -142,20 +151,24 @@ class PairedArchitectureReport:
         return frame.sort_values(["participant_id", "time"], kind="stable").reset_index(drop=True)
 
 
-    @staticmethod
-    def _validate_recipes(reference: dict[str, Any], candidate: dict[str, Any]) -> None:
-        """Match optimization settings while allowing architecture-specific options.
+    def _validate_recipes(self, reference: dict[str, Any], candidate: dict[str, Any]) -> None:
+        """Validate model and optimization settings under the selected comparison policy.
 
         Args:
             reference (dict[str, Any]): Verified reference fold metrics.
             candidate (dict[str, Any]): Verified candidate fold metrics.
         """
+        if self.comparison == "training_budget":
+            self._validate_budget_recipe(reference, candidate)
+
         for key in SHARED_RECIPE_KEYS:
+            if key in ("epochs", "patience") and self.comparison == "training_budget":
+                continue
             if (key not in reference["config"] or key not in candidate["config"]
                     or reference["config"][key] != candidate["config"][key]):
                 raise ValueError(f"Shared training recipe differs at {key}")
         if reference["config"].get("optimizer_agent") or candidate["config"].get("optimizer_agent"):
-            raise ValueError("Architecture comparisons require the plain Adam recipes")
+            raise ValueError("Paired comparisons require the plain Adam recipes")
         if reference["coverage"] != candidate["coverage"]:
             raise ValueError("Fold eligibility or coverage differs")
         if reference["device"] != candidate["device"]:
@@ -166,6 +179,49 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _validate_budget_recipe(reference: dict[str, Any], candidate: dict[str, Any]) -> None:
+        """Permit only a larger training budget for an unchanged model recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified reference fold metrics.
+            candidate (dict[str, Any]): Verified candidate fold metrics.
+        """
+        for key in ("model_config", "parameter_count"):
+            if key not in reference or reference[key] != candidate.get(key):
+                raise ValueError(f"Training-budget model differs at {key}")
+
+        excluded = {"epochs", "patience", "prepare_config", "output_dir"}
+        recipes = [{key: value for key, value in run["config"].items() if key not in excluded}
+                   for run in (reference, candidate)]
+        if recipes[0] != recipes[1]:
+            raise ValueError("Training-budget comparison requires the same model and recipe")
+
+        for key in ("epochs", "patience"):
+            values = [run["config"].get(key) for run in (reference, candidate)]
+            if any(type(value) is not int or value < 1 for value in values):
+                raise ValueError(f"Training-budget {key} must be positive integers")
+            if values[1] < values[0]:
+                raise ValueError(f"Training-budget candidate must not reduce {key}")
+        if all(reference["config"][key] == candidate["config"][key]
+               for key in ("epochs", "patience")):
+            raise ValueError("Training-budget comparison requires a budget increase")
+
+
+    @staticmethod
+    def _validate_budget_limit(plan: dict[str, Any], metrics: dict[str, Any]) -> None:
+        """Check that the grouped cap agrees with the recorded fold recipe.
+
+        Args:
+            plan (dict[str, Any]): Recorded grouped plan.
+            metrics (dict[str, Any]): Verified fold metrics with its epoch cap.
+        """
+        maximum = plan.get("maximum_epochs")
+        expected = len(plan["folds"]) * metrics["config"]["epochs"]
+        if type(maximum) is not int or maximum != expected:
+            raise ValueError("Grouped epoch budget differs from the fold recipe")
 
 
     @staticmethod
@@ -237,6 +293,9 @@ class PairedArchitectureReport:
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
+            if self.comparison == "training_budget":
+                self._validate_budget_limit(reference["plan"], left["metrics"])
+                self._validate_budget_limit(candidate["plan"], right["metrics"])
             self._validate_population(
                 fold, left["predictions"], right["predictions"],
                 left["metrics"], right["metrics"],
@@ -247,7 +306,14 @@ class PairedArchitectureReport:
             reference_frames.append(left["predictions"])
             candidate_frames.append(right["predictions"])
 
-        return self._summarize(reference_frames, candidate_frames, paired, participants)
+        report = self._summarize(reference_frames, candidate_frames, paired, participants)
+        if self.comparison == "training_budget":
+            report["comparison"] = "training_budget"
+            report["selection_caveat"] = (
+                "A larger budget offers more validation checkpoint selection opportunities"
+            )
+
+        return report
 
 
     def _compare_fold(
@@ -336,12 +402,14 @@ def main() -> None:
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--comparison", choices=("architecture", "training_budget"),
+                        default="architecture")
     args = parser.parse_args()
     if args.output.resolve() in (args.reference.resolve(), args.candidate.resolve()):
         parser.error("Comparison output must not replace either source summary")
 
     configure_logging()
-    report = PairedArchitectureReport(args.reference, args.candidate).build()
+    report = PairedArchitectureReport(args.reference, args.candidate, args.comparison).build()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     logging.getLogger(__name__).info("Paired comparison saved: %s; differences=%s",

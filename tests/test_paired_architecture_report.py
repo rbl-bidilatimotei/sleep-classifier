@@ -219,3 +219,151 @@ def test_notebook_marks_transformer_pending_when_only_gru_is_complete(tmp_path: 
     assert namespace["statuses"][1]["status"] == "not_started"
     assert namespace["comparison"] is None
     assert not (tmp_path / "artifacts/transformer-comparison").exists()
+
+
+def _write_budget_pair(root: Path) -> tuple[Path, Path]:
+    """Write matched Transformer runs with different training budgets.
+
+    Args:
+        root (Path): Parent directory for synthetic experiment files.
+    """
+    reference, candidate = _write_pair(root)
+    for summary_path, epochs, patience in ((reference, 2, 1), (candidate, 4, 2)):
+        summary = json.loads(summary_path.read_text())
+        summary["plan"]["maximum_epochs"] = 2 * epochs
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"].update({"model_type": "transformer", "epochs": epochs,
+                                      "patience": patience, "transformer": {"d_model": 16}})
+            metrics["model_config"] = {"d_model": 16}
+            metrics["parameter_count"] = 2564
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+
+    return reference, candidate
+
+
+def test_budget_report_requires_explicit_policy(tmp_path: Path) -> None:
+    """Keep the default architecture policy strict when training budgets differ.
+
+    Args:
+        tmp_path (Path): Temporary synthetic artifact directory.
+    """
+    reference, candidate = _write_budget_pair(tmp_path)
+    with pytest.raises(ValueError, match="maximum_epochs"):
+        PairedArchitectureReport(reference, candidate).build()
+
+    report = PairedArchitectureReport(reference, candidate, "training_budget").build()
+    assert report["eligible_epochs"] == 8
+    assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+    assert report["comparison"] == "training_budget"
+    assert "selection" in report["selection_caveat"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "width", "learning_rate", "model_config", "parameter_count", "missing_model",
+    "epoch_cap", "invalid_patience", "reduced_patience", "unchanged_budget",
+    "participant", "target", "metric_hash",
+])
+def test_budget_report_rejects_changes_outside_the_budget(tmp_path: Path, mutation: str) -> None:
+    """Reject confounded recipes, invalid budgets, and damaged paired artifacts.
+
+    Args:
+        tmp_path (Path): Temporary synthetic artifact directory.
+        mutation (str): Invalid change to apply before reporting.
+    """
+    reference, candidate = _write_budget_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    metrics_path = Path(summary["results"][0]["metrics_path"])
+    metrics = json.loads(metrics_path.read_text())
+
+    if mutation == "epoch_cap":
+        summary["plan"]["maximum_epochs"] = 999
+        candidate.write_text(json.dumps(summary))
+    elif mutation == "participant":
+        summary["plan"]["folds"][0]["validation"] = ["other"]
+        candidate.write_text(json.dumps(summary))
+    elif mutation == "target":
+        path = metrics_path.parent / "validation_predictions.csv"
+        frame = pd.read_csv(path)
+        frame.loc[0, "target"] = 1
+        frame.to_csv(path, index=False)
+    elif mutation == "metric_hash":
+        metrics_path.write_text(metrics_path.read_text() + "\n")
+    else:
+        if mutation == "width":
+            metrics["config"]["transformer"]["d_model"] = 32
+        elif mutation == "learning_rate":
+            metrics["config"]["learning_rate"] = 0.01
+        elif mutation == "model_config":
+            metrics["model_config"] = {"d_model": 32}
+        elif mutation == "parameter_count":
+            metrics["parameter_count"] = 9220
+        elif mutation == "missing_model":
+            metrics["model_config"] = None
+        elif mutation == "invalid_patience":
+            metrics["config"]["patience"] = True
+        elif mutation == "reduced_patience":
+            metrics["config"]["patience"] = 0
+        elif mutation == "unchanged_budget":
+            metrics["config"].update({"epochs": 2, "patience": 1})
+        _rewrite_metrics(candidate, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "training_budget").build()
+
+
+def test_budget_notebook_reports_completed_runs_and_training_histories(tmp_path: Path) -> None:
+    """Exercise the completed notebook report without launching a trainer.
+
+    Args:
+        tmp_path (Path): Temporary synthetic notebook inputs and outputs.
+    """
+    from unittest.mock import Mock, patch
+
+    nbformat = pytest.importorskip("nbformat")
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    plt = pytest.importorskip("matplotlib.pyplot")
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    reference, candidate = _write_budget_pair(artifacts)
+    for path in (reference, candidate):
+        summary = json.loads(path.read_text())
+        for result in summary["results"]:
+            metrics_path = Path(result["metrics_path"])
+            metrics = json.loads(metrics_path.read_text())
+            metrics["history"] = [{"epoch": 1, "validation_macro_f1": metrics["macro_f1"]}]
+            metrics_path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(metrics_path.read_bytes()).hexdigest()
+        path.write_text(json.dumps(summary))
+
+    expected_reference = artifacts / "transformer-grouped-validation"
+    expected_reference.mkdir()
+    (expected_reference / "summary.json").write_text(reference.read_text())
+    configs = tmp_path / "configs"
+    configs.mkdir()
+    (configs / "transformer-budget-grouped-validation.yaml").write_text(
+        "output_dir: ../artifacts/transformer\n"
+    )
+    source = (Path(__file__).resolve().parents[1]
+              / "notebooks/14_transformer_training_budget.ipynb")
+    notebook = nbformat.read(source, as_version=4)
+    namespace = {"ROOT": tmp_path, "Path": Path, "json": json,
+                 "logger": Mock(), "display": Mock()}
+    try:
+        for cell in notebook.cells:
+            if cell.cell_type == "code" and (
+                "statuses = []" in cell.source or "figure, axes = plt.subplots" in cell.source
+            ):
+                with patch.object(plt, "show"):
+                    exec(cell.source, namespace)
+
+        assert namespace["comparison"]["comparison"] == "training_budget"
+        assert len(namespace["history_rows"]) == 4
+        output = artifacts / "transformer-budget-comparison/summary.json"
+        assert json.loads(output.read_text())["eligible_epochs"] == 8
+    finally:
+        plt.close("all")

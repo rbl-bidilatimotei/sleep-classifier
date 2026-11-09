@@ -22,9 +22,9 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: test a longer training budget on the width-16 Transformer.
+Prepared: test a longer training budget on the width-16 Transformer.
 Use forty epochs and patience twelve. Keep the model, folds, seed, optimizer, learning rate, and context fixed.
-This proposal needs a separate experiment configuration and notebook before execution.
+The [budget protocol](transformer-training-budget.md), notebook 14, and separate YAML configurations prepare the five fits.
 Two width-16 folds reached the current epoch limit. The wider model lost macro-F1 in every fold.
 See the [capacity results and training curves](experiments/transformer-capacity-2026-11-09/README.md).
 Keep all participant-data training operator-controlled and preserve the final test.
