@@ -46,3 +46,11 @@ Deep recall improved by 7.278 points, while REM recall improved by only 0.453 po
 Wake F1 fell. Only half the participants gained macro-F1.
 This supports a bounded capacity test, not a general claim about larger Transformers.
 See the [project overview](project-overview.md) for a newcomer summary of the full experiment history.
+
+## Capacity comparison
+
+The [width-32 experiment](experiments/transformer-capacity-2026-11-09/README.md) lost macro-F1 in all five folds.
+Mean fold macro-F1 fell from 0.50446 to 0.48277; only seven participants improved.
+Increasing capacity alone did not improve Deep or REM scores under this recipe.
+The width-16 reference reached the epoch cap in two folds, supporting a bounded training-budget test.
+The wider recipe mostly selected early checkpoints, so longer training is not an established remedy for its losses.

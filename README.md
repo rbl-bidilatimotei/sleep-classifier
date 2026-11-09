@@ -232,5 +232,7 @@ It reuses the grouped GRU folds and the shared trainer; paired reporting checks 
 
 The [measured Transformer results](docs/experiments/transformer-grouped-2026-11-09/README.md) record paired development gains and participant trade-offs.
 
-The next [controlled capacity experiment](docs/transformer-capacity.md) is available in [notebook 13](notebooks/13_transformer_capacity.ipynb).
+The completed [controlled capacity experiment](docs/transformer-capacity.md) is available in [notebook 13](notebooks/13_transformer_capacity.ipynb).
 It compares width 32 against the completed width-16 Transformer. Training remains explicitly opt-in.
+
+The [capacity results and training curves](docs/experiments/transformer-capacity-2026-11-09/README.md) show losses across all five folds.

@@ -1,6 +1,6 @@
 # Controlled Transformer capacity experiment
 
-Status: prepared for Timo to execute. No participant-data capacity training has run.
+Status: completed by Timo on local MPS. See the [measured results](experiments/transformer-capacity-2026-11-09/README.md).
 
 ## Question
 
@@ -81,7 +81,7 @@ uv run --locked --group gru --group notebook python scripts/execute_notebook.py 
   --notebook notebooks/13_transformer_capacity.ipynb
 ```
 
-Only output-free source notebooks are tracked. Curate measured results after Timo completes the experiment.
+Only output-free source notebooks are tracked. Measured scores and curves are curated in docs/experiments.
 
 ## Local preparation evidence
 
@@ -89,6 +89,7 @@ On 2026-11-09, the width-32 MPS preflight passed without optimization.
 The full grouped plan exactly matched the measured width-16 plan.
 Five fold tables and their manifest were prepared without training.
 Only the output path and the two width settings differ in the model recipe.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+The five fits are now complete. Keep preparation and training disabled when reviewing saved results.
 Notebook 13 was executed from a fresh kernel and exported as HTML.
-It correctly reported the reference as complete and the candidate as not_started.
+Before training, it correctly reported the reference as complete and the candidate as not_started.
+The completed report now validates both experiments and displays the paired differences.

@@ -14,6 +14,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete a live Codex-powered OPAL pilot with one applied optimizer change
 - Complete five-fold grouped development validation for the fixed GRU recipe
 - Complete the matched five-fold causal Transformer comparison
+- Complete the width-32 capacity test; retain width 16 as the development reference
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -21,12 +22,12 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Compare a wider single-layer Transformer with the measured width-16 Transformer reference.
-Change representation width 16 to 32 and feedforward width 32 to 64 together as one capacity recipe.
-Keep the five folds, context, seed, optimizer, dropout, and checkpoint rules fixed.
-Report paired fold, participant, and class results. Prepare training for Timo; preserve the final test.
-See the [measured comparison](experiments/transformer-grouped-2026-11-09/README.md) for the rationale.
-The [capacity protocol](transformer-capacity.md) and notebook 13 prepare the five candidate fits.
+Proposed: test a longer training budget on the width-16 Transformer.
+Use forty epochs and patience twelve. Keep the model, folds, seed, optimizer, learning rate, and context fixed.
+This proposal needs a separate experiment configuration and notebook before execution.
+Two width-16 folds reached the current epoch limit. The wider model lost macro-F1 in every fold.
+See the [capacity results and training curves](experiments/transformer-capacity-2026-11-09/README.md).
+Keep all participant-data training operator-controlled and preserve the final test.
 
 ## Model and evaluation milestones
 
