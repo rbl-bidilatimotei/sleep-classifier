@@ -26,6 +26,7 @@ Change representation width 16 to 32 and feedforward width 32 to 64 together as 
 Keep the five folds, context, seed, optimizer, dropout, and checkpoint rules fixed.
 Report paired fold, participant, and class results. Prepare training for Timo; preserve the final test.
 See the [measured comparison](experiments/transformer-grouped-2026-11-09/README.md) for the rationale.
+The [capacity protocol](transformer-capacity.md) and notebook 13 prepare the five candidate fits.
 
 ## Model and evaluation milestones
 
