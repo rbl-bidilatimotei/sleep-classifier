@@ -237,5 +237,7 @@ It compares width 32 against the completed width-16 Transformer. Training remain
 
 The [capacity results and training curves](docs/experiments/transformer-capacity-2026-11-09/README.md) show losses across all five folds.
 
-Use [notebook 14](notebooks/14_transformer_training_budget.ipynb) for the next [width-16 training-budget experiment](docs/transformer-training-budget.md).
+Use [notebook 14](notebooks/14_transformer_training_budget.ipynb) for the completed [width-16 training-budget experiment](docs/transformer-training-budget.md).
 It tests forty epochs and patience twelve on the same development folds. Training remains explicitly opt-in.
+
+The [measured budget results](docs/experiments/transformer-budget-2026-11-09/README.md) record REM gains and the remaining class trade-offs.

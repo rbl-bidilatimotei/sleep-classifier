@@ -1,6 +1,6 @@
 # Width-16 Transformer training-budget experiment
 
-Status: prepared for Timo to run locally. No participant-data budget training has run.
+Status: completed by Timo on local MPS. See the [measured results](experiments/transformer-budget-2026-11-09/README.md).
 
 ## Question and evidence
 
@@ -102,7 +102,8 @@ The width-16 MPS preflight passed without optimization on 2026-11-09.
 The candidate has 2,564 parameters. Only the output path, epoch cap, and patience differ from the reference configuration.
 Participant membership and checkpoint-selection rules match the measured reference plan.
 Five fold tables and their manifest were prepared without training.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+The five fits are complete. Keep training and preparation disabled when reviewing saved results.
 Notebook 14 was executed from a fresh kernel and exported as HTML.
-It reports the measured reference as complete and the candidate as not_started.
+Before training, it reported the reference as complete and the candidate as not_started.
+The completed report now validates both budgets and displays their paired scores.
 Synthetic tests exercise the completed comparison and plot cells without training a participant-data model.

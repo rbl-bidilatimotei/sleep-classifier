@@ -54,3 +54,10 @@ Mean fold macro-F1 fell from 0.50446 to 0.48277; only seven participants improve
 Increasing capacity alone did not improve Deep or REM scores under this recipe.
 The width-16 reference reached the epoch cap in two folds, supporting a bounded training-budget test.
 The wider recipe mostly selected early checkpoints, so longer training is not an established remedy for its losses.
+
+## Training-budget comparison
+
+The [longer width-16 budget](experiments/transformer-budget-2026-11-09/README.md) improved mean fold macro-F1 by 0.01497.
+REM recall rose from 31.73% to 40.27%, with slightly higher precision. Deep F1 declined slightly.
+Four folds improved and one was unchanged. The shared history prefixes match exactly in this local run.
+Four selected checkpoints occurred after epoch twenty. More training opportunities helped this seed, but require replication before further tuning.
