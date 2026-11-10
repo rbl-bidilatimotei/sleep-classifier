@@ -242,5 +242,8 @@ It tests forty epochs and patience twelve on the same development folds. Trainin
 
 The [measured budget results](docs/experiments/transformer-budget-2026-11-09/README.md) record REM gains and the remaining class trade-offs.
 
-Use [notebook 15](notebooks/15_transformer_budget_seeds.ipynb) for [shared-seed budget replication](docs/transformer-budget-seeds.md).
+Use [notebook 15](notebooks/15_transformer_budget_seeds.ipynb) for the completed [shared-seed budget replication](docs/transformer-budget-seeds.md).
 It reuses seed 42 and prepares both budgets for seeds 43 and 44. Training stays opt-in.
+
+The [measured three-seed results](docs/experiments/transformer-budget-seeds-2026-11-10/README.md) record repeatable development gains and their checkpoint-selection limit.
+Shared trainer messages now use the architecture-neutral logger sleep_classifier.neural_training.

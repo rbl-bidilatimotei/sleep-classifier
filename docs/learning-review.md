@@ -1,6 +1,6 @@
 # Learning review before grouped validation
 
-Updated on 2026-11-09. These conclusions describe development experiments, not final-test performance.
+Updated on 2026-11-10. These conclusions describe development experiments, not final-test performance.
 
 ## What the experiments support
 
@@ -61,3 +61,14 @@ The [longer width-16 budget](experiments/transformer-budget-2026-11-09/README.md
 REM recall rose from 31.73% to 40.27%, with slightly higher precision. Deep F1 declined slightly.
 Four folds improved and one was unchanged. The shared history prefixes match exactly in this local run.
 Four selected checkpoints occurred after epoch twenty. More training opportunities helped this seed, but require replication before further tuning.
+
+## Shared-seed budget replication
+
+All three seeds gain development macro-F1 and REM precision/recall/F1 under the longer budget.
+The mean paired seed macro-F1 gain is 0.01554 with sample deviation 0.00821.
+Seed 44 has the largest paired macro-F1 gain; seed 42 has the largest absolute candidate scores.
+Only seven of fifteen seed/fold cells improve; the others select the same score.
+All shared histories match, so longer runs search a superset of checkpoints on the same validation folds.
+This confirms a repeatable development selection gain, not independent generalization improvement.
+Deep F1 remains essentially flat or slightly lower. Test more causal context before selecting another architecture family.
+See the [measured seed report](experiments/transformer-budget-seeds-2026-11-10/README.md) for complete class and participant trade-offs.

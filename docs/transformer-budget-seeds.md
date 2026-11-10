@@ -1,6 +1,6 @@
 # Shared-seed Transformer budget replication
 
-Status: prepared for Timo to run locally. No new participant-data seed training has run.
+Status: completed by Timo on local MPS. See the [measured three-seed results](experiments/transformer-budget-seeds-2026-11-10/README.md).
 
 ## Question
 
@@ -113,6 +113,7 @@ The four new grouped runs were prepared on local MPS without optimization on 202
 All twenty fold assignments match the seed-42 reference.
 All 520 copied feature CSV files match the reference byte for byte.
 The base candidate preflight and fresh-kernel notebook report passed without training.
-The report shows seed 42 complete and seeds 43 and 44 not_started.
-On this checkout, keep RUN_PREPARATION disabled and enable only RUN_TRAINING when ready.
+Before training, the report showed seed 42 complete and seeds 43 and 44 not_started.
+The completed report now verifies all three pairs.
+The four new grouped runs are complete. Keep preparation and training disabled when reviewing saved results.
 All 275 tests pass, including synthetic completed-study notebook reporting and cross-seed mismatch checks.

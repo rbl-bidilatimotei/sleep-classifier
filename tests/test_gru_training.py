@@ -387,3 +387,35 @@ def test_synthetic_transformer_training_exports_portable_model_metadata(tmp_path
     assert isinstance(restored, CausalTransformerClassifier)
     assert not restored.training
     assert len(predictions) == 2
+
+
+@pytest.mark.parametrize("model_type", ["gru", "transformer"])
+def test_shared_trainer_logs_under_an_architecture_neutral_name(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, model_type: str,
+) -> None:
+    """Identify the shared trainer independently of the selected architecture.
+
+    Args:
+        tmp_path (Path): Temporary synthetic feature and configuration directory.
+        caplog (pytest.LogCaptureFixture): Captured application log records.
+        model_type (str): Model architecture used for the no-gradient preflight.
+    """
+    import logging
+
+    config = _config(tmp_path)
+    settings = yaml.safe_load(config.read_text())
+    settings["model_type"] = model_type
+    if model_type == "transformer":
+        settings.pop("hidden_size")
+        settings["transformer"] = {"d_model": 8, "nhead": 2, "num_layers": 1,
+                                   "feedforward_dim": 16, "max_context": 2, "dropout": 0}
+    config.write_text(yaml.safe_dump(settings))
+
+    with caplog.at_level(logging.INFO, logger="sleep_classifier.neural_training"):
+        GRUExperiment(config).run_check()
+
+    records = [record for record in caplog.records if "Neural model check passed" in record.message]
+    assert len(records) == 1
+    assert records[0].name == "sleep_classifier.neural_training"
+    assert json.loads(records[0].message.split(": ", 1)[1])["model_type"] == model_type
+    assert not (tmp_path / "results").exists()
