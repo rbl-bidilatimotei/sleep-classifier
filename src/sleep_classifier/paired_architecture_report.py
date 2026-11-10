@@ -23,16 +23,17 @@ class PairedArchitectureReport:
 
     def __init__(
         self, reference_summary: Path, candidate_summary: Path,
-        comparison: Literal["architecture", "training_budget"] = "architecture",
+        comparison: Literal["architecture", "training_budget", "context"] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
 
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
-            comparison (Literal["architecture", "training_budget"]): Permitted recipe differences.
+            comparison (Literal["architecture", "training_budget", "context"]):
+                Permitted recipe differences.
         """
-        if comparison not in ("architecture", "training_budget"):
+        if comparison not in ("architecture", "training_budget", "context"):
             raise ValueError("Unknown paired comparison policy")
 
         self.reference_summary = reference_summary.resolve()
@@ -160,9 +161,13 @@ class PairedArchitectureReport:
         """
         if self.comparison == "training_budget":
             self._validate_budget_recipe(reference, candidate)
+        elif self.comparison == "context":
+            self._validate_context_recipe(reference, candidate)
 
         for key in SHARED_RECIPE_KEYS:
             if key in ("epochs", "patience") and self.comparison == "training_budget":
+                continue
+            if key == "context_epochs" and self.comparison == "context":
                 continue
             if (key not in reference["config"] or key not in candidate["config"]
                     or reference["config"][key] != candidate["config"][key]):
@@ -179,6 +184,57 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _context_signature(metrics: dict[str, Any]) -> dict[str, Any]:
+        """Validate context metadata and retain settings that must remain fixed.
+
+        Args:
+            metrics (dict[str, Any]): Verified Transformer fold metrics.
+        """
+        config = metrics["config"]
+        context = config.get("context_epochs")
+        model = metrics.get("model_config")
+        if config.get("model_type") != "transformer" or not isinstance(model, dict):
+            raise ValueError("Context comparison requires Transformer model metadata")
+        if type(context) is not int or context < 1:
+            raise ValueError("Context length must be a positive integer")
+        if (config.get("transformer", {}).get("max_context") != context
+                or model.get("max_context") != context):
+            raise ValueError("Position table capacity must match the context length")
+        if type(metrics.get("parameter_count")) is not int or metrics["parameter_count"] < 1:
+            raise ValueError("Context comparison requires a positive parameter count")
+
+        excluded = {"context_epochs", "prepare_config", "output_dir", "transformer"}
+        return {
+            "recipe": {key: value for key, value in config.items() if key not in excluded},
+            "transformer": {key: value for key, value in config["transformer"].items()
+                            if key != "max_context"},
+            "model": {key: value for key, value in model.items() if key != "max_context"},
+        }
+
+
+    @classmethod
+    def _validate_context_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit only longer context and its learned positional parameters.
+
+        Args:
+            reference (dict[str, Any]): Verified shorter-context fold metrics.
+            candidate (dict[str, Any]): Verified longer-context fold metrics.
+        """
+        if cls._context_signature(reference) != cls._context_signature(candidate):
+            raise ValueError("Context comparison requires the same model and training recipe")
+        difference = candidate["config"]["context_epochs"] - reference["config"]["context_epochs"]
+        if difference <= 0:
+            raise ValueError("Context comparison requires a longer candidate history")
+        width = reference["model_config"].get("d_model")
+        if type(width) is not int or width < 1:
+            raise ValueError("Context comparison requires a positive model width")
+        if candidate["parameter_count"] - reference["parameter_count"] != difference * width:
+            raise ValueError("Parameter difference must match the learned position table")
 
 
     @staticmethod
@@ -293,7 +349,7 @@ class PairedArchitectureReport:
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
-            if self.comparison == "training_budget":
+            if self.comparison in ("training_budget", "context"):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
             self._validate_population(
@@ -311,6 +367,11 @@ class PairedArchitectureReport:
             report["comparison"] = "training_budget"
             report["selection_caveat"] = (
                 "A larger budget offers more validation checkpoint selection opportunities"
+            )
+        elif self.comparison == "context":
+            report["comparison"] = "context"
+            report["capacity_caveat"] = (
+                "Longer context also enlarges the learned positional table"
             )
 
         return report
@@ -402,7 +463,7 @@ def main() -> None:
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--comparison", choices=("architecture", "training_budget"),
+    parser.add_argument("--comparison", choices=("architecture", "training_budget", "context"),
                         default="architecture")
     args = parser.parse_args()
     if args.output.resolve() in (args.reference.resolve(), args.candidate.resolve()):

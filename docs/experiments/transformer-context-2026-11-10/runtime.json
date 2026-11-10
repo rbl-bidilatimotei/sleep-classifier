@@ -1,0 +1,10 @@
+{
+  "Context 10": {
+    "epochs": 181,
+    "elapsed_seconds": 188.82994900000085
+  },
+  "Context 30": {
+    "epochs": 144,
+    "elapsed_seconds": 164.85813866600802
+  }
+}

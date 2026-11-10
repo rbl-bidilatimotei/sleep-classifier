@@ -17,6 +17,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete the width-32 capacity test; retain width 16 as the development reference
 - Complete the width-16 budget test; measure REM gains with forty epochs and patience twelve
 - Replicate paired budget gains across seeds 42, 43, and 44
+- Complete the seed-42 context-thirty comparison; measure Wake/Deep gains and a REM trade-off
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -24,13 +25,13 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: compare context ten with context thirty on the width-16 Transformer.
-Retain forty epochs, patience twelve, features, optimizer, coverage, and the five development folds.
-Start with seed 42 and reuse its completed context-ten reference.
-The larger learned position table adds 320 parameters; document this context recipe difference.
-Prepare a separate protocol, configurations, and notebook before execution. No context experiment is implemented yet.
-See the [replicated budget results](experiments/transformer-budget-seeds-2026-11-10/README.md) and [architecture assessment](architecture-options.md).
-PatchTST-inspired classification remains a possible later candidate; its forecasting results are not a sleep-stage performance promise.
+Proposed: repeat context thirty with seeds 43 and 44 at width 16 and budget 40/12.
+Reuse the completed context-ten runs from the budget seed study. Keep all remaining settings and folds fixed.
+The new maximum is ten fits and 400 epochs. Prepare a separate protocol and notebook before execution.
+Assess paired macro-F1, Wake/Deep improvements, REM trade-offs, and short-history behavior.
+See the [measured context results](experiments/transformer-context-2026-11-10/README.md).
+Use the replicated result to decide whether to adopt context thirty or test an adapted architecture.
+The [architecture assessment](architecture-options.md) records the later choices and their task assumptions.
 
 ## Model and evaluation milestones
 

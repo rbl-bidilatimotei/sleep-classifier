@@ -72,3 +72,14 @@ All shared histories match, so longer runs search a superset of checkpoints on t
 This confirms a repeatable development selection gain, not independent generalization improvement.
 Deep F1 remains essentially flat or slightly lower. Test more causal context before selecting another architecture family.
 See the [measured seed report](experiments/transformer-budget-seeds-2026-11-10/README.md) for complete class and participant trade-offs.
+
+## Longer causal context
+
+Context thirty improves seed-42 macro-F1 in all five folds: mean 0.54665 versus 0.51943.
+The largest gain is fold 04; the mean gain remains positive when that fold is excluded.
+Wake and Deep F1 improve, while REM F1 declines. Nine of 26 participants lose macro-F1.
+Post-hoc gains concentrate among targets with full thirty-epoch history; shorter-history bands lose macro-F1.
+Different class mixtures and small Deep supports limit those band comparisons.
+The larger position table and changed initialization remain confounders in this practical context recipe comparison.
+Replicate with seeds 43 and 44 before selecting a default or moving to another architecture family.
+See the [measured result](experiments/transformer-context-2026-11-10/README.md) for curves, class trade-offs, and limits.

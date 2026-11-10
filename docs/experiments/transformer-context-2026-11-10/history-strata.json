@@ -1,0 +1,80 @@
+[
+  {
+    "recipe": "Context 10",
+    "history_stratum": "up_to_10",
+    "epochs": 1055,
+    "accuracy": 0.5620853080568721,
+    "macro_f1": 0.4586157013163329,
+    "class_support": {
+      "0": 344,
+      "1": 447,
+      "2": 41,
+      "3": 223
+    }
+  },
+  {
+    "recipe": "Context 10",
+    "history_stratum": "11_to_29",
+    "epochs": 1519,
+    "accuracy": 0.6142198815009875,
+    "macro_f1": 0.4966072828605319,
+    "class_support": {
+      "0": 367,
+      "1": 873,
+      "2": 53,
+      "3": 226
+    }
+  },
+  {
+    "recipe": "Context 10",
+    "history_stratum": "at_least_30",
+    "epochs": 20134,
+    "accuracy": 0.6182576735869674,
+    "macro_f1": 0.5049078324332412,
+    "class_support": {
+      "0": 1193,
+      "1": 11505,
+      "2": 3025,
+      "3": 4411
+    }
+  },
+  {
+    "recipe": "Context 30",
+    "history_stratum": "up_to_10",
+    "epochs": 1055,
+    "accuracy": 0.566824644549763,
+    "macro_f1": 0.4494910793028821,
+    "class_support": {
+      "0": 344,
+      "1": 447,
+      "2": 41,
+      "3": 223
+    }
+  },
+  {
+    "recipe": "Context 30",
+    "history_stratum": "11_to_29",
+    "epochs": 1519,
+    "accuracy": 0.6221198156682027,
+    "macro_f1": 0.4714867819854356,
+    "class_support": {
+      "0": 367,
+      "1": 873,
+      "2": 53,
+      "3": 226
+    }
+  },
+  {
+    "recipe": "Context 30",
+    "history_stratum": "at_least_30",
+    "epochs": 20134,
+    "accuracy": 0.6255090891030098,
+    "macro_f1": 0.5338017621249191,
+    "class_support": {
+      "0": 1193,
+      "1": 11505,
+      "2": 3025,
+      "3": 4411
+    }
+  }
+]
