@@ -1,6 +1,6 @@
 # Context-ten versus context-thirty Transformer experiment
 
-Status: prepared for Timo to run locally. No participant-data context-thirty optimization has run.
+Status: completed by Timo on local MPS. See the [measured context results](experiments/transformer-context-2026-11-10/README.md).
 
 ## Question and controls
 
@@ -114,6 +114,7 @@ The configuration comparison confirms that only the output path, context length,
 Base and frozen fold-one no-gradient preflights passed with 64 × 30 × 6 inputs and four output logits.
 The candidate has 2,884 parameters. Synthetic MPS forward/backward updates passed at context ten and thirty.
 Notebook 16 executed from a fresh kernel and exported as HTML without training.
-It reports the reference complete and the candidate not_started, with the measured history-coverage diagnostic.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+Before training, it reported the reference complete and the candidate not_started.
+The completed report now validates both experiments and includes a post-hoc history-length diagnostic.
+The five fits are complete. Keep preparation and training disabled when reviewing saved results.
 All 298 tests and lint pass, including strict context-policy checks and completed synthetic notebook reporting.

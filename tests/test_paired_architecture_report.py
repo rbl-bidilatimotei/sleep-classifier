@@ -646,18 +646,25 @@ def test_context_notebook_reports_completed_runs_without_optimization(tmp_path: 
         Path(__file__).resolve().parents[1] / "notebooks/16_transformer_context.ipynb",
         as_version=4,
     )
+    frame = pd.DataFrame({"participant_id": ["a"] * 4 + ["b"] * 4,
+                          "time": [0, 30, 60, 90] * 2, "target": [0, 1, 2, 3] * 2})
     namespace = {"ROOT": tmp_path, "Path": Path, "json": json,
+                 "frame": frame, "available": pd.Series([1, 2, 3, 4] * 2),
                  "logger": Mock(), "display": Mock()}
     try:
         for cell in notebook.cells:
             if cell.cell_type == "code" and (
                 "statuses = []" in cell.source or "figure, axes = plt.subplots" in cell.source
+                or "history_strata = []" in cell.source
             ):
                 with patch.object(plt, "show"):
                     exec(cell.source, namespace)
 
         assert namespace["comparison"]["comparison"] == "context"
         assert len(namespace["history_rows"]) == 4
+        assert len(namespace["history_strata"]) == 6
+        assert namespace["history_strata"][0]["epochs"] == 8
+        assert namespace["history_strata"][1]["macro_f1"] is None
         output = artifacts / "transformer-context-comparison/summary.json"
         assert json.loads(output.read_text())["eligible_epochs"] == 8
     finally:
