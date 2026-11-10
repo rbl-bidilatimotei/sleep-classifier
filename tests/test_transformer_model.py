@@ -133,11 +133,16 @@ def test_mps_forward_backward_matches_cpu_and_updates_parameters() -> None:
 
 
 @pytest.mark.skipif(not torch.backends.mps.is_available(), reason="MPS is unavailable")
-def test_default_dropout_recipe_trains_a_full_padded_mps_batch() -> None:
-    """Exercise the configured residual dropout on a full synthetic MPS batch."""
-    model = CausalTransformerClassifier().to("mps").train()
-    features = torch.randn(64, 10, 6, device="mps")
-    lengths = torch.arange(64, dtype=torch.long) % 10 + 1
+@pytest.mark.parametrize("context_epochs", [10, 30])
+def test_default_dropout_recipe_trains_a_full_padded_mps_batch(context_epochs: int) -> None:
+    """Exercise residual dropout on full synthetic MPS batches at both context lengths.
+
+    Args:
+        context_epochs (int): Maximum completed epochs available to each sequence.
+    """
+    model = CausalTransformerClassifier(max_context=context_epochs).to("mps").train()
+    features = torch.randn(64, context_epochs, 6, device="mps")
+    lengths = torch.arange(64, dtype=torch.long) % context_epochs + 1
     targets = torch.arange(64, device="mps") % 4
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     before = model.input_projection.weight.detach().clone()

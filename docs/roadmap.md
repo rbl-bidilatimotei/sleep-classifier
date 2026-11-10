@@ -24,11 +24,11 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: compare context ten with context thirty on the width-16 Transformer.
+Prepared: compare context ten with context thirty on the width-16 Transformer.
 Retain forty epochs, patience twelve, features, optimizer, coverage, and the five development folds.
 Start with seed 42 and reuse its completed context-ten reference.
 The larger learned position table adds 320 parameters; document this context recipe difference.
-Prepare a separate protocol, configurations, and notebook before execution. No context experiment is implemented yet.
+The [context protocol](transformer-context.md), separate configurations, and notebook 16 prepare the five new fits.
 See the [replicated budget results](experiments/transformer-budget-seeds-2026-11-10/README.md) and [architecture assessment](architecture-options.md).
 PatchTST-inspired classification remains a possible later candidate; its forecasting results are not a sleep-stage performance promise.
 

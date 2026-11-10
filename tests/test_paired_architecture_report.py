@@ -520,3 +520,145 @@ def test_seed_notebook_reports_completed_pairs_without_training(tmp_path: Path) 
         assert report["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
     finally:
         plt.close("all")
+
+
+def _write_context_pair(root: Path) -> tuple[Path, Path]:
+    """Write matched fixed-budget Transformers with different position tables.
+
+    Args:
+        root (Path): Parent directory for synthetic experiment artifacts.
+    """
+    reference, candidate = _write_budget_pair(root)
+    for summary_path, context in ((reference, 2), (candidate, 6)):
+        summary = json.loads(summary_path.read_text())
+        summary["plan"]["maximum_epochs"] = 8
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"].update({"epochs": 4, "patience": 2, "context_epochs": context,
+                                      "transformer": {"d_model": 16, "max_context": context}})
+            metrics["model_config"] = {"d_model": 16, "max_context": context}
+            metrics["parameter_count"] = 2564 + (context - 2) * 16
+            metrics["history"] = [{"epoch": 1, "validation_macro_f1": metrics["macro_f1"]}]
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+
+    return reference, candidate
+
+
+def test_context_report_permits_only_longer_history_and_position_capacity(tmp_path: Path) -> None:
+    """Compare longer context while preserving the held-out prediction population.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+    """
+    reference, candidate = _write_context_pair(tmp_path)
+    for policy in ("architecture", "training_budget"):
+        with pytest.raises(ValueError):
+            PairedArchitectureReport(reference, candidate, policy).build()
+
+    report = PairedArchitectureReport(reference, candidate, "context").build()
+    assert report["comparison"] == "context"
+    assert "positional" in report["capacity_caveat"]
+    assert report["eligible_epochs"] == 8
+    assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+
+
+@pytest.mark.parametrize("mutation", [
+    "width", "dropout", "epochs", "patience", "learning_rate", "position_capacity",
+    "parameter_count", "model_metadata", "unchanged_context", "shorter_context",
+    "boolean_context", "coverage", "metric_hash", "target", "participant", "epoch_cap",
+])
+def test_context_report_rejects_confounded_or_invalid_pairs(tmp_path: Path, mutation: str) -> None:
+    """Reject recipe changes and damaged evaluation inputs in context mode.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+        mutation (str): Candidate metadata or prediction corruption to apply.
+    """
+    reference, candidate = _write_context_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    path = Path(summary["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    if mutation == "metric_hash":
+        path.write_text(path.read_text() + "\n")
+    elif mutation == "target":
+        predictions = path.parent / "validation_predictions.csv"
+        frame = pd.read_csv(predictions)
+        frame.loc[0, "target"] = 1
+        frame.to_csv(predictions, index=False)
+    elif mutation in ("participant", "epoch_cap"):
+        if mutation == "participant":
+            summary["plan"]["folds"][0]["validation"] = ["other"]
+        else:
+            summary["plan"]["maximum_epochs"] = 999
+        candidate.write_text(json.dumps(summary))
+    else:
+        if mutation in ("width", "dropout"):
+            metrics["config"]["transformer"]["d_model" if mutation == "width" else "dropout"] = 32
+        elif mutation in ("epochs", "patience", "learning_rate"):
+            metrics["config"][mutation] = 100
+        elif mutation == "position_capacity":
+            metrics["config"]["transformer"]["max_context"] = 100
+        elif mutation == "parameter_count":
+            metrics["parameter_count"] += 1
+        elif mutation == "model_metadata":
+            metrics["model_config"]["d_model"] = 32
+        elif mutation in ("unchanged_context", "shorter_context", "boolean_context"):
+            values = {"unchanged_context": 2, "shorter_context": 1, "boolean_context": True}
+            value = values[mutation]
+            metrics["config"]["context_epochs"] = value
+            metrics["config"]["transformer"]["max_context"] = value
+            metrics["model_config"]["max_context"] = value
+        elif mutation == "coverage":
+            metrics["coverage"]["fraction"] = 0.5
+        _rewrite_metrics(candidate, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "context").build()
+
+
+def test_context_notebook_reports_completed_runs_without_optimization(tmp_path: Path) -> None:
+    """Exercise completed context comparisons and plot cells with synthetic artifacts.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    from unittest.mock import Mock, patch
+
+    nbformat = pytest.importorskip("nbformat")
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    plt = pytest.importorskip("matplotlib.pyplot")
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    reference, candidate = _write_context_pair(artifacts)
+    expected_reference = artifacts / "transformer-budget-grouped-validation"
+    expected_reference.mkdir()
+    (expected_reference / "summary.json").write_text(reference.read_text())
+    configs = tmp_path / "configs"
+    configs.mkdir()
+    (configs / "transformer-context-30-grouped-validation.yaml").write_text(
+        "output_dir: ../artifacts/transformer\n"
+    )
+    notebook = nbformat.read(
+        Path(__file__).resolve().parents[1] / "notebooks/16_transformer_context.ipynb",
+        as_version=4,
+    )
+    namespace = {"ROOT": tmp_path, "Path": Path, "json": json,
+                 "logger": Mock(), "display": Mock()}
+    try:
+        for cell in notebook.cells:
+            if cell.cell_type == "code" and (
+                "statuses = []" in cell.source or "figure, axes = plt.subplots" in cell.source
+            ):
+                with patch.object(plt, "show"):
+                    exec(cell.source, namespace)
+
+        assert namespace["comparison"]["comparison"] == "context"
+        assert len(namespace["history_rows"]) == 4
+        output = artifacts / "transformer-context-comparison/summary.json"
+        assert json.loads(output.read_text())["eligible_epochs"] == 8
+    finally:
+        plt.close("all")

@@ -247,3 +247,6 @@ It reuses seed 42 and prepares both budgets for seeds 43 and 44. Training stays 
 
 The [measured three-seed results](docs/experiments/transformer-budget-seeds-2026-11-10/README.md) record repeatable development gains and their checkpoint-selection limit.
 Shared trainer messages now use the architecture-neutral logger sleep_classifier.neural_training.
+
+Use [notebook 16](notebooks/16_transformer_context.ipynb) for the next [context-ten versus context-thirty experiment](docs/transformer-context.md).
+It reuses the measured context-ten reference and prepares five new fits. Training stays explicitly opt-in.

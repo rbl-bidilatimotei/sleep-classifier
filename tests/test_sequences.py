@@ -101,3 +101,29 @@ def test_rejects_invalid_context_and_unscored_rows():
     frame.loc[0, "eligible"] = False
     with pytest.raises(ValueError, match="eligible"):
         CausalSequenceDataset(frame, scaler_for(frame))
+
+
+def test_context_thirty_keeps_targets_and_restarts_after_gaps() -> None:
+    """Retain every target while extending only participant-local contiguous history."""
+    rows = []
+    for participant in ("p1", "p2"):
+        for index in range(45):
+            row = {column: float(index) for column in FEATURE_COLUMNS}
+            row.update(participant_id=participant, segment_id=int(index >= 35),
+                       time=(index + (5 if index >= 35 else 0)) * 30,
+                       target=index % 4, eligible=True)
+            rows.append(row)
+    frame = pd.DataFrame(rows)
+    shorter = CausalSequenceDataset(frame, TransformSpy(), context_epochs=10)
+    longer = CausalSequenceDataset(frame, TransformSpy(), context_epochs=30)
+
+    assert len(shorter) == len(longer) == 90
+    assert len(shorter[29]["features"]) == 10
+    assert len(longer[29]["features"]) == 30
+    assert len(longer[35]["features"]) == 1
+    assert len(longer[45]["features"]) == 1
+    for short, long in zip(shorter, longer):
+        assert (short["participant_id"], short["time"], short["target"].item()) == (
+            long["participant_id"], long["time"], long["target"].item(),
+        )
+        torch.testing.assert_close(short["features"][-1], long["features"][-1])
