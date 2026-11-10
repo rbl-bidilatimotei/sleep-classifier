@@ -71,7 +71,10 @@ See the [measured results](experiments/transformer-grouped-2026-11-09/README.md)
 The wider single-layer Transformer then lost macro-F1 in all five folds: mean 0.4828 versus 0.5045.
 Width 16 remains the development reference. Increasing its budget to forty epochs and patience twelve improved mean fold macro-F1 to 0.5194.
 REM recall rose from 31.73% to 40.27%; Deep F1 declined slightly.
-The next question is whether this paired budget gain repeats with other training seeds.
+The paired budget gain repeats with seeds 43 and 44: the mean seed effect is +0.01554 macro-F1.
+REM precision and recall improve in all three seeds, while Deep F1 remains nearly flat or slightly lower.
+The same validation folds select checkpoints, so the gain is not an independent generalization estimate.
+The proposed next question compares five versus fifteen minutes of causal context.
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 

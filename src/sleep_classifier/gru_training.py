@@ -28,7 +28,8 @@ from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
 
-LOGGER = logging.getLogger(__name__)
+# Keep shared trainer logs independent of the legacy implementation module
+LOGGER = logging.getLogger("sleep_classifier.neural_training")
 
 
 class TrainingConfig:

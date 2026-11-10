@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-budget-reference-seed-43.yaml
+output_dir: ../artifacts/transformer-budget-seeds/seed-43/reference
+folds: 5
+split_seed: 42

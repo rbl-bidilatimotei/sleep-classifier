@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-09. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-10. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -16,6 +16,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete the matched five-fold causal Transformer comparison
 - Complete the width-32 capacity test; retain width 16 as the development reference
 - Complete the width-16 budget test; measure REM gains with forty epochs and patience twelve
+- Replicate paired budget gains across seeds 42, 43, and 44
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -23,11 +24,13 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Replicate both width-16 budgets with shared seeds 43 and 44 on the same five folds.
-Reuse the completed seed-42 results. Keep model, context, features, optimizer, and split membership fixed.
-Assess paired seed-level effects before adding more model capacity or context.
-The new maximum is twenty fits and 600 epochs. Training remains operator-controlled.
-See the [budget results](experiments/transformer-budget-2026-11-09/README.md) for the evidence and limits.
+Proposed: compare context ten with context thirty on the width-16 Transformer.
+Retain forty epochs, patience twelve, features, optimizer, coverage, and the five development folds.
+Start with seed 42 and reuse its completed context-ten reference.
+The larger learned position table adds 320 parameters; document this context recipe difference.
+Prepare a separate protocol, configurations, and notebook before execution. No context experiment is implemented yet.
+See the [replicated budget results](experiments/transformer-budget-seeds-2026-11-10/README.md) and [architecture assessment](architecture-options.md).
+PatchTST-inspired classification remains a possible later candidate; its forecasting results are not a sleep-stage performance promise.
 
 ## Model and evaluation milestones
 
