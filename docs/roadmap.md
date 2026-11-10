@@ -25,9 +25,10 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: repeat context thirty with seeds 43 and 44 at width 16 and budget 40/12.
+Prepared: repeat context thirty with seeds 43 and 44 at width 16 and budget 40/12.
 Reuse the completed context-ten runs from the budget seed study. Keep all remaining settings and folds fixed.
-The new maximum is ten fits and 400 epochs. Prepare a separate protocol and notebook before execution.
+The new maximum is ten fits and 400 epochs.
+The [replication protocol](transformer-context-seeds.md), explicit YAML pairs, and notebook 17 prepare the two new candidates.
 Assess paired macro-F1, Wake/Deep improvements, REM trade-offs, and short-history behavior.
 See the [measured context results](experiments/transformer-context-2026-11-10/README.md).
 Use the replicated result to decide whether to adopt context thirty or test an adapted architecture.

@@ -1,0 +1,18 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/transformer-context-30-seed-44
+model_type: transformer
+seed: 44
+epochs: 40
+batch_size: 64
+context_epochs: 30
+learning_rate: 0.001
+patience: 12
+gradient_clip: 1.0
+device: auto
+transformer:
+  d_model: 16
+  nhead: 2
+  num_layers: 1
+  feedforward_dim: 32
+  dropout: 0.1
+  max_context: 30
