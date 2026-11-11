@@ -258,5 +258,7 @@ It reuses every measured context-ten reference and trains only context-thirty se
 
 The [measured context replication](docs/experiments/transformer-context-seeds-2026-11-11/README.md) records gains across all three seeds and the regularization question.
 
-Use [notebook 18](notebooks/18_transformer_dropout.ipynb) for the next [context-thirty dropout comparison](docs/transformer-dropout.md).
+Use [notebook 18](notebooks/18_transformer_dropout.ipynb) for the completed [context-thirty dropout comparison](docs/transformer-dropout.md).
 It tests residual/feedforward dropout 0.1 versus 0.2 with natural sampling unchanged. Training stays explicitly opt-in.
+
+The [measured dropout results](docs/experiments/transformer-dropout-2026-11-11/README.md) record modest class-score gains, lower NLL, and the remaining generalization gap.

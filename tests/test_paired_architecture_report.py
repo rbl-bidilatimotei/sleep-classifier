@@ -880,6 +880,7 @@ def test_dropout_notebook_reports_fixed_context_recipes_and_checkpoint_nll(tmp_p
         assert namespace["comparison"]["eligible_epochs"] == 8
         assert namespace["comparison"]["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
         assert len(namespace["history_rows"]) == 4
+        assert [row["pooled_selected_nll"] for row in namespace["pooled_losses"]] == [1.0, 1.0]
         assert all(row["selected_validation_nll"] == 1.0 for row in namespace["history_rows"])
     finally:
         plt.close("all")

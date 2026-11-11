@@ -1,6 +1,6 @@
 # Context-thirty dropout regularization experiment
 
-Status: prepared for Timo to run locally. No participant-data dropout-0.2 optimization has run.
+Status: completed by Timo on local MPS. See the [measured dropout results](experiments/transformer-dropout-2026-11-11/README.md).
 
 ## Question and controls
 
@@ -106,9 +106,10 @@ On 2026-11-11, all five candidate folds were prepared on MPS without optimizatio
 The complete grouped plan matches the measured context-thirty seed-42 reference.
 All 130 copied feature CSV files match the reference byte for byte.
 The model configuration differs only in residual/feedforward dropout and output location; both models retain 2,884 parameters.
-The notebook executed from a fresh kernel and exported as HTML with the reference complete and candidate not_started.
+Before training, the notebook exported HTML with the reference complete and candidate not_started.
+The completed report now validates both recipes and displays per-fold and pooled selected-checkpoint NLL.
 Its base-model no-gradient MPS preflight passed with a 64 × 30 × 6 input batch.
 Synthetic full padded MPS updates passed for dropout 0.1 and 0.2 at contexts ten and thirty.
 An identical-weight evaluation test confirms that dropout changes neither parameter shapes nor evaluation-mode outputs.
 All 311 tests and lint pass, including synthetic completed-notebook reporting of selected-checkpoint NLL.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+The five fits are complete. Keep preparation and training disabled when reviewing saved results.

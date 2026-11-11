@@ -1,0 +1,92 @@
+[
+  {
+    "recipe": "Dropout 0.1",
+    "fold": "fold-01",
+    "eligible_epochs": 4587,
+    "best_epoch": 14,
+    "completed_epochs": 26,
+    "selected_validation_nll": 1.0026370501346726,
+    "final_validation_nll": 1.064107637533259
+  },
+  {
+    "recipe": "Dropout 0.1",
+    "fold": "fold-02",
+    "eligible_epochs": 4182,
+    "best_epoch": 37,
+    "completed_epochs": 40,
+    "selected_validation_nll": 1.1720207956406217,
+    "final_validation_nll": 1.1462935989750225
+  },
+  {
+    "recipe": "Dropout 0.1",
+    "fold": "fold-03",
+    "eligible_epochs": 4792,
+    "best_epoch": 10,
+    "completed_epochs": 22,
+    "selected_validation_nll": 0.8619674149658126,
+    "final_validation_nll": 0.8904355421090165
+  },
+  {
+    "recipe": "Dropout 0.1",
+    "fold": "fold-04",
+    "eligible_epochs": 4427,
+    "best_epoch": 16,
+    "completed_epochs": 28,
+    "selected_validation_nll": 0.9018945460236582,
+    "final_validation_nll": 0.9310123205844667
+  },
+  {
+    "recipe": "Dropout 0.1",
+    "fold": "fold-05",
+    "eligible_epochs": 4720,
+    "best_epoch": 16,
+    "completed_epochs": 28,
+    "selected_validation_nll": 0.8640059414556471,
+    "final_validation_nll": 0.8945861949759014
+  },
+  {
+    "recipe": "Dropout 0.2",
+    "fold": "fold-01",
+    "eligible_epochs": 4587,
+    "best_epoch": 14,
+    "completed_epochs": 26,
+    "selected_validation_nll": 0.9593327348986456,
+    "final_validation_nll": 1.0143351895579955
+  },
+  {
+    "recipe": "Dropout 0.2",
+    "fold": "fold-02",
+    "eligible_epochs": 4182,
+    "best_epoch": 19,
+    "completed_epochs": 31,
+    "selected_validation_nll": 1.058665671113688,
+    "final_validation_nll": 1.1203045679700825
+  },
+  {
+    "recipe": "Dropout 0.2",
+    "fold": "fold-03",
+    "eligible_epochs": 4792,
+    "best_epoch": 17,
+    "completed_epochs": 29,
+    "selected_validation_nll": 0.8482323967554732,
+    "final_validation_nll": 0.9202037008855498
+  },
+  {
+    "recipe": "Dropout 0.2",
+    "fold": "fold-04",
+    "eligible_epochs": 4427,
+    "best_epoch": 31,
+    "completed_epochs": 40,
+    "selected_validation_nll": 0.9224053134976377,
+    "final_validation_nll": 0.9682768192373659
+  },
+  {
+    "recipe": "Dropout 0.2",
+    "fold": "fold-05",
+    "eligible_epochs": 4720,
+    "best_epoch": 25,
+    "completed_epochs": 37,
+    "selected_validation_nll": 0.8572952638238164,
+    "final_validation_nll": 0.8859682204359669
+  }
+]
