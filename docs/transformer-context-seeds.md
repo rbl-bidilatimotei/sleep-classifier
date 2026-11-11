@@ -1,6 +1,6 @@
 # Shared-seed context-thirty replication
 
-Status: prepared for Timo to run locally. No new participant-data context replication training has run.
+Status: completed by Timo on local MPS. See the [measured three-seed context results](experiments/transformer-context-seeds-2026-11-11/README.md).
 
 ## Question and fixed settings
 
@@ -115,6 +115,7 @@ All four reused grouped artifacts passed validation before and after preparation
 Base and frozen seed-43 fold-one no-gradient MPS preflights passed with 64 × 30 × 6 inputs and four logits.
 The candidate still has 2,884 parameters. The legacy budget CLI plan remains functional.
 Notebook 17 executed from a fresh kernel and exported as HTML without training.
-It shows the reused runs complete and the two new candidates not_started.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+Before training, it showed the reused runs complete and the two new candidates not_started.
+The completed report now validates all three context comparisons and includes a probability-loss diagnostic.
+The two new grouped candidates are complete. Keep preparation and training disabled when reviewing saved results.
 All 306 tests and lint pass, including per-recipe reuse guards and synthetic completed-context-study reporting.

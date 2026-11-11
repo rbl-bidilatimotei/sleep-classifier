@@ -1,6 +1,6 @@
 # Learning review before grouped validation
 
-Updated on 2026-11-10. These conclusions describe development experiments, not final-test performance.
+Updated on 2026-11-11. These conclusions describe development experiments, not final-test performance.
 
 ## What the experiments support
 
@@ -83,3 +83,13 @@ Different class mixtures and small Deep supports limit those band comparisons.
 The larger position table and changed initialization remain confounders in this practical context recipe comparison.
 Replicate with seeds 43 and 44 before selecting a default or moving to another architecture family.
 See the [measured result](experiments/transformer-context-2026-11-10/README.md) for curves, class trade-offs, and limits.
+
+## Replicated longer context
+
+All fifteen seed/fold comparisons gain macro-F1. The mean seed gain is 0.03491 with sample deviation 0.00821.
+Wake, Light, and Deep F1 improve for every seed; REM improves for two seeds and declines slightly for seed 42.
+Context thirty is the working development reference, while independent generalization remains unmeasured.
+The loss curves support a regularization question, not a diagnosis that class imbalance is the cause.
+Selected-checkpoint pooled NLL improves for two seeds despite late-epoch loss increases.
+Test one dropout change before resampling or another architectural change.
+See the [measured context replication](experiments/transformer-context-seeds-2026-11-11/README.md).

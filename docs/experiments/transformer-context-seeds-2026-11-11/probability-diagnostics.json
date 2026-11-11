@@ -1,0 +1,50 @@
+[
+  {
+    "seed": 42,
+    "recipe": "reference",
+    "epochs": 22708,
+    "checkpoint_nll": 0.9374063757576654,
+    "mean_confidence_correct": 0.6635341338010344,
+    "mean_confidence_wrong": 0.6194566446466306
+  },
+  {
+    "seed": 42,
+    "recipe": "candidate",
+    "epochs": 22708,
+    "checkpoint_nll": 0.9556909631517236,
+    "mean_confidence_correct": 0.7039244693889134,
+    "mean_confidence_wrong": 0.6514952850688117
+  },
+  {
+    "seed": 43,
+    "recipe": "reference",
+    "epochs": 22708,
+    "checkpoint_nll": 0.9412671838902025,
+    "mean_confidence_correct": 0.6190012233834992,
+    "mean_confidence_wrong": 0.5739733872406297
+  },
+  {
+    "seed": 43,
+    "recipe": "candidate",
+    "epochs": 22708,
+    "checkpoint_nll": 0.9279553035732382,
+    "mean_confidence_correct": 0.6744281077398412,
+    "mean_confidence_wrong": 0.618957068002164
+  },
+  {
+    "seed": 44,
+    "recipe": "reference",
+    "epochs": 22708,
+    "checkpoint_nll": 0.942779519295958,
+    "mean_confidence_correct": 0.650355357499246,
+    "mean_confidence_wrong": 0.6088567911449106
+  },
+  {
+    "seed": 44,
+    "recipe": "candidate",
+    "epochs": 22708,
+    "checkpoint_nll": 0.9274210294555325,
+    "mean_confidence_correct": 0.7037147917981671,
+    "mean_confidence_wrong": 0.6476494774596491
+  }
+]

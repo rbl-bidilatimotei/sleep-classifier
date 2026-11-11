@@ -700,6 +700,14 @@ def _write_context_seed_study(root: Path) -> Path:
                 metrics["parameter_count"] = 2564 + (context - 2) * 16
                 path.write_text(json.dumps(metrics))
                 result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+                predictions_path = path.parent / "validation_predictions.csv"
+                predictions = pd.read_csv(predictions_path)
+                column = "prediction" if "prediction" in predictions else "gru_prediction"
+                for stage in range(4):
+                    predictions[f"probability_{stage}"] = predictions[column].map(
+                        {label: 0.7 if label == stage else 0.1 for label in range(4)}
+                    )
+                predictions.to_csv(predictions_path, index=False)
             summary_path.write_text(json.dumps(summary))
             Path(grouped["base_model_config"]).write_text(yaml.safe_dump(metrics["config"]))
     config.write_text(yaml.safe_dump(settings))
@@ -801,11 +809,16 @@ def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path
                 or cell.source.startswith('if all(row["status"]')
                 or cell.source.startswith("if seed_rows:")
                 or cell.source.startswith("if class_rows:")
+                or "probability_diagnostics = []" in cell.source
             ):
                 with patch.object(plt, "show"):
                     exec(cell.source, namespace)
 
         assert len(namespace["seed_rows"]) == 2
+        assert len(namespace["probability_diagnostics"]) == 4
+        candidate = namespace["probability_diagnostics"][1]
+        assert candidate["checkpoint_nll"] == pytest.approx(0.3566749439)
+        assert candidate["mean_confidence_wrong"] is None
         result = json.loads((study.output_dir / "summary.json").read_text())
         assert result["comparison"] == "context"
         assert result["mean_seed_macro_f1_difference"] == pytest.approx(0.9)

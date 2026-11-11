@@ -76,7 +76,9 @@ REM precision and recall improve in all three seeds, while Deep F1 remains nearl
 The same validation folds select checkpoints, so the gain is not an independent generalization estimate.
 The seed-42 comparison of fifteen versus five minutes then improves mean fold macro-F1 from 0.5194 to 0.5467.
 Wake and Deep improve, while REM F1 declines slightly. All folds gain macro-F1, but nine participants lose it.
-The next proposed step repeats context thirty with seeds 43 and 44 before choosing a default.
+The context gain repeats with seeds 43 and 44: all fifteen seed/fold cells improve macro-F1.
+The mean seed gain is 0.03491. Context thirty becomes the working development reference.
+Validation-loss growth remains a concern; the next question tests a modest dropout increase with natural sampling unchanged.
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 
