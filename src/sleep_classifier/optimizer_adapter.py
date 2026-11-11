@@ -194,6 +194,11 @@ class OptimizerAdapter:
             self.optimizer.close()
 
 
+    def learning_rates(self) -> list[float]:
+        """Read the actual learning rate from each optimizer parameter group."""
+        return [float(group["lr"]) for group in self.optimizer.param_groups]
+
+
     def provenance(self) -> dict[str, Any]:
         """Describe the optimizer path and actual update count.
 

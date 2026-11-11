@@ -52,7 +52,7 @@ class GroupedValidationExperiment:
 
 
     def _validate_settings(self) -> None:
-        """Reject invalid fold counts and split seeds before reading observations.
+        """Validate fold selection, split seed, and output paths before reading observations.
 
         Raises:
             ValueError: If the fold count or split seed is invalid, or if the output directory
@@ -65,6 +65,16 @@ class GroupedValidationExperiment:
             raise ValueError("folds must be an integer of at least two")
         if type(seed) is not int or seed < 0:
             raise ValueError("split_seed must be a nonnegative integer")
+
+        if "selected_folds" in self.settings:
+            selected = self.settings["selected_folds"]
+            available = {f"fold-{index:02d}" for index in range(1, folds + 1)}
+            if (not isinstance(selected, list) or len(selected) < 2
+                    or any(not isinstance(name, str) for name in selected)):
+                raise ValueError("selected_folds must list at least two distinct fold names")
+            if len(set(selected)) != len(selected) or not set(selected) <= available:
+                raise ValueError("selected_folds must contain unique existing fold names")
+
         if self.output_dir == self.source_dir or self.source_dir in self.output_dir.parents:
             raise ValueError("Grouped outputs must be separate from source features")
 
@@ -105,7 +115,7 @@ class GroupedValidationExperiment:
 
 
     def plan(self) -> dict[str, Any]:
-        """Assign each development participant to one held-out fold without training.
+        """Select original participant-disjoint development folds without training.
 
         Returns:
             dict[str, Any]: Cross-validation plan for development participants.
@@ -128,16 +138,23 @@ class GroupedValidationExperiment:
             for index, (training, validation) in enumerate(splitter.split(participants), start=1)
         ]
 
-        return {
+        if "selected_folds" in self.settings:
+            folds = [fold for fold in folds if fold["name"] in self.settings["selected_folds"]]
+
+        plan = {
             "folds": folds,
             "development": participants,
             "reserved_test": split["test"],
             "split_seed": self.settings["split_seed"],
             "training_seed": self.model_settings["seed"],
-            "maximum_epochs": self.settings["folds"] * self.model_settings["epochs"],
+            "maximum_epochs": len(folds) * self.model_settings["epochs"],
             "checkpoint_selection": "best macro-F1 on each development validation fold",
             "independent_outer_test": False,
         }
+        if "selected_folds" in self.settings:
+            plan["validation_scope"] = "selected development folds"
+
+        return plan
 
 
     @staticmethod
@@ -382,7 +399,7 @@ class GroupedValidationExperiment:
 
 
     def _aggregate(self, results: list[dict[str, Any]]) -> dict[str, Any]:
-        """Pool one validation prediction per retained development epoch.
+        """Pool one prediction per target from the planned validation participants.
 
         Args:
             results (list[dict[str, Any]]): Completed fold scores and artifact locations.
@@ -413,8 +430,13 @@ class GroupedValidationExperiment:
             participants.update(result["participants"])
             frames.append(frame)
 
-        if set(participants) != set(self.plan()["development"]):
-            raise ValueError("Validation predictions must cover all development participants")
+        expected_participants = {
+            participant for fold in self.plan()["folds"] for participant in fold["validation"]
+        }
+        if set(participants) != expected_participants:
+            raise ValueError(
+                "Validation predictions must cover all planned validation participants"
+            )
 
         pooled = pd.concat(frames, ignore_index=True)
         for column in ("target", "prediction"):

@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader
 
 from sleep_classifier.baseline import CLASS_LABELS, PreparedFeatureDataset
 from sleep_classifier.codex_runtime import CodexRuntime
+from sleep_classifier.epoch_diagnostics import EpochDiagnostics, EpochDiagnosticsSettings
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.logging_utils import configure_logging
 from sleep_classifier.model_factory import ModelFactory
@@ -46,6 +47,9 @@ class TrainingConfig:
         """
         self.values = values
         AgentOptimizerSettings(values.get("optimizer_agent"))
+        diagnostics = EpochDiagnosticsSettings(values.get("diagnostics"))
+        if diagnostics.enabled and values.get("optimizer_agent"):
+            raise ValueError("Epoch diagnostics currently require plain Adam")
         integer_settings = (
             "seed",
             "epochs",
@@ -157,6 +161,8 @@ class GRUExperiment:
         self.agent_runtime: dict[str, Any] | None = None
         self.prepared_dir = Path()
         self.output_dir = Path()
+        self.diagnostics: EpochDiagnostics | None = None
+        self.diagnostic_train_loader: DataLoader[dict[str, Any]] | None = None
 
 
     def run_check(self) -> dict[str, object]:
@@ -205,6 +211,7 @@ class GRUExperiment:
         context = self._prepare()
         train_loader, validation_loader = self._build_loaders(context)
         optimizer = self._create_optimizer(context["model"], len(train_loader), allow_live_agent)
+        self._prepare_diagnostics(context)
         criterion = nn.CrossEntropyLoss()
         LOGGER.info(
             "Training %s: train_sequences=%d validation_sequences=%d device=%s",
@@ -337,6 +344,90 @@ class GRUExperiment:
         return train_loader, validation_loader
 
 
+    def _prepare_diagnostics(self, context: dict[str, Any]) -> None:
+        """Enable evidence capture without changing the training loader or random stream.
+
+        Args:
+            context (dict[str, Any]): Prepared model, training windows, and fitted scaler.
+        """
+        settings = EpochDiagnosticsSettings(self.settings.get("diagnostics"))
+        self.diagnostics = None
+        self.diagnostic_train_loader = None
+        if not settings.enabled:
+            return
+
+        if (self.output_dir / "diagnostics").exists():
+            raise FileExistsError(
+                "Diagnostic evidence already exists; use a fresh output directory"
+            )
+
+        self.diagnostics = EpochDiagnostics(
+            settings, self.output_dir, self._checkpoint_metadata(context["scaler"]),
+            float(self.settings["gradient_clip"]),
+        )
+        self._save_diagnostic_manifest(context)
+        if settings.evaluate_training:
+            # A separate generator prevents evaluation from consuming training RNG state
+            self.diagnostic_train_loader = DataLoader(
+                context["train_data"], batch_size=int(self.settings["batch_size"]),
+                shuffle=False, num_workers=0, collate_fn=SequenceBatchCollator(),
+                generator=torch.Generator().manual_seed(0),
+            )
+        LOGGER.info("Epoch evidence enabled: %s", self.output_dir / "diagnostics")
+
+
+    def _save_diagnostic_manifest(self, context: dict[str, Any]) -> None:
+        """Record the recipe, prepared-data provenance, and runtime for local evidence.
+
+        Args:
+            context (dict[str, Any]): Validated data provenance and execution device.
+        """
+        directory = self.output_dir / "diagnostics"
+        directory.mkdir(parents=True, exist_ok=False)
+        record = {
+            "schema_version": 1, "config": self.settings,
+            "provenance": context["dataset"]["provenance"],
+            "device": str(context["device"]),
+            "packages": {"python": platform.python_version(), "torch": str(torch.__version__),
+                         "numpy": np.__version__, "pandas": pd.__version__},
+        }
+        temporary = directory / "run.json.tmp"
+        temporary.write_text(json.dumps(record, indent=2, allow_nan=False) + "\n")
+        temporary.replace(directory / "run.json")
+
+
+    def _record_diagnostics(
+        self, model: nn.Module, criterion: nn.Module, device: torch.device,
+        frame: pd.DataFrame, probabilities: np.ndarray, summary: dict[str, Any],
+        optimizer: OptimizerAdapter,
+    ) -> None:
+        """Persist the existing validation pass and optional fixed-weight training loss.
+
+        Args:
+            model (nn.Module): Current end-of-epoch model, before best-state restoration.
+            criterion (nn.Module): Unweighted validation loss.
+            device (torch.device): Model execution device.
+            frame (pd.DataFrame): Ordered validation target identities.
+            probabilities (np.ndarray): Probabilities from the existing validation pass.
+            summary (dict[str, Any]): Current training and validation scalar scores.
+            optimizer (OptimizerAdapter): Optimizer exposing its actual learning rates.
+        """
+        if self.diagnostics is None:
+            return
+        training_nll = None
+        if self.diagnostic_train_loader is not None:
+            training_nll, _, _, _ = self._evaluate(
+                model, self.diagnostic_train_loader, criterion, device,
+            )
+        path = self.diagnostics.record_epoch(
+            epoch=summary["epoch"], frame=frame, probabilities=probabilities,
+            training_nll=training_nll, learning_rates=optimizer.learning_rates(), model=model,
+            validation_nll=summary["validation_loss"], train_loss=summary["train_loss"],
+            validation_macro_f1=summary["validation_macro_f1"],
+        )
+        LOGGER.info("Epoch evidence saved: epoch=%d path=%s", summary["epoch"], path)
+
+
     def _fit(
         self,
         model: nn.Module,
@@ -345,7 +436,7 @@ class GRUExperiment:
         optimizer: OptimizerAdapter,
         criterion: nn.Module,
         device: torch.device,
-        frame: Any,
+        frame: pd.DataFrame,
     ) -> tuple[int, list[dict[str, Any]]]:
         """Run epochs and restore the checkpoint with the best validation macro-F1.
 
@@ -356,7 +447,7 @@ class GRUExperiment:
             optimizer (OptimizerAdapter): Optimizer for training.
             criterion (nn.Module): Loss function.
             device (torch.device): Device to run the training on.
-            frame (Any): Additional context for the training.
+            frame (pd.DataFrame): Ordered held-out targets and participant identities.
 
         Returns:
             tuple[int, list[dict[str, Any]]]: Best epoch and training history.
@@ -365,6 +456,8 @@ class GRUExperiment:
         history = []
         max_epochs = int(self.settings["epochs"])
         for epoch in range(1, max_epochs + 1):
+            if self.diagnostics is not None:
+                self.diagnostics.begin_epoch()
             train_loss = self._train_epoch(
                 model,
                 train_loader,
@@ -373,7 +466,7 @@ class GRUExperiment:
                 device,
                 float(self.settings["gradient_clip"]),
             )
-            validation_loss, targets, predictions, _ = self._evaluate(
+            validation_loss, targets, predictions, probabilities = self._evaluate(
                 model, validation_loader, criterion, device
             )
             self._assert_target_alignment(targets, frame)
@@ -381,6 +474,9 @@ class GRUExperiment:
                 epoch, train_loss, validation_loss, targets, predictions, frame
             )
             history.append(summary)
+            self._record_diagnostics(
+                model, criterion, device, frame, probabilities, summary, optimizer,
+            )
             stop = stopping.update(model, epoch, summary["validation_macro_f1"])
             if stop:
                 LOGGER.info(
@@ -573,7 +669,7 @@ class GRUExperiment:
         self,
         model: nn.Module,
         loader: DataLoader,
-        optimizer: torch.optim.Optimizer,
+        optimizer: OptimizerAdapter,
         criterion: nn.Module,
         device: torch.device,
         gradient_clip: float
@@ -583,7 +679,7 @@ class GRUExperiment:
         Args:
             model (nn.Module): Model updated by this epoch.
             loader (DataLoader): Training batches.
-            optimizer (torch.optim.Optimizer): Adam or OPAL update interface.
+            optimizer (OptimizerAdapter): Adam or OPAL update interface.
             criterion (nn.Module): Training loss function.
             device (torch.device): Device for tensors.
             gradient_clip (float): Maximum gradient norm.
@@ -604,7 +700,9 @@ class GRUExperiment:
             loss = criterion(model(features, batch["lengths"]), targets)
             loss.backward()
 
-            nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
+            gradient_norm = nn.utils.clip_grad_norm_(model.parameters(), gradient_clip)
+            if self.diagnostics is not None:
+                self.diagnostics.record_gradient(float(gradient_norm))
 
             optimizer.step(loss)
 
@@ -776,6 +874,23 @@ class GRUExperiment:
         return table
 
 
+    def _checkpoint_metadata(self, scaler: StandardScaler) -> dict[str, Any]:
+        """Describe preprocessing and architecture for selected or intermediate states.
+
+        Args:
+            scaler (StandardScaler): Scaler fitted on training participants only.
+        """
+        factory = ModelFactory(self.settings)
+        return {
+            "model_type": factory.model_type,
+            "model_config": factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS)),
+            "features": list(FEATURE_COLUMNS),
+            "scaler_mean": scaler.mean_.tolist(), "scaler_scale": scaler.scale_.tolist(),
+            "context_epochs": int(self.settings["context_epochs"]),
+            "training_config": self.settings,
+        }
+
+
     def _save(
         self,
         model: nn.Module,
@@ -793,18 +908,10 @@ class GRUExperiment:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
         factory = ModelFactory(self.settings)
-        config = factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS))
-        checkpoint = {
+        checkpoint = self._checkpoint_metadata(scaler) | {
             "state_dict": {
                 name: tensor.detach().cpu() for name, tensor in model.state_dict().items()
             },
-            "model_type": factory.model_type,
-            "model_config": config,
-            "features": list(FEATURE_COLUMNS),
-            "scaler_mean": scaler.mean_.tolist(),
-            "scaler_scale": scaler.scale_.tolist(),
-            "context_epochs": int(self.settings["context_epochs"]),
-            "training_config": self.settings,
         }
         torch.save(checkpoint, self.output_dir / factory.checkpoint_filename)
         (self.output_dir / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")

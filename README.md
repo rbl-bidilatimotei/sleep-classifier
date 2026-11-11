@@ -269,3 +269,7 @@ It reuses all measured dropout-0.1 references and trains only dropout-0.2 seeds 
 The [completed dropout replication](docs/experiments/transformer-dropout-seeds-2026-11-11/README.md) records small three-seed macro-F1 and NLL gains with mixed class effects.
 The [notebook 19 guide](docs/notebook-19-guide.md) explains each cell, NLL, and the focused epoch-fourteen investigation.
 Optional checkpoint replay verifies saved predictions without fitting or optimization.
+
+Use [notebook 20](notebooks/20_transformer_diagnostics.ipynb) for the [instrumented seed-42 repeat](docs/transformer-diagnostics.md).
+It prepares original folds 01 and 04 with the measured recipe unchanged. Training stays explicitly opt-in.
+Each code cell explains what it does and why. Per-epoch evidence supports local reports and matched prediction comparisons.

@@ -94,3 +94,8 @@ Docker, FastAPI inference, economical CI, and delivery automation remain later r
 
 See the [roadmap](roadmap.md), [grouped results](experiments/gru-grouped-2026-11-06/README.md),
 and [learning review](learning-review.md) for details and remaining questions.
+
+The [instrumented two-fold repeat](transformer-diagnostics.md) is prepared in notebook 20.
+Its evidence recorder and read-only inspector provide a reusable local evaluation foundation.
+They preserve per-epoch probability changes and additive class/participant loss contributions.
+A future experiment browser can use these interfaces without coupling its UI to training.
