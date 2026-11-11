@@ -27,9 +27,10 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: repeat dropout 0.2 with seeds 43 and 44 on context thirty and budget 40/12.
+Prepared: repeat dropout 0.2 with seeds 43 and 44 on context thirty and budget 40/12.
 Reuse their completed dropout-0.1 context-thirty references. Keep all other settings and natural sampling fixed.
-Maximum new work is ten fits and 400 epochs. Prepare a separate protocol, configurations, and notebook before execution.
+Maximum new work is ten fits and 400 epochs.
+The [replication protocol](transformer-dropout-seeds.md), explicit YAML pairs, and notebook 19 prepare the two new candidates.
 Review macro-F1 and selected-checkpoint NLL beside Wake performance, Deep recall, and participant losses.
 See the [measured dropout results](experiments/transformer-dropout-2026-11-11/README.md).
 The single-seed gain is mixed across folds, so dropout 0.2 remains a candidate rather than a replicated default.

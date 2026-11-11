@@ -780,11 +780,19 @@ def test_context_reuse_validation_rejects_unusable_references(
         study.validate_reused_results()
 
 
-def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path: Path) -> None:
-    """Exercise the context replication tables and class trade-off plots from saved inputs.
+@pytest.mark.parametrize("study_kind,notebook_name", [
+    ("context", "17_transformer_context_seeds.ipynb"),
+    ("architecture", "19_transformer_dropout_seeds.ipynb"),
+])
+def test_shared_seed_notebooks_report_completed_pairs_without_training(
+    tmp_path: Path, study_kind: str, notebook_name: str,
+) -> None:
+    """Exercise context and dropout replication reports from synthetic saved inputs.
 
     Args:
-        tmp_path (Path): Temporary synthetic context-study directory.
+        tmp_path (Path): Temporary synthetic study directory.
+        study_kind (str): Explicit paired comparison policy.
+        notebook_name (str): Source experiment notebook to execute.
     """
     from unittest.mock import Mock, patch
 
@@ -794,9 +802,11 @@ def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path
     matplotlib = pytest.importorskip("matplotlib")
     matplotlib.use("Agg", force=True)
     plt = pytest.importorskip("matplotlib.pyplot")
-    study = PairedSeedReport(_write_context_seed_study(tmp_path))
+    config = (_write_context_seed_study(tmp_path) if study_kind == "context"
+              else _write_dropout_seed_study(tmp_path))
+    study = PairedSeedReport(config)
     notebook = nbformat.read(
-        Path(__file__).resolve().parents[1] / "notebooks/17_transformer_context_seeds.ipynb",
+        Path(__file__).resolve().parents[1] / "notebooks" / notebook_name,
         as_version=4,
     )
     namespace = {"study": study, "Path": Path, "json": json, "pd": pd,
@@ -820,7 +830,7 @@ def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path
         assert candidate["checkpoint_nll"] == pytest.approx(0.3566749439)
         assert candidate["mean_confidence_wrong"] is None
         result = json.loads((study.output_dir / "summary.json").read_text())
-        assert result["comparison"] == "context"
+        assert result["comparison"] == study_kind
         assert result["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
         assert [(run["seed"], run["recipe"]) for run in study.new_runs()] == [(43, "candidate")]
     finally:
@@ -884,3 +894,37 @@ def test_dropout_notebook_reports_fixed_context_recipes_and_checkpoint_nll(tmp_p
         assert all(row["selected_validation_nll"] == 1.0 for row in namespace["history_rows"])
     finally:
         plt.close("all")
+
+
+def _write_dropout_seed_study(root: Path) -> Path:
+    """Write matched dropout recipes with fixed context and per-recipe reuse flags.
+
+    Args:
+        root (Path): Temporary directory for synthetic study artifacts.
+    """
+    import yaml
+
+    config = _write_context_seed_study(root)
+    settings = yaml.safe_load(config.read_text())
+    settings["comparison"] = "architecture"
+    for pair in settings["pairs"]:
+        for role, dropout in (("reference", 0.1), ("candidate", 0.2)):
+            grouped_path = Path(pair[f"{role}_config"])
+            grouped = yaml.safe_load(grouped_path.read_text())
+            summary_path = Path(grouped["output_dir"]) / "summary.json"
+            saved = json.loads(summary_path.read_text())
+            for result in saved["results"]:
+                path = Path(result["metrics_path"])
+                metrics = json.loads(path.read_text())
+                metrics["config"].update(context_epochs=6, transformer={
+                    "d_model": 16, "max_context": 6, "dropout": dropout,
+                })
+                metrics["model_config"] = {"d_model": 16, "max_context": 6, "dropout": dropout}
+                metrics["parameter_count"] = 2628
+                path.write_text(json.dumps(metrics))
+                result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+            summary_path.write_text(json.dumps(saved))
+            Path(grouped["base_model_config"]).write_text(yaml.safe_dump(metrics["config"]))
+    config.write_text(yaml.safe_dump(settings))
+
+    return config

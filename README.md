@@ -262,3 +262,6 @@ Use [notebook 18](notebooks/18_transformer_dropout.ipynb) for the completed [con
 It tests residual/feedforward dropout 0.1 versus 0.2 with natural sampling unchanged. Training stays explicitly opt-in.
 
 The [measured dropout results](docs/experiments/transformer-dropout-2026-11-11/README.md) record modest class-score gains, lower NLL, and the remaining generalization gap.
+
+Use [notebook 19](notebooks/19_transformer_dropout_seeds.ipynb) for [shared-seed dropout replication](docs/transformer-dropout-seeds.md).
+It reuses all measured dropout-0.1 references and trains only dropout-0.2 seeds 43 and 44. Training stays opt-in.
