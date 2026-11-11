@@ -1,0 +1,26 @@
+[
+  {
+    "fold": "fold-01",
+    "device": "mps",
+    "epochs": 4587,
+    "evaluation_mode": true,
+    "repeat_max_abs_probability_difference": 0.0,
+    "saved_max_abs_probability_difference": 0.0,
+    "matches_saved_atol_2e_6": true,
+    "weights_unchanged": true,
+    "gradients_created": false,
+    "validation_nll": 0.9593327641487122
+  },
+  {
+    "fold": "fold-04",
+    "device": "mps",
+    "epochs": 4427,
+    "evaluation_mode": true,
+    "repeat_max_abs_probability_difference": 0.0,
+    "saved_max_abs_probability_difference": 0.0,
+    "matches_saved_atol_2e_6": true,
+    "weights_unchanged": true,
+    "gradients_created": false,
+    "validation_nll": 0.9224053025245667
+  }
+]

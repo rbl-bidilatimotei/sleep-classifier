@@ -1,6 +1,6 @@
 # Sleep classifier: project overview
 
-Updated on 2026-11-06.
+Updated on 2026-11-11.
 
 ## Purpose
 
@@ -80,7 +80,10 @@ The context gain repeats with seeds 43 and 44: all fifteen seed/fold cells impro
 The mean seed gain is 0.03491. Context thirty becomes the working development reference.
 A seed-42 dropout increase from 0.1 to 0.2 then improves mean fold macro-F1 from 0.5467 to 0.5520.
 Selected-checkpoint NLL falls, but two folds lose macro-F1 and Wake F1 declines.
-The next proposed step repeats dropout 0.2 with seeds 43 and 44 before changing the default.
+The completed replication improves mean fold macro-F1 and pooled NLL for all three seeds, with mixed class trade-offs.
+The mean macro-F1 gain is 0.00394. Seed 44 loses accuracy and REM F1.
+The next proposal instruments two fixed-recipe folds to explain validation-loss changes before another architecture experiment.
+See the [measured replication](experiments/transformer-dropout-seeds-2026-11-11/README.md).
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 

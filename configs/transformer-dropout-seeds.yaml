@@ -1,0 +1,18 @@
+comparison: architecture
+pairs:
+- seed: 42
+  reuse_reference: true
+  reuse_candidate: true
+  reference_config: transformer-context-30-grouped-validation.yaml
+  candidate_config: transformer-dropout-grouped-validation.yaml
+- seed: 43
+  reuse_reference: true
+  reuse_candidate: false
+  reference_config: transformer-context-30-seed-43-grouped.yaml
+  candidate_config: transformer-dropout-02-seed-43-grouped.yaml
+- seed: 44
+  reuse_reference: true
+  reuse_candidate: false
+  reference_config: transformer-context-30-seed-44-grouped.yaml
+  candidate_config: transformer-dropout-02-seed-44-grouped.yaml
+output_dir: ../artifacts/transformer-dropout-seed-comparison

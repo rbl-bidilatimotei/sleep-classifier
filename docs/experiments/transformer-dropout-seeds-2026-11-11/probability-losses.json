@@ -1,0 +1,38 @@
+[
+  {
+    "seed": 42,
+    "recipe": "reference",
+    "scored_targets": 22708,
+    "nll": 0.9556909631517236
+  },
+  {
+    "seed": 42,
+    "recipe": "candidate",
+    "scored_targets": 22708,
+    "nll": 0.925772894641489
+  },
+  {
+    "seed": 43,
+    "recipe": "reference",
+    "scored_targets": 22708,
+    "nll": 0.9279553035732382
+  },
+  {
+    "seed": 43,
+    "recipe": "candidate",
+    "scored_targets": 22708,
+    "nll": 0.9082769705523634
+  },
+  {
+    "seed": 44,
+    "recipe": "reference",
+    "scored_targets": 22708,
+    "nll": 0.9274210294555325
+  },
+  {
+    "seed": 44,
+    "recipe": "candidate",
+    "scored_targets": 22708,
+    "nll": 0.9192373285329536
+  }
+]
