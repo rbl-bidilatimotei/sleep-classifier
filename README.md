@@ -257,3 +257,6 @@ Use [notebook 17](notebooks/17_transformer_context_seeds.ipynb) for the complete
 It reuses every measured context-ten reference and trains only context-thirty seeds 43 and 44. Training stays opt-in.
 
 The [measured context replication](docs/experiments/transformer-context-seeds-2026-11-11/README.md) records gains across all three seeds and the regularization question.
+
+Use [notebook 18](notebooks/18_transformer_dropout.ipynb) for the next [context-thirty dropout comparison](docs/transformer-dropout.md).
+It tests residual/feedforward dropout 0.1 versus 0.2 with natural sampling unchanged. Training stays explicitly opt-in.

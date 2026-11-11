@@ -26,9 +26,10 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Test residual/feedforward dropout 0.1 versus 0.2 on the context-thirty model at seed 42.
+Prepared: test residual/feedforward dropout 0.1 versus 0.2 on the context-thirty model at seed 42.
 Keep the position table, budget 40/12, natural sampling, unweighted loss, and all remaining settings fixed.
 Reuse the measured dropout-0.1 reference. Maximum new work is five fits and 200 epochs.
+The [dropout protocol](transformer-dropout.md), separate configs, and notebook 18 prepare this controlled test.
 The [replicated context results](experiments/transformer-context-seeds-2026-11-11/README.md) explain the regularization question and sampling trade-offs.
 Use paired macro-F1 as primary. Inspect NLL and class trade-offs rather than judging only the loss-gap size.
 
