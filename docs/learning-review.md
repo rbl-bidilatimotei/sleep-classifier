@@ -103,3 +103,17 @@ Validation losses still rise after the selected checkpoint in every candidate fo
 This supports a partial regularization benefit, not elimination of overfitting or a universal metric improvement.
 Repeat dropout 0.2 with seeds 43 and 44 before adopting it; reuse their measured dropout-0.1 references.
 See the [complete dropout review](experiments/transformer-dropout-2026-11-11/README.md).
+
+## Replicated dropout and the loss-curve investigation
+
+Dropout 0.2 improves mean fold macro-F1 for seeds 42, 43, and 44 by 0.00539, 0.00488, and 0.00156.
+Selected-checkpoint pooled NLL also falls for every seed. Only eight of fifteen fold cells gain macro-F1.
+Deep F1 rises for every seed, but REM F1 falls for seed 44 and Wake F1 falls for two seeds.
+The mean macro-F1 gain of 0.00394 is a modest development improvement, not a universal class benefit.
+
+There is no common epoch-fourteen event. The optimizer, data, and evaluation settings do not switch then.
+Minimum NLL and best macro-F1 frequently occur at different epochs.
+Read-only MPS replay reproduces selected fold-01 and fold-04 predictions exactly without gradients or weight changes.
+Scalar histories cannot identify the participants or confidence changes behind earlier loss spikes.
+Recommend a two-fold instrumented fixed-recipe repeat before another grid or larger model.
+See the [replication evidence](experiments/transformer-dropout-seeds-2026-11-11/README.md) and [complete notebook explanation](notebook-19-guide.md).

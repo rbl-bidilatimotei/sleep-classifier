@@ -825,6 +825,12 @@ def test_shared_seed_notebooks_report_completed_pairs_without_training(
                     exec(cell.source, namespace)
 
         assert len(namespace["seed_rows"]) == 2
+        if study_kind == "architecture":
+            audit = json.loads((study.output_dir / "epoch-audit.json").read_text())
+            assert len(audit) == 4
+            assert all(row["minimum_nll_epoch"] == 2 for row in audit)
+            assert all(row["largest_upward_step_epoch"] == 3 for row in audit)
+            assert all(row["best_macro_f1_epoch"] == 1 for row in audit)
         assert len(namespace["probability_diagnostics"]) == 4
         candidate = namespace["probability_diagnostics"][1]
         assert candidate["checkpoint_nll"] == pytest.approx(0.3566749439)
@@ -921,6 +927,11 @@ def _write_dropout_seed_study(root: Path) -> Path:
                 })
                 metrics["model_config"] = {"d_model": 16, "max_context": 6, "dropout": dropout}
                 metrics["parameter_count"] = 2628
+                metrics["history"] = [
+                    {"epoch": epoch, "validation_loss": loss,
+                     "validation_macro_f1": metrics["macro_f1"]}
+                    for epoch, loss in [(1, 1.0), (2, 0.7), (3, 0.9)]
+                ]
                 path.write_text(json.dumps(metrics))
                 result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
             summary_path.write_text(json.dumps(saved))

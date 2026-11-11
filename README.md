@@ -265,3 +265,7 @@ The [measured dropout results](docs/experiments/transformer-dropout-2026-11-11/R
 
 Use [notebook 19](notebooks/19_transformer_dropout_seeds.ipynb) for [shared-seed dropout replication](docs/transformer-dropout-seeds.md).
 It reuses all measured dropout-0.1 references and trains only dropout-0.2 seeds 43 and 44. Training stays opt-in.
+
+The [completed dropout replication](docs/experiments/transformer-dropout-seeds-2026-11-11/README.md) records small three-seed macro-F1 and NLL gains with mixed class effects.
+The [notebook 19 guide](docs/notebook-19-guide.md) explains each cell, NLL, and the focused epoch-fourteen investigation.
+Optional checkpoint replay verifies saved predictions without fitting or optimization.

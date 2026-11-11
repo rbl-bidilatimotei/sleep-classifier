@@ -1,6 +1,7 @@
 # Shared-seed dropout-0.2 replication
 
-Status: prepared for Timo to run locally. No new participant-data dropout replication training has run.
+Status: completed locally by Timo and reviewed on 2026-11-11.
+See the [measured results](experiments/transformer-dropout-seeds-2026-11-11/README.md) and [cell-by-cell guide](notebook-19-guide.md).
 
 ## Question and fixed controls
 
@@ -39,6 +40,11 @@ The complete report also requires consistent per-role recipes and fold plans acr
 Fresh clones need source development features and all four reused grouped artifacts.
 Those are context-thirty dropout-0.1 results for seeds 42, 43, and 44, plus the seed-42 dropout-0.2 result.
 New candidates use artifacts/transformer-dropout-seeds/seed-43/candidate and the matching seed-44 directory.
+
+## Original run protocol
+
+The candidates are complete on this checkout. Do not rerun preparation or training for the review.
+Run the report cells with RUN_TRAINING and RUN_PREPARATION false.
 
 ## Run locally
 
@@ -103,7 +109,9 @@ These are descriptive initialization repeats, not independent outer tests or sig
 Do not expand the dropout grid, resample data, or tune individual folds during this replication.
 Review the measured trade-offs before changing the default or choosing the next architecture experiment.
 
-## Local preparation evidence
+## Historical preparation evidence
+
+This records the state before Timo ran training. The completed review below supersedes pending-run status.
 
 On 2026-11-11, only the two new dropout-0.2 grouped candidates were prepared on MPS without optimization.
 Their ten fold assignments match the seed-42 plan apart from training seed.
@@ -114,5 +122,19 @@ The plan contains only candidate seeds 43 and 44: ten fits and 400 maximum epoch
 Notebook 19 executed from a fresh kernel and exported as HTML without training.
 It shows all reused results complete and the two new candidates not_started.
 The base candidate no-gradient MPS preflight passed with a 64 × 30 × 6 batch and 2,884 parameters.
-All 313 tests and lint pass, including shared synthetic completed-context/dropout-study reports and probability diagnostics.
-On this checkout, leave RUN_PREPARATION disabled and enable RUN_TRAINING when ready.
+At preparation, all 313 tests and lint passed, including shared synthetic completed-context/dropout-study reports and probability diagnostics.
+At that stage, preparation was complete and training required explicit opt-in.
+
+## Completed review
+
+All three seeds improve mean fold macro-F1 and selected-checkpoint pooled NLL.
+The mean paired macro-F1 gain is 0.00394; only eight of fifteen seed/fold cells improve.
+Seed 44 loses accuracy and REM F1. Stronger dropout provides a modest, mixed development benefit.
+Notebook cells 20–23 inspect the epoch-fourteen question and expose optional read-only checkpoint replay.
+Report export skips replay and displays its existing result when available.
+The replay restores saved scaling and never fits preprocessing or updates weights.
+The proposed next work is a two-fold instrumented repeat, not another seed grid.
+
+The updated notebook executed from a fresh kernel with training and preparation skipped.
+All 317 tests and Ruff lint pass after the review changes.
+The executed HTML report remains local; curated JSON and PNG evidence are tracked in docs/experiments.

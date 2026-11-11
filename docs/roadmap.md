@@ -20,6 +20,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete the seed-42 context-thirty comparison; measure Wake/Deep gains and a REM trade-off
 - Replicate context-thirty gains across three seeds and adopt it as the working development reference
 - Complete seed-42 dropout 0.1 versus 0.2; measure a modest macro-F1 gain and lower selected-checkpoint NLL
+- Replicate dropout 0.2 across three seeds; measure small mean macro-F1 and NLL gains with mixed class trade-offs
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -27,13 +28,12 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Prepared: repeat dropout 0.2 with seeds 43 and 44 on context thirty and budget 40/12.
-Reuse their completed dropout-0.1 context-thirty references. Keep all other settings and natural sampling fixed.
-Maximum new work is ten fits and 400 epochs.
-The [replication protocol](transformer-dropout-seeds.md), explicit YAML pairs, and notebook 19 prepare the two new candidates.
-Review macro-F1 and selected-checkpoint NLL beside Wake performance, Deep recall, and participant losses.
-See the [measured dropout results](experiments/transformer-dropout-2026-11-11/README.md).
-The single-seed gain is mixed across folds, so dropout 0.2 remains a candidate rather than a replicated default.
+Proposed: instrumented seed-42 dropout-0.2 repeat for folds 01 and 04 only.
+Keep the current recipe fixed. Record per-epoch participant/class NLL, confidence, learning rate, and gradient summaries.
+Budget at most two fits and eighty epochs. Training remains operator-controlled; this next protocol is not implemented.
+The current scalar histories cannot identify the cause of a specific historical loss rebound.
+See the [replication review](experiments/transformer-dropout-seeds-2026-11-11/README.md) and [notebook guide](notebook-19-guide.md).
+A causal patch encoder remains a later architecture option after this targeted diagnostic.
 
 ## Model and evaluation milestones
 
