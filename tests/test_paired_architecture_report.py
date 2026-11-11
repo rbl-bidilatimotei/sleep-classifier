@@ -669,3 +669,159 @@ def test_context_notebook_reports_completed_runs_without_optimization(tmp_path: 
         assert json.loads(output.read_text())["eligible_epochs"] == 8
     finally:
         plt.close("all")
+
+
+def _write_context_seed_study(root: Path) -> Path:
+    """Write context pairs with completed references and one planned new candidate.
+
+    Args:
+        root (Path): Temporary directory for synthetic grouped artifacts.
+    """
+    import yaml
+
+    config = _write_seed_study(root)
+    settings = yaml.safe_load(config.read_text())
+    settings["comparison"] = "context"
+    for pair in settings["pairs"]:
+        pair.pop("reuse")
+        pair.update(reuse_reference=True, reuse_candidate=pair["seed"] == 42)
+        for role, context in (("reference", 2), ("candidate", 6)):
+            grouped_path = Path(pair[f"{role}_config"])
+            grouped = yaml.safe_load(grouped_path.read_text())
+            summary_path = Path(grouped["output_dir"]) / "summary.json"
+            summary = json.loads(summary_path.read_text())
+            summary["plan"]["maximum_epochs"] = 8
+            for result in summary["results"]:
+                path = Path(result["metrics_path"])
+                metrics = json.loads(path.read_text())
+                metrics["config"].update({"epochs": 4, "patience": 2, "context_epochs": context,
+                                          "transformer": {"d_model": 16, "max_context": context}})
+                metrics["model_config"] = {"d_model": 16, "max_context": context}
+                metrics["parameter_count"] = 2564 + (context - 2) * 16
+                path.write_text(json.dumps(metrics))
+                result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+                predictions_path = path.parent / "validation_predictions.csv"
+                predictions = pd.read_csv(predictions_path)
+                column = "prediction" if "prediction" in predictions else "gru_prediction"
+                for stage in range(4):
+                    predictions[f"probability_{stage}"] = predictions[column].map(
+                        {label: 0.7 if label == stage else 0.1 for label in range(4)}
+                    )
+                predictions.to_csv(predictions_path, index=False)
+            summary_path.write_text(json.dumps(summary))
+            Path(grouped["base_model_config"]).write_text(yaml.safe_dump(metrics["config"]))
+    config.write_text(yaml.safe_dump(settings))
+
+    return config
+
+
+def test_context_seed_study_plans_only_new_candidates_and_preserves_budget_alias(
+    tmp_path: Path,
+) -> None:
+    """Exclude all completed references while retaining the old budget-report API.
+
+    Args:
+        tmp_path (Path): Temporary synthetic seed-study directory.
+    """
+    from sleep_classifier.budget_seed_report import BudgetSeedReport
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    assert BudgetSeedReport is PairedSeedReport
+    study = PairedSeedReport(_write_context_seed_study(tmp_path))
+    assert [(run["seed"], run["recipe"]) for run in study.new_runs()] == [(43, "candidate")]
+    assert study.plan()["new_fits"] == 2
+    assert study.plan()["maximum_new_epochs"] == 8
+    study.validate_reused_results()
+    report = study.build()
+    assert report["comparison"] == "context"
+    assert report["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    assert all(entry["report"]["comparison"] == "context" for entry in report["seeds"])
+    assert not study.output_dir.exists()
+
+
+@pytest.mark.parametrize("mutation", ["missing", "hash", "seed", "flag", "comparison"])
+def test_context_reuse_validation_rejects_unusable_references(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Block new work when reused inputs or reuse declarations cannot be trusted.
+
+    Args:
+        tmp_path (Path): Temporary synthetic seed-study directory.
+        mutation (str): Invalid reused artifact or declaration.
+    """
+    import yaml
+
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    config = _write_context_seed_study(tmp_path)
+    settings = yaml.safe_load(config.read_text())
+    if mutation in ("flag", "comparison"):
+        if mutation == "flag":
+            settings["pairs"][1]["reuse_reference"] = "true"
+        else:
+            settings["comparison"] = "unknown"
+        config.write_text(yaml.safe_dump(settings))
+        with pytest.raises(ValueError):
+            PairedSeedReport(config)
+        return
+
+    study = PairedSeedReport(config)
+    summary_path = Path(study.cases[1]["reference_summary"])
+    summary = json.loads(summary_path.read_text())
+    if mutation == "missing":
+        summary_path.unlink()
+    elif mutation == "hash":
+        path = Path(summary["results"][0]["metrics_path"])
+        path.write_text(path.read_text() + "\n")
+    else:
+        summary["plan"]["training_seed"] = 999
+        summary_path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError):
+        study.validate_reused_results()
+
+
+def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path: Path) -> None:
+    """Exercise the context replication tables and class trade-off plots from saved inputs.
+
+    Args:
+        tmp_path (Path): Temporary synthetic context-study directory.
+    """
+    from unittest.mock import Mock, patch
+
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    nbformat = pytest.importorskip("nbformat")
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    plt = pytest.importorskip("matplotlib.pyplot")
+    study = PairedSeedReport(_write_context_seed_study(tmp_path))
+    notebook = nbformat.read(
+        Path(__file__).resolve().parents[1] / "notebooks/17_transformer_context_seeds.ipynb",
+        as_version=4,
+    )
+    namespace = {"study": study, "Path": Path, "json": json, "pd": pd,
+                 "logger": Mock(), "display": Mock(),
+                 "PairedArchitectureReport": PairedArchitectureReport}
+    try:
+        for cell in notebook.cells:
+            if cell.cell_type == "code" and (
+                "statuses = study.status()" in cell.source
+                or cell.source.startswith('if all(row["status"]')
+                or cell.source.startswith("if seed_rows:")
+                or cell.source.startswith("if class_rows:")
+                or "probability_diagnostics = []" in cell.source
+            ):
+                with patch.object(plt, "show"):
+                    exec(cell.source, namespace)
+
+        assert len(namespace["seed_rows"]) == 2
+        assert len(namespace["probability_diagnostics"]) == 4
+        candidate = namespace["probability_diagnostics"][1]
+        assert candidate["checkpoint_nll"] == pytest.approx(0.3566749439)
+        assert candidate["mean_confidence_wrong"] is None
+        result = json.loads((study.output_dir / "summary.json").read_text())
+        assert result["comparison"] == "context"
+        assert result["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+        assert [(run["seed"], run["recipe"]) for run in study.new_runs()] == [(43, "candidate")]
+    finally:
+        plt.close("all")

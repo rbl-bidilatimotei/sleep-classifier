@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-10. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-11. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -18,6 +18,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Complete the width-16 budget test; measure REM gains with forty epochs and patience twelve
 - Replicate paired budget gains across seeds 42, 43, and 44
 - Complete the seed-42 context-thirty comparison; measure Wake/Deep gains and a REM trade-off
+- Replicate context-thirty gains across three seeds and adopt it as the working development reference
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -25,13 +26,11 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: repeat context thirty with seeds 43 and 44 at width 16 and budget 40/12.
-Reuse the completed context-ten runs from the budget seed study. Keep all remaining settings and folds fixed.
-The new maximum is ten fits and 400 epochs. Prepare a separate protocol and notebook before execution.
-Assess paired macro-F1, Wake/Deep improvements, REM trade-offs, and short-history behavior.
-See the [measured context results](experiments/transformer-context-2026-11-10/README.md).
-Use the replicated result to decide whether to adopt context thirty or test an adapted architecture.
-The [architecture assessment](architecture-options.md) records the later choices and their task assumptions.
+Test residual/feedforward dropout 0.1 versus 0.2 on the context-thirty model at seed 42.
+Keep the position table, budget 40/12, natural sampling, unweighted loss, and all remaining settings fixed.
+Reuse the measured dropout-0.1 reference. Maximum new work is five fits and 200 epochs.
+The [replicated context results](experiments/transformer-context-seeds-2026-11-11/README.md) explain the regularization question and sampling trade-offs.
+Use paired macro-F1 as primary. Inspect NLL and class trade-offs rather than judging only the loss-gap size.
 
 ## Model and evaluation milestones
 

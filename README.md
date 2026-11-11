@@ -252,3 +252,8 @@ Use [notebook 16](notebooks/16_transformer_context.ipynb) for the completed [con
 It reuses the measured context-ten reference and prepares five new fits. Training stays explicitly opt-in.
 
 The [measured context results](docs/experiments/transformer-context-2026-11-10/README.md) record five-fold macro-F1 gains, Wake/Deep improvements, and a REM trade-off.
+
+Use [notebook 17](notebooks/17_transformer_context_seeds.ipynb) for the completed [shared-seed context-thirty replication](docs/transformer-context-seeds.md).
+It reuses every measured context-ten reference and trains only context-thirty seeds 43 and 44. Training stays opt-in.
+
+The [measured context replication](docs/experiments/transformer-context-seeds-2026-11-11/README.md) records gains across all three seeds and the regularization question.

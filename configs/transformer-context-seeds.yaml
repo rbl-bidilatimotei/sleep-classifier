@@ -1,0 +1,18 @@
+comparison: context
+pairs:
+- seed: 42
+  reuse_reference: true
+  reuse_candidate: true
+  reference_config: transformer-budget-grouped-validation.yaml
+  candidate_config: transformer-context-30-grouped-validation.yaml
+- seed: 43
+  reuse_reference: true
+  reuse_candidate: false
+  reference_config: transformer-budget-candidate-seed-43-grouped.yaml
+  candidate_config: transformer-context-30-seed-43-grouped.yaml
+- seed: 44
+  reuse_reference: true
+  reuse_candidate: false
+  reference_config: transformer-budget-candidate-seed-44-grouped.yaml
+  candidate_config: transformer-context-30-seed-44-grouped.yaml
+output_dir: ../artifacts/transformer-context-seed-comparison

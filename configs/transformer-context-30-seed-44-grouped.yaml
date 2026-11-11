@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-context-30-seed-44.yaml
+output_dir: ../artifacts/transformer-context-seeds/seed-44/candidate
+folds: 5
+split_seed: 42
