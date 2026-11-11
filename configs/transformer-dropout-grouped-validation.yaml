@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-dropout-02.yaml
+output_dir: ../artifacts/transformer-dropout-grouped-validation
+folds: 5
+split_seed: 42

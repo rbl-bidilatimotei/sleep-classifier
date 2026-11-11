@@ -78,7 +78,9 @@ The seed-42 comparison of fifteen versus five minutes then improves mean fold ma
 Wake and Deep improve, while REM F1 declines slightly. All folds gain macro-F1, but nine participants lose it.
 The context gain repeats with seeds 43 and 44: all fifteen seed/fold cells improve macro-F1.
 The mean seed gain is 0.03491. Context thirty becomes the working development reference.
-Validation-loss growth remains a concern; the next question tests a modest dropout increase with natural sampling unchanged.
+A seed-42 dropout increase from 0.1 to 0.2 then improves mean fold macro-F1 from 0.5467 to 0.5520.
+Selected-checkpoint NLL falls, but two folds lose macro-F1 and Wake F1 declines.
+The next proposed step repeats dropout 0.2 with seeds 43 and 44 before changing the default.
 This compares model recipes, including their capacity and regularization, rather than isolating attention as a single causal factor.
 Real-data training remains operator-controlled.
 

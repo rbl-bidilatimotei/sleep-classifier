@@ -825,3 +825,62 @@ def test_context_seed_notebook_reports_completed_pairs_without_training(tmp_path
         assert [(run["seed"], run["recipe"]) for run in study.new_runs()] == [(43, "candidate")]
     finally:
         plt.close("all")
+
+
+def test_dropout_notebook_reports_fixed_context_recipes_and_checkpoint_nll(tmp_path: Path) -> None:
+    """Report a dropout recipe comparison and selected checkpoint loss without training.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    from unittest.mock import Mock, patch
+
+    nbformat = pytest.importorskip("nbformat")
+    matplotlib = pytest.importorskip("matplotlib")
+    matplotlib.use("Agg", force=True)
+    plt = pytest.importorskip("matplotlib.pyplot")
+    artifacts = tmp_path / "artifacts"
+    artifacts.mkdir()
+    reference, candidate = _write_context_pair(artifacts)
+    for summary_path, dropout in ((reference, 0.1), (candidate, 0.2)):
+        saved = json.loads(summary_path.read_text())
+        for result in saved["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"].update(context_epochs=6, transformer={
+                "d_model": 16, "max_context": 6, "dropout": dropout,
+            })
+            metrics["model_config"] = {"d_model": 16, "max_context": 6, "dropout": dropout}
+            metrics["parameter_count"] = 2628
+            metrics["history"][0]["validation_loss"] = 1.0
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(saved))
+    expected_reference = artifacts / "transformer-context-30-grouped-validation"
+    expected_reference.mkdir()
+    (expected_reference / "summary.json").write_text(reference.read_text())
+    configs = tmp_path / "configs"
+    configs.mkdir()
+    (configs / "transformer-dropout-grouped-validation.yaml").write_text(
+        "output_dir: ../artifacts/transformer\n"
+    )
+    notebook = nbformat.read(
+        Path(__file__).resolve().parents[1] / "notebooks/18_transformer_dropout.ipynb",
+        as_version=4,
+    )
+    namespace = {"ROOT": tmp_path, "Path": Path, "json": json,
+                 "logger": Mock(), "display": Mock()}
+    try:
+        for cell in notebook.cells:
+            if cell.cell_type == "code" and (
+                "statuses = []" in cell.source or "figure, axes = plt.subplots" in cell.source
+            ):
+                with patch.object(plt, "show"):
+                    exec(cell.source, namespace)
+        assert namespace["comparison"]["eligible_epochs"] == 8
+        assert namespace["comparison"]["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+        assert len(namespace["history_rows"]) == 4
+        assert [row["pooled_selected_nll"] for row in namespace["pooled_losses"]] == [1.0, 1.0]
+        assert all(row["selected_validation_nll"] == 1.0 for row in namespace["history_rows"])
+    finally:
+        plt.close("all")

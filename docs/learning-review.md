@@ -93,3 +93,13 @@ The loss curves support a regularization question, not a diagnosis that class im
 Selected-checkpoint pooled NLL improves for two seeds despite late-epoch loss increases.
 Test one dropout change before resampling or another architectural change.
 See the [measured context replication](experiments/transformer-context-seeds-2026-11-11/README.md).
+
+## Dropout regularization
+
+At seed 42, dropout 0.2 raises mean fold macro-F1 from 0.54665 to 0.55204 and lowers pooled selected NLL from 0.95569 to 0.92577.
+Accuracy improves in all five folds, while macro-F1 improves in three. Fourteen participants improve and twelve decline.
+REM F1 improves, Wake F1 declines, and Deep recall dips despite higher Deep F1.
+Validation losses still rise after the selected checkpoint in every candidate fold.
+This supports a partial regularization benefit, not elimination of overfitting or a universal metric improvement.
+Repeat dropout 0.2 with seeds 43 and 44 before adopting it; reuse their measured dropout-0.1 references.
+See the [complete dropout review](experiments/transformer-dropout-2026-11-11/README.md).

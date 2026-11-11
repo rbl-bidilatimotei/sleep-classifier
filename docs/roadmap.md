@@ -19,6 +19,7 @@ Training remains operator-controlled. Keep final test participants reserved unti
 - Replicate paired budget gains across seeds 42, 43, and 44
 - Complete the seed-42 context-thirty comparison; measure Wake/Deep gains and a REM trade-off
 - Replicate context-thirty gains across three seeds and adopt it as the working development reference
+- Complete seed-42 dropout 0.1 versus 0.2; measure a modest macro-F1 gain and lower selected-checkpoint NLL
 
 The [shared-seed results](experiments/gru-seeds-2026-11-04/README.md) and
 [successful OPAL retry](experiments/opal-retry-2026-11-05/README.md) record the current findings.
@@ -26,11 +27,12 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Test residual/feedforward dropout 0.1 versus 0.2 on the context-thirty model at seed 42.
-Keep the position table, budget 40/12, natural sampling, unweighted loss, and all remaining settings fixed.
-Reuse the measured dropout-0.1 reference. Maximum new work is five fits and 200 epochs.
-The [replicated context results](experiments/transformer-context-seeds-2026-11-11/README.md) explain the regularization question and sampling trade-offs.
-Use paired macro-F1 as primary. Inspect NLL and class trade-offs rather than judging only the loss-gap size.
+Proposed: repeat dropout 0.2 with seeds 43 and 44 on context thirty and budget 40/12.
+Reuse their completed dropout-0.1 context-thirty references. Keep all other settings and natural sampling fixed.
+Maximum new work is ten fits and 400 epochs. Prepare a separate protocol, configurations, and notebook before execution.
+Review macro-F1 and selected-checkpoint NLL beside Wake performance, Deep recall, and participant losses.
+See the [measured dropout results](experiments/transformer-dropout-2026-11-11/README.md).
+The single-seed gain is mixed across folds, so dropout 0.2 remains a candidate rather than a replicated default.
 
 ## Model and evaluation milestones
 

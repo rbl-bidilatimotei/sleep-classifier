@@ -134,13 +134,19 @@ def test_mps_forward_backward_matches_cpu_and_updates_parameters() -> None:
 
 @pytest.mark.skipif(not torch.backends.mps.is_available(), reason="MPS is unavailable")
 @pytest.mark.parametrize("context_epochs", [10, 30])
-def test_default_dropout_recipe_trains_a_full_padded_mps_batch(context_epochs: int) -> None:
+@pytest.mark.parametrize("dropout", [0.1, 0.2])
+def test_configured_dropout_recipe_trains_a_full_padded_mps_batch(
+    context_epochs: int, dropout: float,
+) -> None:
     """Exercise residual dropout on full synthetic MPS batches at both context lengths.
 
     Args:
         context_epochs (int): Maximum completed epochs available to each sequence.
+        dropout (float): Residual and feedforward dropout probability.
     """
-    model = CausalTransformerClassifier(max_context=context_epochs).to("mps").train()
+    model = CausalTransformerClassifier(
+        max_context=context_epochs, dropout=dropout,
+    ).to("mps").train()
     features = torch.randn(64, context_epochs, 6, device="mps")
     lengths = torch.arange(64, dtype=torch.long) % context_epochs + 1
     targets = torch.arange(64, device="mps") % 4
@@ -155,8 +161,23 @@ def test_default_dropout_recipe_trains_a_full_padded_mps_batch(context_epochs: i
 
     assert logits.shape == (64, 4)
     assert torch.isfinite(loss).item()
-    assert model.encoder.layers[0].dropout1.p == 0.1
-    assert model.encoder.layers[0].dropout2.p == 0.1
-    assert model.encoder.layers[0].dropout.p == 0.1
+    assert model.encoder.layers[0].dropout1.p == dropout
+    assert model.encoder.layers[0].dropout2.p == dropout
+    assert model.encoder.layers[0].dropout.p == dropout
+    assert model.encoder.layers[0].self_attn.dropout == 0
     assert not torch.equal(before, model.input_projection.weight)
     assert all(torch.isfinite(parameter).all().item() for parameter in model.parameters())
+
+
+def test_dropout_change_preserves_capacity_and_evaluation_for_identical_weights() -> None:
+    """Change training regularization without changing parameter shapes or evaluation math."""
+    reference = CausalTransformerClassifier(max_context=30, dropout=0.1).eval()
+    candidate = CausalTransformerClassifier(max_context=30, dropout=0.2).eval()
+    candidate.load_state_dict(reference.state_dict())
+    features = torch.randn(3, 30, 6)
+    lengths = torch.tensor([30, 10, 1])
+
+    assert sum(parameter.numel() for parameter in reference.parameters()) == 2884
+    assert sum(parameter.numel() for parameter in candidate.parameters()) == 2884
+    with torch.no_grad():
+        torch.testing.assert_close(candidate(features, lengths), reference(features, lengths))
