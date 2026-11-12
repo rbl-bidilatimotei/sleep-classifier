@@ -1,0 +1,28 @@
+[
+  {
+    "fold": "fold-01",
+    "minimum_epoch": 5,
+    "best_epoch": 14,
+    "completed": 26,
+    "minimum_validation_nll": 0.8704577468185681,
+    "final_validation_nll": 1.0143351912176903,
+    "minimum_training_evaluation_nll": 0.8137925934215287,
+    "final_training_evaluation_nll": 0.7021068850170664,
+    "minimum_macro_f1": 0.5290583268178429,
+    "best_macro_f1": 0.5375408093444908,
+    "selected_validation_nll": 0.9593327405127838
+  },
+  {
+    "fold": "fold-04",
+    "minimum_epoch": 15,
+    "best_epoch": 31,
+    "completed": 40,
+    "minimum_validation_nll": 0.8667826684678809,
+    "final_validation_nll": 0.9682768279506592,
+    "minimum_training_evaluation_nll": 0.7647453550240983,
+    "final_training_evaluation_nll": 0.680629995141025,
+    "minimum_macro_f1": 0.5898325822702103,
+    "best_macro_f1": 0.60478284434559,
+    "selected_validation_nll": 0.9224053181947603
+  }
+]

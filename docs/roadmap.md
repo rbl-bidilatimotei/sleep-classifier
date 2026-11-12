@@ -28,15 +28,16 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Prepared: instrumented seed-42 dropout-0.2 repeat for original folds 01 and 04 only.
-Keep the measured recipe fixed. Record per-epoch target probabilities, class/participant NLL, confidence, actual learning rates, and gradients.
-Save intermediate checkpoints at completed epochs thirteen through seventeen.
-The budget is two fits and eighty epochs. Timo runs training locally.
-The [diagnostic protocol](transformer-diagnostics.md) and [notebook 20](../notebooks/20_transformer_diagnostics.ipynb) prepare this run.
-The reusable evidence store and inspector form the first local evaluation layer.
-A later interface can add run/participant/stage selection and prediction timelines after these records prove useful.
-The [replication review](experiments/transformer-dropout-seeds-2026-11-11/README.md) motivates this work.
-A causal patch encoder remains a later architecture option after the targeted diagnostic.
+Completed: the two-fold diagnostic repeat reproduced original histories and selected checkpoints exactly.
+Its fixed-weight training/validation curves and matched persistent errors support probability overfitting.
+See the [measured diagnostic results](experiments/transformer-diagnostics-2026-11-12/README.md).
+
+Proposed next: constant learning rate 0.0003 versus the completed instrumented 0.001 reference.
+Keep seed 42, original folds 01/04, dropout 0.2, model, diagnostics, sampling, loss, clipping, and budget 40/12 fixed.
+Maximum new work is two fits and eighty epochs. This is a targeted optimization check, not a full-cohort benchmark.
+Do not select a new global recipe from these post-hoc diagnostic folds alone.
+A small causal patch encoder remains the next architecture option after this bounded check.
+The reusable evidence store and inspector support later local experiment browsing and prediction timelines.
 
 ## Model and evaluation milestones
 

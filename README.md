@@ -273,3 +273,6 @@ Optional checkpoint replay verifies saved predictions without fitting or optimiz
 Use [notebook 20](notebooks/20_transformer_diagnostics.ipynb) for the [instrumented seed-42 repeat](docs/transformer-diagnostics.md).
 It prepares original folds 01 and 04 with the measured recipe unchanged. Training stays explicitly opt-in.
 Each code cell explains what it does and why. Per-epoch evidence supports local reports and matched prediction comparisons.
+
+The [measured diagnostic repeat](docs/experiments/transformer-diagnostics-2026-11-12/README.md) reproduces both original trajectories exactly.
+It identifies class/participant loss spikes and worsening true-class probabilities on persistent errors.

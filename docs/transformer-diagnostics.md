@@ -1,6 +1,8 @@
 # Instrumented seed-42 Transformer repeat
 
-Status: prepared for Timo to train locally. No participant-data optimization has run for this study.
+Status: completed locally by Timo and reviewed on 2026-11-12.
+See the [measured results](experiments/transformer-diagnostics-2026-11-12/README.md).
+Keep preparation and training disabled when rebuilding the completed report.
 
 ## Question
 
@@ -156,7 +158,9 @@ Runtime changes and device kernels can affect numerical repeatability even with 
 Avoid selecting another learning rate, sampler, architecture, or checkpoint objective from these two folds alone.
 After reviewing the evidence, choose one bounded intervention or return to the planned small causal patch encoder comparison.
 
-## Local preparation evidence
+## Historical preparation evidence
+
+The following records the state before Timo ran the experiment.
 
 On 2026-11-11, both selected folds were prepared without optimization.
 All 52 copied participant feature CSV files match the corresponding original folds byte for byte.
@@ -172,3 +176,10 @@ The synthetic evidence figure was rendered and visually inspected; it is not a p
 
 All 373 tests pass, including populated notebook views, signed loss decomposition, and unchanged synthetic training trajectories.
 Ruff lint and whitespace checks pass. The report CLI leaves unprepared output paths absent, so inspection cannot block later preparation.
+
+## Completed review
+
+Both trajectories and selected checkpoints exactly match the original seed-42 results.
+Fixed-weight training NLL falls while validation NLL rises, supporting overfitting in probability quality.
+Matched persistent errors lose true-class probability; different people and stages drive different spikes.
+The next proposal tests learning rate 0.0003 on the same two folds with all other settings fixed.

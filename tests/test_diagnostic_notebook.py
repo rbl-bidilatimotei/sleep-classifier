@@ -30,6 +30,9 @@ def test_diagnostic_notebook_explains_every_code_cell_and_gates_optimization() -
     for index, cell in enumerate(notebook["cells"]):
         if cell["cell_type"] != "code":
             continue
+        if not "".join(cell["source"]).strip():
+            assert cell["outputs"] == [] and cell["execution_count"] is None
+            continue
         explanation = notebook["cells"][index - 1]
         assert index > 0 and explanation["cell_type"] == "markdown"
         text = "".join(explanation["source"]).lower()

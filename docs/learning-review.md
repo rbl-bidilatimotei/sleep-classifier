@@ -128,3 +128,14 @@ Synthetic active-dropout tests preserve exact CPU histories, selected weights, p
 This is implementation evidence, not a new participant-data model result.
 The local evidence inspector supports partial runs and verified matched-epoch comparisons without loading models.
 See the [protocol and interpretation rules](transformer-diagnostics.md). Timo will run the real-data optimization locally.
+
+## Measured diagnostic repeat
+
+The two instrumented MPS runs exactly reproduce their original histories and selected weights.
+They support probability overfitting: evaluation-mode training NLL falls while held-out NLL rises.
+Matched persistent errors become more costly, while some correct labels become more confident.
+The largest spikes differ: REM drives fold 01's epoch 11→12 rise; Light/Deep drive fold 04's epoch 24→25 rise.
+Gradients remain finite, and the fixed learning rate stays 0.001. Late clipping is frequent, not proof of an exploding-gradient event.
+Selected macro-F1 still improves after minimum NLL, so the checkpoint rule remains unchanged.
+Recommend one constant-learning-rate comparison at 0.0003 before another architecture change.
+See the [complete diagnostic evidence](experiments/transformer-diagnostics-2026-11-12/README.md).
