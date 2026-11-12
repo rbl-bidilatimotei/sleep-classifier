@@ -285,3 +285,6 @@ The proposed next diagnostic retains initial learning rate 0.001 and tests a pla
 
 Use [notebook 22](notebooks/22_transformer_plateau.ipynb) for the [plateau scheduler diagnostic](docs/transformer-plateau.md).
 It starts at 0.001 and reduces the rate after validation macro-F1 plateaus, with all other controls fixed.
+
+The [measured scheduler comparison](docs/experiments/transformer-plateau-2026-11-12/README.md) improves NLL and smoothness but loses stage-detection scores.
+The next proposal returns to representation learning with a small causal patch encoder.

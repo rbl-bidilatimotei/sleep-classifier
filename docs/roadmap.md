@@ -36,12 +36,16 @@ Completed: constant 0.0003 improves selected NLL but loses mean macro-F1 and REM
 Retain the measured constant-0.001 stage-classification reference.
 See the [learning-rate results](experiments/transformer-learning-rate-2026-11-12/README.md).
 
-Prepared next: start at 0.001 and reduce by factor 0.3 after validation macro-F1 plateaus.
-The [plateau protocol](transformer-plateau.md) and notebook 22 retain the stronger constant-0.001 reference.
-Keep the same model, seed, folds, evidence controls, sampling, loss, clipping, and budget 40/12.
-Maximum new work is two fits and eighty epochs. This is a targeted optimization comparison, not a global recipe decision.
-If this bounded check provides little benefit, return to the planned small causal patch encoder.
-The local evidence store supports later experiment browsing and prediction timelines.
+Completed: plateau scheduling improves NLL and within-run smoothness but loses mean macro-F1 and REM/Deep recall.
+Retain the constant-0.001 reference. Stop the local optimizer grid.
+See the [measured scheduler results](experiments/transformer-plateau-2026-11-12/README.md).
+
+Proposed next: a small causal patch-based Transformer using three completed epochs per token.
+Keep the same thirty-epoch history, six features, width sixteen, dropout 0.2, Adam 0.001, and budget 40/12.
+Compare all five original development folds at seed 42. Reuse the completed constant-rate dropout-0.2 reference.
+Maximum new work is five fits and 200 epochs. Timo runs training locally.
+The patching idea comes from PatchTST; the classifier is a joint-channel causal adaptation, not a forecasting reproduction.
+The final test participants remain reserved.
 
 ## Model and evaluation milestones
 

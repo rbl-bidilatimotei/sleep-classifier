@@ -112,3 +112,6 @@ Keep constant 0.001 as the reference; test a single plateau scheduler before ano
 
 The [plateau diagnostic](transformer-plateau.md) is prepared in notebook 22.
 It tests dynamic update sizes while retaining the existing model and checkpoint objective.
+
+The completed [plateau experiment](experiments/transformer-plateau-2026-11-12/README.md) does not improve the primary classification objective.
+The next proposal tests a causal patch-based encoder across all five development folds.

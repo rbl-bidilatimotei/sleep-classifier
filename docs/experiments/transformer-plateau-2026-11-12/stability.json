@@ -1,0 +1,46 @@
+[
+  {
+    "fold": "fold-01",
+    "shared_window": [
+      11,
+      26
+    ],
+    "unchanged_first_ten_epochs": true,
+    "reference": {
+      "epochs": 16,
+      "macro_f1_mean": 0.5250906326282936,
+      "macro_f1_mean_abs_step": 0.009617963256828073,
+      "macro_f1_std": 0.008192649995936356,
+      "nll_mean_abs_step": 0.01421957765565985
+    },
+    "candidate": {
+      "epochs": 16,
+      "macro_f1_mean": 0.5277388012569564,
+      "macro_f1_mean_abs_step": 0.003406559984855573,
+      "macro_f1_std": 0.004018859560977496,
+      "nll_mean_abs_step": 0.005607680077141571
+    }
+  },
+  {
+    "fold": "fold-04",
+    "shared_window": [
+      11,
+      39
+    ],
+    "unchanged_first_ten_epochs": true,
+    "reference": {
+      "epochs": 29,
+      "macro_f1_mean": 0.5873205101163537,
+      "macro_f1_mean_abs_step": 0.008130643666429072,
+      "macro_f1_std": 0.008789250120043975,
+      "nll_mean_abs_step": 0.017448389364262178
+    },
+    "candidate": {
+      "epochs": 29,
+      "macro_f1_mean": 0.5739814947616364,
+      "macro_f1_mean_abs_step": 0.002969617290253567,
+      "macro_f1_std": 0.0035198051341433024,
+      "nll_mean_abs_step": 0.0028056222940074332
+    }
+  }
+]

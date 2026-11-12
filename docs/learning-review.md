@@ -148,3 +148,13 @@ Pooled REM recall falls from 47.09% to 36.11%, and REM NLL also worsens.
 The smoother loss curves accompany slower training fit and do not establish an overall classification improvement.
 Retain 0.001 as the reference. Next, test one validation-macro-F1 plateau schedule with all other settings fixed.
 See the [complete measured comparison](experiments/transformer-learning-rate-2026-11-12/README.md).
+
+## Measured plateau scheduling
+
+The schedule activates after epoch ten in both diagnostic folds, with exact reference history prefixes through ten.
+NLL and macro-F1 trajectories become smoother, but mean fold macro-F1 falls by 0.01374.
+Selected pooled NLL improves to 0.92277 while REM and Deep recall decline.
+Within-run smoothness is different from robustness across participants or seeds.
+Both constant-lower-rate and plateau interventions trade some stage detection for probability loss.
+Keep constant Adam 0.001 and test the planned patch representation on all five development folds next.
+See the [measured scheduler report](experiments/transformer-plateau-2026-11-12/README.md).

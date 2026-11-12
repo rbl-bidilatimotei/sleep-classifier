@@ -1,6 +1,8 @@
 # Plateau-scheduled learning-rate diagnostic
 
-Status: prepared for Timo to run locally. No participant-data scheduler candidate has been trained.
+Status: completed locally by Timo.
+The [measured comparison](experiments/transformer-plateau-2026-11-12/README.md) improves NLL and smoothness but loses macro-F1.
+Retain the constant-0.001 recipe as the stage-classification reference.
 
 ## Why this experiment?
 
@@ -126,7 +128,9 @@ Early stopping restricts fitting time. Architecture, capacity, data diversity, a
 A scheduler changes step sizes; it does not impose a new loss penalty or guarantee improved generalization.
 Keep each mechanism's test separate so its effects remain attributable.
 
-## Local preparation checks
+## Historical preparation checks
+
+These checks describe the state before Timo ran training. The measured review supersedes pending-result status.
 
 On 2026-11-12, the two selected folds were prepared without model optimization.
 All 52 copied feature CSVs match the completed constant-0.001 reference byte for byte.

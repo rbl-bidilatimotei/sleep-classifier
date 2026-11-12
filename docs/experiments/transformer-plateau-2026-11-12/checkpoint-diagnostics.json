@@ -1,0 +1,54 @@
+[
+  {
+    "recipe": "reference",
+    "fold": "fold-01",
+    "selected_epoch": 14,
+    "completed_epochs": 26,
+    "macro_f1": 0.5375408093444908,
+    "accuracy": 0.618051013734467,
+    "selected_nll": 0.9593327405127838,
+    "final_nll": 1.0143351912176903,
+    "selected_training_evaluation_nll": 0.742920058349605,
+    "final_training_evaluation_nll": 0.7021068850170664,
+    "largest_upward_nll_step": 0.03303433324160199
+  },
+  {
+    "recipe": "reference",
+    "fold": "fold-04",
+    "selected_epoch": 31,
+    "completed_epochs": 40,
+    "macro_f1": 0.60478284434559,
+    "accuracy": 0.6512310819968375,
+    "selected_nll": 0.9224053181947603,
+    "final_nll": 0.9682768279506592,
+    "selected_training_evaluation_nll": 0.7118933488083553,
+    "final_training_evaluation_nll": 0.680629995141025,
+    "largest_upward_nll_step": 0.05062669026734268
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-01",
+    "selected_epoch": 14,
+    "completed_epochs": 26,
+    "macro_f1": 0.5368070232286767,
+    "accuracy": 0.6141268803139307,
+    "selected_nll": 0.9491590099483301,
+    "final_nll": 0.9600739249244196,
+    "selected_training_evaluation_nll": 0.749534681019197,
+    "final_training_evaluation_nll": 0.7338349920722745,
+    "largest_upward_nll_step": 0.030940811310172456
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-04",
+    "selected_epoch": 27,
+    "completed_epochs": 39,
+    "macro_f1": 0.5780276657314076,
+    "accuracy": 0.6406144115653942,
+    "selected_nll": 0.895421033119024,
+    "final_nll": 0.8980480674487286,
+    "selected_training_evaluation_nll": 0.7633503208659382,
+    "final_training_evaluation_nll": 0.7616251818291645,
+    "largest_upward_nll_step": 0.028493051126743718
+  }
+]
