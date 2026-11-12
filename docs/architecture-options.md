@@ -2,7 +2,7 @@
 
 Assessment date: 2026-11-10. This note proposes experiments. It reports no new training.
 
-## Decision
+## Historical decision: context comparison
 
 Test longer history before replacing the current Transformer.
 Change context from 10 to 30 completed epochs, which changes the available span from 5 to 15 minutes.
@@ -64,7 +64,7 @@ Channel-independent encoding does not prove that these six correlated summaries 
 Patch boundaries must exclude future epochs and preserve valid short-history behavior.
 Label this model as an adaptation and compare it with the existing temporal encoder.
 
-## Bounded next comparison
+## Historical bounded comparison: context length
 
 1. Reuse the measured context-10, budget-40/12, seed-42 reference.
 2. Prepare one context-30 configuration with the same folds, features, optimizer, width, depth, and checkpoint rule.
@@ -82,3 +82,11 @@ Measure total runtime rather than inferring it from attention dimensions alone.
 If longer history helps, consider a small PatchTST-inspired patch classifier next.
 If it does not, inspect feature limits and class errors before adding architectural complexity.
 Keep the three final test participants untouched until model selection is complete.
+
+## Current architecture milestone
+
+The longer context has been replicated. Optimizer diagnostics did not improve the primary stage-classification objective.
+The next [causal patch comparison](causal-patch-transformer.md) uses raw context thirty and three epochs per token.
+It jointly embeds the six related summaries and reuses the causal Transformer backbone.
+This is a PatchTST-inspired classifier, not the paper's channel-independent forecasting architecture.
+The candidate remains small at 2,756 parameters and is prepared for five-fold seed-42 evaluation.

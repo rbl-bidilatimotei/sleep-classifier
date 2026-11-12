@@ -288,3 +288,6 @@ It starts at 0.001 and reduces the rate after validation macro-F1 plateaus, with
 
 The [measured scheduler comparison](docs/experiments/transformer-plateau-2026-11-12/README.md) improves NLL and smoothness but loses stage-detection scores.
 The next proposal returns to representation learning with a small causal patch encoder.
+
+Use [notebook 23](notebooks/23_causal_patch_transformer.ipynb) for the [small causal patch architecture comparison](docs/causal-patch-transformer.md).
+It reuses the full five-fold constant-rate reference and prepares five new patch-model fits.

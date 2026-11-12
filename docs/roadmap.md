@@ -40,7 +40,8 @@ Completed: plateau scheduling improves NLL and within-run smoothness but loses m
 Retain the constant-0.001 reference. Stop the local optimizer grid.
 See the [measured scheduler results](experiments/transformer-plateau-2026-11-12/README.md).
 
-Proposed next: a small causal patch-based Transformer using three completed epochs per token.
+Prepared next: a small causal patch-based Transformer using three completed epochs per token.
+The [causal patch protocol](causal-patch-transformer.md) and notebook 23 prepare the architecture comparison.
 Keep the same thirty-epoch history, six features, width sixteen, dropout 0.2, Adam 0.001, and budget 40/12.
 Compare all five original development folds at seed 42. Reuse the completed constant-rate dropout-0.2 reference.
 Maximum new work is five fits and 200 epochs. Timo runs training locally.

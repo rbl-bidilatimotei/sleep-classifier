@@ -115,3 +115,6 @@ It tests dynamic update sizes while retaining the existing model and checkpoint 
 
 The completed [plateau experiment](experiments/transformer-plateau-2026-11-12/README.md) does not improve the primary classification objective.
 The next proposal tests a causal patch-based encoder across all five development folds.
+
+The [causal patch model](causal-patch-transformer.md) is prepared for all five development folds.
+It preserves thirty raw epochs while replacing per-epoch attention tokens with ten ordered three-epoch patches.
