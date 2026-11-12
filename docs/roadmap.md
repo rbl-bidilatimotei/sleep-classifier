@@ -32,12 +32,15 @@ Completed: the two-fold diagnostic repeat reproduced original histories and sele
 Its fixed-weight training/validation curves and matched persistent errors support probability overfitting.
 See the [measured diagnostic results](experiments/transformer-diagnostics-2026-11-12/README.md).
 
-Proposed next: constant learning rate 0.0003 versus the completed instrumented 0.001 reference.
-Keep seed 42, original folds 01/04, dropout 0.2, model, diagnostics, sampling, loss, clipping, and budget 40/12 fixed.
-Maximum new work is two fits and eighty epochs. This is a targeted optimization check, not a full-cohort benchmark.
-Do not select a new global recipe from these post-hoc diagnostic folds alone.
-A small causal patch encoder remains the next architecture option after this bounded check.
-The reusable evidence store and inspector support later local experiment browsing and prediction timelines.
+Completed: constant 0.0003 improves selected NLL but loses mean macro-F1 and REM/Deep recall on the two diagnostic folds.
+Retain the measured constant-0.001 stage-classification reference.
+See the [learning-rate results](experiments/transformer-learning-rate-2026-11-12/README.md).
+
+Proposed next: start at 0.001 and reduce by factor 0.3 after validation macro-F1 plateaus.
+Keep the same model, seed, folds, evidence controls, sampling, loss, clipping, and budget 40/12.
+Maximum new work is two fits and eighty epochs. This is a targeted optimization comparison, not a global recipe decision.
+If this bounded check provides little benefit, return to the planned small causal patch encoder.
+The local evidence store supports later experiment browsing and prediction timelines.
 
 ## Model and evaluation milestones
 

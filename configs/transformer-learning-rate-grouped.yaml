@@ -1,0 +1,8 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-learning-rate.yaml
+output_dir: ../artifacts/transformer-learning-rate
+folds: 5
+split_seed: 42
+selected_folds:
+- fold-01
+- fold-04

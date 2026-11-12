@@ -139,3 +139,12 @@ Gradients remain finite, and the fixed learning rate stays 0.001. Late clipping 
 Selected macro-F1 still improves after minimum NLL, so the checkpoint rule remains unchanged.
 Recommend one constant-learning-rate comparison at 0.0003 before another architecture change.
 See the [complete diagnostic evidence](experiments/transformer-diagnostics-2026-11-12/README.md).
+
+## Measured lower learning rate
+
+The lower constant rate improves selected NLL in both diagnostic folds, but mean fold macro-F1 falls by 0.01309.
+Fold 01 gains 0.00076 macro-F1; fold 04 loses 0.02694. Only four of eleven participants improve.
+Pooled REM recall falls from 47.09% to 36.11%, and REM NLL also worsens.
+The smoother loss curves accompany slower training fit and do not establish an overall classification improvement.
+Retain 0.001 as the reference. Next, test one validation-macro-F1 plateau schedule with all other settings fixed.
+See the [complete measured comparison](experiments/transformer-learning-rate-2026-11-12/README.md).
