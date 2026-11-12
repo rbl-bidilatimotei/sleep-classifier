@@ -23,17 +23,19 @@ class PairedArchitectureReport:
 
     def __init__(
         self, reference_summary: Path, candidate_summary: Path,
-        comparison: Literal["architecture", "training_budget", "context"] = "architecture",
+        comparison: Literal[
+            "architecture", "training_budget", "context", "learning_rate"
+        ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
 
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
-            comparison (Literal["architecture", "training_budget", "context"]):
+            comparison (Literal["architecture", "training_budget", "context", "learning_rate"]):
                 Permitted recipe differences.
         """
-        if comparison not in ("architecture", "training_budget", "context"):
+        if comparison not in ("architecture", "training_budget", "context", "learning_rate"):
             raise ValueError("Unknown paired comparison policy")
 
         self.reference_summary = reference_summary.resolve()
@@ -96,6 +98,9 @@ class PairedArchitectureReport:
         candidate_folds = {fold["name"]: fold for fold in candidate["folds"]}
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
+        if (self.comparison == "learning_rate"
+                and reference.get("validation_scope") != candidate.get("validation_scope")):
+            raise ValueError("Grouped validation scope differs")
 
 
     def _load_fold(self, result: dict[str, Any], summary_path: Path) -> dict[str, Any]:
@@ -163,11 +168,15 @@ class PairedArchitectureReport:
             self._validate_budget_recipe(reference, candidate)
         elif self.comparison == "context":
             self._validate_context_recipe(reference, candidate)
+        elif self.comparison == "learning_rate":
+            self._validate_learning_rate_recipe(reference, candidate)
 
         for key in SHARED_RECIPE_KEYS:
             if key in ("epochs", "patience") and self.comparison == "training_budget":
                 continue
             if key == "context_epochs" and self.comparison == "context":
+                continue
+            if key == "learning_rate" and self.comparison == "learning_rate":
                 continue
             if (key not in reference["config"] or key not in candidate["config"]
                     or reference["config"][key] != candidate["config"][key]):
@@ -184,6 +193,38 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _validate_learning_rate_recipe(
+        reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit only distinct constant learning rates for an otherwise identical recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified reference fold metrics.
+            candidate (dict[str, Any]): Verified candidate fold metrics.
+        """
+        for key in ("model_config", "parameter_count"):
+            if key not in reference or reference[key] != candidate.get(key):
+                raise ValueError(f"Learning-rate model differs at {key}")
+        for metrics in (reference, candidate):
+            if (not isinstance(metrics["model_config"], dict) or not metrics["model_config"]
+                    or type(metrics["parameter_count"]) is not int
+                    or metrics["parameter_count"] <= 0):
+                raise ValueError("Learning-rate comparison requires valid model metadata")
+        excluded = {"learning_rate", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Learning-rate comparison requires the same model and recipe")
+
+        rates = [metrics["config"].get("learning_rate") for metrics in (reference, candidate)]
+        if any(isinstance(rate, bool) or not isinstance(rate, (int, float))
+               or not math.isfinite(rate) or rate <= 0 for rate in rates):
+            raise ValueError("Learning rates must be positive finite numbers")
+        if rates[0] == rates[1]:
+            raise ValueError("Learning-rate comparison requires distinct learning rates")
 
 
     @staticmethod
@@ -349,7 +390,7 @@ class PairedArchitectureReport:
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
-            if self.comparison in ("training_budget", "context"):
+            if self.comparison in ("training_budget", "context", "learning_rate"):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
             self._validate_population(
@@ -373,6 +414,19 @@ class PairedArchitectureReport:
             report["capacity_caveat"] = (
                 "Longer context also enlarges the learned positional table"
             )
+        elif self.comparison == "learning_rate":
+            report["comparison"] = "learning_rate"
+            report["validation_scope"] = reference["plan"].get(
+                "validation_scope", "all development folds",
+            )
+            report["optimization_caveat"] = (
+                "A fixed epoch cap does not compare asymptotic convergence at different rates"
+            )
+            if report["validation_scope"] == "selected development folds":
+                report["interpretation"] = (
+                    "Targeted post-hoc development subset; not a full-cohort benchmark "
+                    "or independent evidence for a global recipe"
+                )
 
         return report
 
@@ -463,7 +517,9 @@ def main() -> None:
     parser.add_argument("--reference", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--comparison", choices=("architecture", "training_budget", "context"),
+    parser.add_argument("--comparison", choices=(
+        "architecture", "training_budget", "context", "learning_rate",
+    ),
                         default="architecture")
     args = parser.parse_args()
     if args.output.resolve() in (args.reference.resolve(), args.candidate.resolve()):

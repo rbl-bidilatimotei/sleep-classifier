@@ -32,9 +32,10 @@ Completed: the two-fold diagnostic repeat reproduced original histories and sele
 Its fixed-weight training/validation curves and matched persistent errors support probability overfitting.
 See the [measured diagnostic results](experiments/transformer-diagnostics-2026-11-12/README.md).
 
-Proposed next: constant learning rate 0.0003 versus the completed instrumented 0.001 reference.
+Prepared next: constant learning rate 0.0003 versus the completed instrumented 0.001 reference.
 Keep seed 42, original folds 01/04, dropout 0.2, model, diagnostics, sampling, loss, clipping, and budget 40/12 fixed.
 Maximum new work is two fits and eighty epochs. This is a targeted optimization check, not a full-cohort benchmark.
+The [learning-rate protocol](transformer-learning-rate.md) and notebook 21 prepare the candidate only.
 Do not select a new global recipe from these post-hoc diagnostic folds alone.
 A small causal patch encoder remains the next architecture option after this bounded check.
 The reusable evidence store and inspector support later local experiment browsing and prediction timelines.

@@ -103,3 +103,6 @@ A future experiment browser can use these interfaces without coupling its UI to 
 The repeat exactly reproduces the original MPS trajectories and supports overfitting in probability quality.
 The [measured diagnostic review](experiments/transformer-diagnostics-2026-11-12/README.md) identifies matched-error, participant, and stage contributions.
 The next proposal tests one lower constant learning rate with the remaining recipe fixed.
+
+The [lower-learning-rate diagnostic](transformer-learning-rate.md) is prepared in notebook 21.
+It changes only Adam's constant learning rate to 0.0003 and reuses the completed two-fold reference.

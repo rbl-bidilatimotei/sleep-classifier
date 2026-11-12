@@ -939,3 +939,176 @@ def _write_dropout_seed_study(root: Path) -> Path:
     config.write_text(yaml.safe_dump(settings))
 
     return config
+
+
+def _write_learning_rate_pair(root: Path) -> tuple[Path, Path]:
+    """Write matched instrumented recipes differing only in their constant learning rates.
+
+    Args:
+        root (Path): Temporary directory for two synthetic grouped experiments.
+    """
+    paths = _write_pair(root)
+    for summary_path, rate in zip(paths, (0.001, 0.0003), strict=True):
+        summary = json.loads(summary_path.read_text())
+        summary["plan"]["validation_scope"] = "selected development folds"
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"].update(
+                model_type="transformer", learning_rate=rate,
+                transformer={"d_model": 16, "max_context": 2, "dropout": 0.2},
+                diagnostics={"enabled": True, "save_predictions": True},
+                output_dir=str(path.parent), prepare_config="prepare.yaml",
+            )
+            metrics["model_config"] = {"d_model": 16, "max_context": 2, "dropout": 0.2}
+            metrics["parameter_count"] = 2564
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_learning_rate_report_requires_explicit_policy_and_preserves_subset_caveat(
+    tmp_path: Path,
+) -> None:
+    """Accept the isolated rate change and label the post-hoc diagnostic population.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    with pytest.raises(ValueError, match="learning_rate"):
+        PairedArchitectureReport(reference, candidate).build()
+    report = PairedArchitectureReport(reference, candidate, "learning_rate").build()
+
+    assert report["comparison"] == "learning_rate"
+    assert report["validation_scope"] == "selected development folds"
+    assert "not a full-cohort benchmark" in report["interpretation"]
+    assert "asymptotic" in report["optimization_caveat"]
+    assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+    assert report["eligible_epochs"] == 8
+    assert not report["independent_outer_test"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "dropout", "context", "patience", "seed", "diagnostics", "unknown_setting",
+    "model_metadata", "parameter_count", "device", "population", "budget", "scope",
+])
+def test_learning_rate_report_rejects_confounded_recipes_or_populations(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject simultaneous recipe changes, invalid model metadata, and unmatched targets.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+        mutation (str): Controlled inconsistency to introduce after creating a valid pair.
+    """
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    if mutation in {"budget", "scope"}:
+        summary["plan"]["maximum_epochs" if mutation == "budget" else "validation_scope"] = (
+            999 if mutation == "budget" else "all development folds"
+        )
+        candidate.write_text(json.dumps(summary))
+    elif mutation == "population":
+        path = Path(summary["results"][0]["metrics_path"]).parent / "validation_predictions.csv"
+        frame = pd.read_csv(path)
+        frame.loc[0, "target"] = 1
+        frame.to_csv(path, index=False)
+    else:
+        path = Path(summary["results"][0]["metrics_path"])
+        metrics = json.loads(path.read_text())
+        if mutation == "dropout":
+            metrics["config"]["transformer"]["dropout"] = 0.3
+        elif mutation == "context":
+            metrics["config"]["context_epochs"] = 3
+        elif mutation in {"patience", "seed"}:
+            metrics["config"][mutation] += 1
+        elif mutation == "diagnostics":
+            metrics["config"]["diagnostics"]["save_predictions"] = False
+        elif mutation == "unknown_setting":
+            metrics["config"]["loss"] = "weighted_cross_entropy"
+        elif mutation == "model_metadata":
+            metrics["model_config"]["d_model"] = 32
+        elif mutation == "parameter_count":
+            metrics["parameter_count"] += 1
+        elif mutation == "device":
+            metrics["device"] = "mps"
+        _rewrite_metrics(candidate, metrics)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "learning_rate").build()
+
+
+@pytest.mark.parametrize("rate", [0.001, 0.0, -0.1, True, float("nan"), float("inf"), None])
+def test_learning_rate_report_rejects_equal_or_invalid_learning_rates(
+    tmp_path: Path, rate: float | bool | None,
+) -> None:
+    """Require a distinct positive finite numeric rate for the candidate recipe.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+        rate (float | bool | None): Invalid or unchanged candidate learning rate.
+    """
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    path = Path(summary["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    metrics["config"]["learning_rate"] = rate
+    _rewrite_metrics(candidate, metrics)
+    with pytest.raises(ValueError, match="learning rate|Learning rate"):
+        PairedArchitectureReport(reference, candidate, "learning_rate").build()
+
+
+def test_learning_rate_report_checks_fold_cap_even_when_both_plans_agree(tmp_path: Path) -> None:
+    """Reject equally corrupted grouped budgets that disagree with the saved fold cap.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    for path in (reference, candidate):
+        summary = json.loads(path.read_text())
+        summary["plan"]["maximum_epochs"] = 6
+        path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="epoch budget"):
+        PairedArchitectureReport(reference, candidate, "learning_rate").build()
+
+
+def test_learning_rate_report_rejects_equal_but_invalid_parameter_count(tmp_path: Path) -> None:
+    """Reject floating-point parameter metadata even when its numeric value matches.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    _rewrite_metrics(candidate, {"parameter_count": 2564.0})
+    with pytest.raises(ValueError, match="valid model metadata"):
+        PairedArchitectureReport(reference, candidate, "learning_rate").build()
+
+
+def test_learning_rate_notebook_reports_complete_pair_without_training(tmp_path: Path) -> None:
+    """Exercise the populated notebook comparison against verified synthetic saved scores.
+
+    Args:
+        tmp_path (Path): Temporary paired metric and prediction artifacts.
+    """
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    reference, candidate = _write_learning_rate_pair(tmp_path)
+    notebook = json.loads((Path(__file__).resolve().parents[1]
+                           / "notebooks/21_transformer_learning_rate.ipynb").read_text())
+    namespace = {"experiment": SimpleNamespace(output_dir=candidate.parent),
+                 "reference_summary": reference,
+                 "PairedArchitectureReport": PairedArchitectureReport,
+                 "pd": pd, "json": json, "logger": Mock(), "display": Mock()}
+    for cell in notebook["cells"]:
+        source = "".join(cell["source"])
+        if cell["cell_type"] == "code" and source.startswith("comparison = None"):
+            exec(source, namespace)
+    report = json.loads((candidate.parent / "paired-comparison.json").read_text())
+    assert report["comparison"] == "learning_rate"
+    assert report["eligible_epochs"] == 8
+    assert report["validation_scope"] == "selected development folds"
+    assert len(namespace["class_rows"]) == 8
+    assert namespace["display"].call_count == 3
