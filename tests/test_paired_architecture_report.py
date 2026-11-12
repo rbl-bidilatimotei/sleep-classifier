@@ -1112,3 +1112,179 @@ def test_learning_rate_notebook_reports_complete_pair_without_training(tmp_path:
     assert report["validation_scope"] == "selected development folds"
     assert len(namespace["class_rows"]) == 8
     assert namespace["display"].call_count == 3
+
+
+def _write_scheduler_pair(root: Path) -> tuple[Path, Path]:
+    """Write fixed base-rate recipes with a plateau scheduler added only to the candidate.
+
+    Args:
+        root (Path): Temporary directory for two synthetic grouped experiments.
+    """
+    pytest.importorskip("torch")
+    reference, candidate = _write_learning_rate_pair(root)
+    summary = json.loads(candidate.read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"]["learning_rate"] = 0.001
+        metrics["config"]["lr_scheduler"] = {
+            "kind": "reduce_on_plateau", "monitor": "validation_macro_f1", "mode": "max",
+            "factor": 0.3, "patience": 3, "threshold": 0.0001, "threshold_mode": "abs",
+            "cooldown": 0, "min_lr": 0.00003, "eps": 1e-8,
+        }
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    candidate.write_text(json.dumps(summary))
+    return reference, candidate
+
+
+def test_scheduler_report_requires_explicit_policy_and_preserves_subset_scope(
+    tmp_path: Path,
+) -> None:
+    """Accept only the scheduler addition and retain development-feedback caveats.
+
+    Args:
+        tmp_path (Path): Temporary matched model metrics and prediction artifacts.
+    """
+    reference, candidate = _write_scheduler_pair(tmp_path)
+    with pytest.raises(ValueError, match="scheduler"):
+        PairedArchitectureReport(reference, candidate).build()
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "learning_rate").build()
+    report = PairedArchitectureReport(reference, candidate, "scheduler").build()
+    assert report["comparison"] == "scheduler"
+    assert report["validation_scope"] == "selected development folds"
+    assert "not a full-cohort benchmark" in report["interpretation"]
+    assert "validation feedback" in report["optimization_caveat"]
+    assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+    assert report["eligible_epochs"] == 8
+    assert not report["independent_outer_test"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "base_rate", "dropout", "context", "diagnostics", "model_metadata", "parameter_count",
+    "budget", "threshold", "monitor", "reference_scheduler", "missing_scheduler", "scope",
+    "unknown_setting", "agent", "invalid_parameter_type", "device", "population", "min_lr",
+])
+def test_scheduler_report_rejects_confounded_controls_and_invalid_metadata(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject scheduler comparisons with another changed control or invalid evidence.
+
+    Args:
+        tmp_path (Path): Temporary synthetic comparison artifacts.
+        mutation (str): Inconsistency introduced after constructing a valid scheduler pair.
+    """
+    reference, candidate = _write_scheduler_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    if mutation in {"budget", "scope"}:
+        summary["plan"]["maximum_epochs" if mutation == "budget" else "validation_scope"] = (
+            999 if mutation == "budget" else "all development folds"
+        )
+        candidate.write_text(json.dumps(summary))
+    elif mutation == "population":
+        path = Path(summary["results"][0]["metrics_path"]).parent / "validation_predictions.csv"
+        frame = pd.read_csv(path)
+        frame.loc[0, "target"] = 1
+        frame.to_csv(path, index=False)
+    else:
+        destination = reference if mutation == "reference_scheduler" else candidate
+        saved = json.loads(destination.read_text())
+        path = Path(saved["results"][0]["metrics_path"])
+        metrics = json.loads(path.read_text())
+        if mutation == "base_rate":
+            metrics["config"]["learning_rate"] = 0.0003
+        elif mutation == "dropout":
+            metrics["config"]["transformer"]["dropout"] = 0.3
+        elif mutation == "context":
+            metrics["config"]["context_epochs"] = 3
+        elif mutation == "diagnostics":
+            metrics["config"]["diagnostics"]["save_predictions"] = False
+        elif mutation == "model_metadata":
+            metrics["model_config"]["d_model"] = 32
+        elif mutation == "parameter_count":
+            metrics["parameter_count"] += 1
+        elif mutation == "invalid_parameter_type":
+            metrics["parameter_count"] = float(metrics["parameter_count"])
+        elif mutation == "threshold":
+            metrics["config"]["lr_scheduler"]["threshold"] = -0.1
+        elif mutation == "min_lr":
+            metrics["config"]["lr_scheduler"]["min_lr"] = 0.1
+        elif mutation == "monitor":
+            metrics["config"]["lr_scheduler"].update(monitor="validation_loss", mode="min")
+        elif mutation == "reference_scheduler":
+            metrics["config"]["lr_scheduler"] = {"kind": "reduce_on_plateau"}
+        elif mutation == "missing_scheduler":
+            metrics["config"].pop("lr_scheduler")
+        elif mutation == "unknown_setting":
+            metrics["config"]["weight_decay"] = 0.01
+        elif mutation == "agent":
+            metrics["config"]["optimizer_agent"] = {"backend": "codex"}
+        elif mutation == "device":
+            metrics["device"] = "mps"
+        _rewrite_metrics(destination, metrics)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "scheduler").build()
+
+
+def test_scheduler_report_checks_fold_cap_when_both_plans_are_corrupted(tmp_path: Path) -> None:
+    """Reject matching grouped caps that disagree with the fixed per-fold training budget.
+
+    Args:
+        tmp_path (Path): Temporary synthetic scheduler comparison artifacts.
+    """
+    reference, candidate = _write_scheduler_pair(tmp_path)
+    for path in (reference, candidate):
+        summary = json.loads(path.read_text())
+        summary["plan"]["maximum_epochs"] = 6
+        path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="epoch budget"):
+        PairedArchitectureReport(reference, candidate, "scheduler").build()
+
+
+@pytest.mark.parametrize("rate", [True, 0.0, float("nan"), None])
+def test_scheduler_report_rejects_equal_invalid_initial_rates(
+    tmp_path: Path, rate: float | bool | None,
+) -> None:
+    """Reject matching malformed initial rates before interpreting the scheduler control.
+
+    Args:
+        tmp_path (Path): Temporary synthetic scheduler comparison artifacts.
+        rate (float | bool | None): Invalid base rate copied into both recorded recipes.
+    """
+    reference, candidate = _write_scheduler_pair(tmp_path)
+    for summary_path in (reference, candidate):
+        summary = json.loads(summary_path.read_text())
+        path = Path(summary["results"][0]["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"]["learning_rate"] = rate
+        _rewrite_metrics(summary_path, metrics)
+    with pytest.raises(ValueError, match="valid initial rate"):
+        PairedArchitectureReport(reference, candidate, "scheduler").build()
+
+
+def test_plateau_notebook_reports_populated_scheduler_pair(tmp_path: Path) -> None:
+    """Verify notebook tables use completed synthetic scheduler results without optimization.
+
+    Args:
+        tmp_path (Path): Temporary verified grouped metric artifacts.
+    """
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    reference, candidate = _write_scheduler_pair(tmp_path)
+    notebook = json.loads((Path(__file__).resolve().parents[1]
+                           / "notebooks/22_transformer_plateau.ipynb").read_text())
+    namespace = {"experiment": SimpleNamespace(output_dir=candidate.parent),
+                 "reference_summary": reference,
+                 "PairedArchitectureReport": PairedArchitectureReport,
+                 "pd": pd, "json": json, "logger": Mock(), "display": Mock()}
+    for cell in notebook["cells"]:
+        source = "".join(cell["source"])
+        if cell["cell_type"] == "code" and source.startswith("comparison = None"):
+            exec(source, namespace)
+    report = json.loads((candidate.parent / "paired-comparison.json").read_text())
+    assert report["comparison"] == "scheduler"
+    assert report["validation_scope"] == "selected development folds"
+    assert len(namespace["class_rows"]) == 8
+    assert namespace["display"].call_count == 3

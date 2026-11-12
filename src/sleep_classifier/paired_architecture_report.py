@@ -24,7 +24,7 @@ class PairedArchitectureReport:
     def __init__(
         self, reference_summary: Path, candidate_summary: Path,
         comparison: Literal[
-            "architecture", "training_budget", "context", "learning_rate"
+            "architecture", "training_budget", "context", "learning_rate", "scheduler"
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -32,10 +32,11 @@ class PairedArchitectureReport:
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
-            comparison (Literal["architecture", "training_budget", "context", "learning_rate"]):
-                Permitted recipe differences.
+            comparison (str): Permitted architecture, budget, context, rate, or scheduler change.
         """
-        if comparison not in ("architecture", "training_budget", "context", "learning_rate"):
+        if comparison not in (
+            "architecture", "training_budget", "context", "learning_rate", "scheduler",
+        ):
             raise ValueError("Unknown paired comparison policy")
 
         self.reference_summary = reference_summary.resolve()
@@ -98,7 +99,7 @@ class PairedArchitectureReport:
         candidate_folds = {fold["name"]: fold for fold in candidate["folds"]}
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
-        if (self.comparison == "learning_rate"
+        if (self.comparison in ("learning_rate", "scheduler")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -170,6 +171,8 @@ class PairedArchitectureReport:
             self._validate_context_recipe(reference, candidate)
         elif self.comparison == "learning_rate":
             self._validate_learning_rate_recipe(reference, candidate)
+        elif self.comparison == "scheduler":
+            self._validate_scheduler_recipe(reference, candidate)
 
         for key in SHARED_RECIPE_KEYS:
             if key in ("epochs", "patience") and self.comparison == "training_budget":
@@ -181,6 +184,9 @@ class PairedArchitectureReport:
             if (key not in reference["config"] or key not in candidate["config"]
                     or reference["config"][key] != candidate["config"][key]):
                 raise ValueError(f"Shared training recipe differs at {key}")
+        if (self.comparison != "scheduler" and reference["config"].get("lr_scheduler")
+                != candidate["config"].get("lr_scheduler")):
+            raise ValueError("Scheduler changes require the explicit scheduler comparison policy")
         if reference["config"].get("optimizer_agent") or candidate["config"].get("optimizer_agent"):
             raise ValueError("Paired comparisons require the plain Adam recipes")
         if reference["coverage"] != candidate["coverage"]:
@@ -225,6 +231,44 @@ class PairedArchitectureReport:
             raise ValueError("Learning rates must be positive finite numbers")
         if rates[0] == rates[1]:
             raise ValueError("Learning-rate comparison requires distinct learning rates")
+
+
+    @staticmethod
+    def _validate_scheduler_recipe(
+        reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit only a macro-F1 plateau scheduler for an otherwise fixed Adam recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified constant-rate reference fold metrics.
+            candidate (dict[str, Any]): Verified scheduled candidate fold metrics.
+        """
+        from sleep_classifier.lr_schedule import PlateauSettings
+
+        if reference["config"].get("lr_scheduler") is not None:
+            raise ValueError("Scheduler comparison requires an unscheduled reference")
+        settings = PlateauSettings(candidate["config"].get("lr_scheduler"))
+        if (not settings.enabled or settings.monitor != "validation_macro_f1"
+                or settings.mode != "max"):
+            raise ValueError("Scheduler comparison requires a validation macro-F1 plateau schedule")
+        initial_rate = candidate["config"].get("learning_rate")
+        if (isinstance(initial_rate, bool) or not isinstance(initial_rate, (int, float))
+                or not math.isfinite(initial_rate) or initial_rate <= 0
+                or settings.values["min_lr"] > initial_rate):
+            raise ValueError("Scheduler requires a valid initial rate at or above its minimum")
+        for key in ("model_config", "parameter_count"):
+            if key not in reference or reference[key] != candidate.get(key):
+                raise ValueError(f"Scheduler model differs at {key}")
+        for metrics in (reference, candidate):
+            if (not isinstance(metrics["model_config"], dict) or not metrics["model_config"]
+                    or type(metrics["parameter_count"]) is not int
+                    or metrics["parameter_count"] <= 0):
+                raise ValueError("Scheduler comparison requires valid model metadata")
+        excluded = {"lr_scheduler", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Scheduler comparison requires the same model and base recipe")
 
 
     @staticmethod
@@ -390,7 +434,7 @@ class PairedArchitectureReport:
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
-            if self.comparison in ("training_budget", "context", "learning_rate"):
+            if self.comparison in ("training_budget", "context", "learning_rate", "scheduler"):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
             self._validate_population(
@@ -421,6 +465,21 @@ class PairedArchitectureReport:
             )
             report["optimization_caveat"] = (
                 "A fixed epoch cap does not compare asymptotic convergence at different rates"
+            )
+            if report["validation_scope"] == "selected development folds":
+                report["interpretation"] = (
+                    "Targeted post-hoc development subset; not a full-cohort benchmark "
+                    "or independent evidence for a global recipe"
+                )
+
+        if self.comparison == "scheduler":
+            report["comparison"] = "scheduler"
+            report["validation_scope"] = reference["plan"].get(
+                "validation_scope", "all development folds",
+            )
+            report["optimization_caveat"] = (
+                "The scheduler uses validation feedback from checkpoint-selection folds; "
+                "this is not an independent evaluation"
             )
             if report["validation_scope"] == "selected development folds":
                 report["interpretation"] = (
@@ -518,7 +577,7 @@ def main() -> None:
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--comparison", choices=(
-        "architecture", "training_budget", "context", "learning_rate",
+        "architecture", "training_budget", "context", "learning_rate", "scheduler",
     ),
                         default="architecture")
     args = parser.parse_args()
