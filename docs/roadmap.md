@@ -28,12 +28,16 @@ OPAL remains optional. Conventional Adam is the next reference.
 
 ## Next experiment milestone
 
-Proposed: instrumented seed-42 dropout-0.2 repeat for folds 01 and 04 only.
-Keep the current recipe fixed. Record per-epoch participant/class NLL, confidence, learning rate, and gradient summaries.
-Budget at most two fits and eighty epochs. Training remains operator-controlled; this next protocol is not implemented.
-The current scalar histories cannot identify the cause of a specific historical loss rebound.
-See the [replication review](experiments/transformer-dropout-seeds-2026-11-11/README.md) and [notebook guide](notebook-19-guide.md).
-A causal patch encoder remains a later architecture option after this targeted diagnostic.
+Completed: the two-fold diagnostic repeat reproduced original histories and selected checkpoints exactly.
+Its fixed-weight training/validation curves and matched persistent errors support probability overfitting.
+See the [measured diagnostic results](experiments/transformer-diagnostics-2026-11-12/README.md).
+
+Proposed next: constant learning rate 0.0003 versus the completed instrumented 0.001 reference.
+Keep seed 42, original folds 01/04, dropout 0.2, model, diagnostics, sampling, loss, clipping, and budget 40/12 fixed.
+Maximum new work is two fits and eighty epochs. This is a targeted optimization check, not a full-cohort benchmark.
+Do not select a new global recipe from these post-hoc diagnostic folds alone.
+A small causal patch encoder remains the next architecture option after this bounded check.
+The reusable evidence store and inspector support later local experiment browsing and prediction timelines.
 
 ## Model and evaluation milestones
 
@@ -49,6 +53,7 @@ These items are roadmap work, outside the next experiment milestone.
 
 | Milestone | Scope | Readiness condition |
 | --- | --- | --- |
+| Local evaluation workspace | Browse runs, participants, stages, confidence, timelines, and checkpoint evidence through the existing reader | The first instrumented run validates the evidence schema and useful views |
 | Portable inference | Load a versioned checkpoint, scaler, feature schema, and causal history | Model recipe and prediction contract are defined |
 | FastAPI service | Validate timestamps, coverage, and session boundaries; return probabilities, labels, and model version | Offline and streaming predictions agree on the same completed epochs |
 | Docker | Build a locked CPU training/inference environment; mount data and artifacts externally | Script and inference interfaces are stable |

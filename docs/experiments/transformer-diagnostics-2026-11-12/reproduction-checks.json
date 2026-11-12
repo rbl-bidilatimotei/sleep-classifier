@@ -1,0 +1,20 @@
+[
+  {
+    "fold": "fold-01",
+    "history_exact": true,
+    "checkpoint_weights_exact": true,
+    "best_epoch": 14,
+    "completed_epochs": 26,
+    "macro_f1": 0.5375408093444908,
+    "accuracy": 0.618051013734467
+  },
+  {
+    "fold": "fold-04",
+    "history_exact": true,
+    "checkpoint_weights_exact": true,
+    "best_epoch": 31,
+    "completed_epochs": 40,
+    "macro_f1": 0.60478284434559,
+    "accuracy": 0.6512310819968375
+  }
+]

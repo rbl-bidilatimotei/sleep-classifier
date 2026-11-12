@@ -60,3 +60,6 @@ Use standard-library logging for operational messages. Configure handlers only a
 Log real stages, record counts, elapsed time, and available optimizer or epoch progress.
 Use readable !uv run commands in notebooks and check their exit status.
 Tag training and report-export cells with skip-execution so HTML generation cannot train or recursively export itself.
+Before each new or changed notebook code cell, explain what it does and why it is needed.
+Use a short preceding Markdown cell or concise code comments. Explain execution gates and interpretation limits where relevant.
+Capture optional per-epoch evidence through reusable modules; diagnostics must preserve the training recipe and random stream.

@@ -1,6 +1,6 @@
 # Sleep classifier: project overview
 
-Updated on 2026-11-11.
+Updated on 2026-11-12.
 
 ## Purpose
 
@@ -94,3 +94,12 @@ Docker, FastAPI inference, economical CI, and delivery automation remain later r
 
 See the [roadmap](roadmap.md), [grouped results](experiments/gru-grouped-2026-11-06/README.md),
 and [learning review](learning-review.md) for details and remaining questions.
+
+The [instrumented two-fold repeat](transformer-diagnostics.md) is complete in notebook 20.
+Its evidence recorder and read-only inspector provide a reusable local evaluation foundation.
+They preserve per-epoch probability changes and additive class/participant loss contributions.
+A future experiment browser can use these interfaces without coupling its UI to training.
+
+The repeat exactly reproduces the original MPS trajectories and supports overfitting in probability quality.
+The [measured diagnostic review](experiments/transformer-diagnostics-2026-11-12/README.md) identifies matched-error, participant, and stage contributions.
+The next proposal tests one lower constant learning rate with the remaining recipe fixed.

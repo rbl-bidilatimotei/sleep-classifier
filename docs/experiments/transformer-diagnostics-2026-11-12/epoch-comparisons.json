@@ -1,0 +1,2876 @@
+[
+  {
+    "fold": "fold-01",
+    "before_epoch": 5,
+    "after_epoch": 26,
+    "count": 4587,
+    "nll_difference": 0.14387744439912212,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.2087660749798825,
+        "mean_nll_after": 1.6131842873190634,
+        "contribution_delta": 0.06647729062649711
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 0.9673232089289775,
+        "mean_nll_after": 1.1928075166876322,
+        "contribution_delta": 0.024087052714571785
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.7897091888498473,
+        "mean_nll_after": 0.6395388805352548,
+        "contribution_delta": -0.031461448940554505
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.6823751008375553,
+        "mean_nll_after": 0.8694411211809442,
+        "contribution_delta": 0.018922745463120227
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.8067939292025027,
+        "mean_nll_after": 0.9757945723498028,
+        "contribution_delta": 0.035885464666551195
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.7902985460065409,
+        "mean_nll_after": 0.9359082928061287,
+        "contribution_delta": 0.029966339868936317
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.667827300670495,
+        "mean_nll_after": 1.7235462774205932,
+        "contribution_delta": 0.0062800765161981215
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5057492695273543,
+        "mean_nll_after": 0.5241379790739187,
+        "contribution_delta": 0.010302808706054068
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.1410732601661275,
+        "mean_nll_after": 1.5004726191667666,
+        "contribution_delta": 0.0482646621199899
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.2758441394372066,
+        "mean_nll_after": 1.685923480839818,
+        "contribution_delta": 0.07902989705688004
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "5132496",
+        "time": 5040.0,
+        "target": 2,
+        "nll_before": 1.5884834648816533,
+        "nll_after": 6.745963067439844,
+        "nll_difference": 5.15747960255819
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5100.0,
+        "target": 2,
+        "nll_before": 1.012874557258212,
+        "nll_after": 5.627174057261844,
+        "nll_difference": 4.614299500003632
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4950.0,
+        "target": 2,
+        "nll_before": 1.7210738764630888,
+        "nll_after": 6.283157436833969,
+        "nll_difference": 4.56208356037088
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5070.0,
+        "target": 2,
+        "nll_before": 1.4280722474961838,
+        "nll_after": 5.8237576330546625,
+        "nll_difference": 4.395685385558479
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4980.0,
+        "target": 2,
+        "nll_before": 2.408746081564526,
+        "nll_after": 6.656954430112654,
+        "nll_difference": 4.248208348548127
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5010.0,
+        "target": 2,
+        "nll_before": 2.9053444654625076,
+        "nll_after": 7.143145342886304,
+        "nll_difference": 4.237800877423796
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5160.0,
+        "target": 2,
+        "nll_before": 2.6094636899337025,
+        "nll_after": 6.709631822677661,
+        "nll_difference": 4.100168132743958
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5280.0,
+        "target": 2,
+        "nll_before": 2.1613732644847334,
+        "nll_after": 6.258743676827172,
+        "nll_difference": 4.097370412342439
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5190.0,
+        "target": 2,
+        "nll_before": 1.5712554974023405,
+        "nll_after": 5.378008421157134,
+        "nll_difference": 3.806752923754794
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5310.0,
+        "target": 2,
+        "nll_before": 2.529920849558825,
+        "nll_after": 6.1734349675399285,
+        "nll_difference": 3.6435141179811037
+      },
+      {
+        "participant_id": "1066528",
+        "time": 930.0,
+        "target": 0,
+        "nll_before": 2.992292734164901,
+        "nll_after": 6.516111379107391,
+        "nll_difference": 3.5238186449424904
+      },
+      {
+        "participant_id": "5132496",
+        "time": 3240.0,
+        "target": 2,
+        "nll_before": 0.4409780823614047,
+        "nll_after": 3.7810614731708228,
+        "nll_difference": 3.340083390809418
+      },
+      {
+        "participant_id": "9618981",
+        "time": 3750.0,
+        "target": 0,
+        "nll_before": 0.9254434177882513,
+        "nll_after": 4.091838557946647,
+        "nll_difference": 3.1663951401583956
+      },
+      {
+        "participant_id": "1066528",
+        "time": 1140.0,
+        "target": 0,
+        "nll_before": 3.306584960462334,
+        "nll_after": 6.41938257527006,
+        "nll_difference": 3.1127976148077257
+      },
+      {
+        "participant_id": "1066528",
+        "time": 1260.0,
+        "target": 0,
+        "nll_before": 3.391276044167814,
+        "nll_after": 6.32903045997976,
+        "nll_difference": 2.9377544158119466
+      },
+      {
+        "participant_id": "1066528",
+        "time": 1080.0,
+        "target": 0,
+        "nll_before": 3.6660328807528413,
+        "nll_after": 6.596663939894545,
+        "nll_difference": 2.9306310591417035
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5130.0,
+        "target": 2,
+        "nll_before": 1.6589009152479528,
+        "nll_after": 4.537314283421626,
+        "nll_difference": 2.878413368173673
+      },
+      {
+        "participant_id": "1066528",
+        "time": 1050.0,
+        "target": 0,
+        "nll_before": 3.7133050791280047,
+        "nll_after": 6.538572088107964,
+        "nll_difference": 2.825267008979959
+      },
+      {
+        "participant_id": "1066528",
+        "time": 21270.0,
+        "target": 3,
+        "nll_before": 0.9873587950486779,
+        "nll_after": 3.8119611007461396,
+        "nll_difference": 2.8246023056974616
+      },
+      {
+        "participant_id": "9618981",
+        "time": 3720.0,
+        "target": 0,
+        "nll_before": 1.2699705576549039,
+        "nll_after": 4.076635162952896,
+        "nll_difference": 2.806664605297992
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 11,
+    "after_epoch": 12,
+    "count": 4587,
+    "nll_difference": 0.033034333241602015,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.4970730763072388,
+        "mean_nll_after": 1.4555768861565017,
+        "contribution_delta": -0.006821043682942175
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 1.213849475310919,
+        "mean_nll_after": 1.1508478372182291,
+        "contribution_delta": -0.0067300638032304445
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.7275650268149593,
+        "mean_nll_after": 0.6834100341453385,
+        "contribution_delta": -0.00925069717800429
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.7663773242894532,
+        "mean_nll_after": 0.8485709644656066,
+        "contribution_delta": 0.008314333778446757
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.7738572929100431,
+        "mean_nll_after": 0.9581209257311962,
+        "contribution_delta": 0.03912639598164446
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.8778033547738205,
+        "mean_nll_after": 0.9185975678715638,
+        "contribution_delta": 0.008395408145687715
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.8685415645713506,
+        "mean_nll_after": 1.7586624659835919,
+        "contribution_delta": -0.012384454756893693
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5465216001754628,
+        "mean_nll_after": 0.5118508339212919,
+        "contribution_delta": -0.019425303961896418
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.5865241894443631,
+        "mean_nll_after": 1.4610507042094862,
+        "contribution_delta": -0.01685015629053502
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.1457651355727418,
+        "mean_nll_after": 1.569669566259397,
+        "contribution_delta": 0.08169424825092717
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "781756",
+        "time": 10050.0,
+        "target": 3,
+        "nll_before": 2.4621099467930936,
+        "nll_after": 3.8288614326150046,
+        "nll_difference": 1.366751485821911
+      },
+      {
+        "participant_id": "781756",
+        "time": 9900.0,
+        "target": 3,
+        "nll_before": 2.794726478680998,
+        "nll_after": 4.132091358762631,
+        "nll_difference": 1.337364880081633
+      },
+      {
+        "participant_id": "781756",
+        "time": 9840.0,
+        "target": 3,
+        "nll_before": 2.488680716572283,
+        "nll_after": 3.8155168816259306,
+        "nll_difference": 1.3268361650536478
+      },
+      {
+        "participant_id": "781756",
+        "time": 9870.0,
+        "target": 3,
+        "nll_before": 2.082801670398057,
+        "nll_after": 3.39414147280194,
+        "nll_difference": 1.3113398024038831
+      },
+      {
+        "participant_id": "781756",
+        "time": 9930.0,
+        "target": 3,
+        "nll_before": 2.227031381817803,
+        "nll_after": 3.5154211152420705,
+        "nll_difference": 1.2883897334242675
+      },
+      {
+        "participant_id": "781756",
+        "time": 9960.0,
+        "target": 3,
+        "nll_before": 2.696303388913789,
+        "nll_after": 3.945909941740667,
+        "nll_difference": 1.249606552826878
+      },
+      {
+        "participant_id": "781756",
+        "time": 10020.0,
+        "target": 3,
+        "nll_before": 2.653496830781112,
+        "nll_after": 3.8717055424689484,
+        "nll_difference": 1.2182087116878364
+      },
+      {
+        "participant_id": "781756",
+        "time": 9990.0,
+        "target": 3,
+        "nll_before": 2.422808201159253,
+        "nll_after": 3.629756776557503,
+        "nll_difference": 1.20694857539825
+      },
+      {
+        "participant_id": "781756",
+        "time": 10170.0,
+        "target": 3,
+        "nll_before": 1.7785419009842465,
+        "nll_after": 2.9811526246838906,
+        "nll_difference": 1.2026107236996442
+      },
+      {
+        "participant_id": "781756",
+        "time": 20130.0,
+        "target": 3,
+        "nll_before": 2.6285888328776212,
+        "nll_after": 3.816960424165885,
+        "nll_difference": 1.1883715912882638
+      },
+      {
+        "participant_id": "781756",
+        "time": 10200.0,
+        "target": 3,
+        "nll_before": 1.8573807105424578,
+        "nll_after": 3.038021236586696,
+        "nll_difference": 1.1806405260442383
+      },
+      {
+        "participant_id": "781756",
+        "time": 10080.0,
+        "target": 3,
+        "nll_before": 1.5619448084552812,
+        "nll_after": 2.740792129014813,
+        "nll_difference": 1.1788473205595318
+      },
+      {
+        "participant_id": "781756",
+        "time": 21720.0,
+        "target": 3,
+        "nll_before": 2.2233645704041067,
+        "nll_after": 3.3971383438643494,
+        "nll_difference": 1.1737737734602427
+      },
+      {
+        "participant_id": "781756",
+        "time": 21840.0,
+        "target": 3,
+        "nll_before": 2.8449806735156087,
+        "nll_after": 4.010297255426336,
+        "nll_difference": 1.165316581910727
+      },
+      {
+        "participant_id": "781756",
+        "time": 21750.0,
+        "target": 3,
+        "nll_before": 2.4309581899815864,
+        "nll_after": 3.595851760281249,
+        "nll_difference": 1.1648935702996628
+      },
+      {
+        "participant_id": "781756",
+        "time": 28890.0,
+        "target": 3,
+        "nll_before": 2.222350788498318,
+        "nll_after": 3.380864206053406,
+        "nll_difference": 1.1585134175550884
+      },
+      {
+        "participant_id": "5132496",
+        "time": 3390.0,
+        "target": 2,
+        "nll_before": 1.0602326205137893,
+        "nll_after": 2.2177353257147576,
+        "nll_difference": 1.1575027052009683
+      },
+      {
+        "participant_id": "781756",
+        "time": 21810.0,
+        "target": 3,
+        "nll_before": 3.1005653047293005,
+        "nll_after": 4.250251697193031,
+        "nll_difference": 1.1496863924637304
+      },
+      {
+        "participant_id": "781756",
+        "time": 20220.0,
+        "target": 3,
+        "nll_before": 2.6159757261156984,
+        "nll_after": 3.7625784409439786,
+        "nll_difference": 1.1466027148282802
+      },
+      {
+        "participant_id": "781756",
+        "time": 20160.0,
+        "target": 3,
+        "nll_before": 2.6880599577383504,
+        "nll_after": 3.83007543164529,
+        "nll_difference": 1.1420154739069397
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 13,
+    "after_epoch": 14,
+    "count": 4587,
+    "nll_difference": 0.019559743697101485,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.4282429232396756,
+        "mean_nll_after": 1.4576050862687733,
+        "contribution_delta": 0.004826481561791969
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 1.1218502826366306,
+        "mean_nll_after": 1.109198610450245,
+        "contribution_delta": -0.001351497573867251
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.6858057337758088,
+        "mean_nll_after": 0.6900028124421633,
+        "contribution_delta": 0.0008793094829663673
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.7497713137478299,
+        "mean_nll_after": 0.7892479899941192,
+        "contribution_delta": 0.0039932805272025786
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.8557829434372819,
+        "mean_nll_after": 0.9052358197894008,
+        "contribution_delta": 0.010500785168293864
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.8936982490820051,
+        "mean_nll_after": 0.8971549448896161,
+        "contribution_delta": 0.0007113845307139568
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.8713938569347397,
+        "mean_nll_after": 1.8621430518107205,
+        "contribution_delta": -0.001042656692635295
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5456592836484419,
+        "mean_nll_after": 0.5785186861140206,
+        "contribution_delta": 0.018410434780147568
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.2724639670732107,
+        "mean_nll_after": 1.2714011579048399,
+        "contribution_delta": -0.0001427273703327668
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.3088755086704535,
+        "mean_nll_after": 1.320990029823058,
+        "contribution_delta": 0.002334692979921975
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "1066528",
+        "time": 8520.0,
+        "target": 2,
+        "nll_before": 4.610219620921846,
+        "nll_after": 3.8963477590233038,
+        "nll_difference": -0.7138718618985425
+      },
+      {
+        "participant_id": "9618981",
+        "time": 15180.0,
+        "target": 2,
+        "nll_before": 2.3095680958710774,
+        "nll_after": 1.61237527743221,
+        "nll_difference": -0.6971928184388674
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5340.0,
+        "target": 2,
+        "nll_before": 4.68045520499343,
+        "nll_after": 3.9870515989352326,
+        "nll_difference": -0.693403606058197
+      },
+      {
+        "participant_id": "781756",
+        "time": 9780.0,
+        "target": 3,
+        "nll_before": 3.3979221338501056,
+        "nll_after": 4.041833162096239,
+        "nll_difference": 0.6439110282461336
+      },
+      {
+        "participant_id": "9618981",
+        "time": 1950.0,
+        "target": 0,
+        "nll_before": 3.005752737691483,
+        "nll_after": 2.398830720805471,
+        "nll_difference": -0.6069220168860121
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4620.0,
+        "target": 1,
+        "nll_before": 0.8503289050061007,
+        "nll_after": 1.4263884108428257,
+        "nll_difference": 0.576059505836725
+      },
+      {
+        "participant_id": "781756",
+        "time": 9840.0,
+        "target": 3,
+        "nll_before": 3.2780250972975686,
+        "nll_after": 3.8459680842851403,
+        "nll_difference": 0.5679429869875716
+      },
+      {
+        "participant_id": "4314139",
+        "time": 20490.0,
+        "target": 0,
+        "nll_before": 3.440772483374977,
+        "nll_after": 4.002398321010217,
+        "nll_difference": 0.5616258376352401
+      },
+      {
+        "participant_id": "781756",
+        "time": 9990.0,
+        "target": 3,
+        "nll_before": 3.122681285198082,
+        "nll_after": 3.6777332110792225,
+        "nll_difference": 0.5550519258811404
+      },
+      {
+        "participant_id": "781756",
+        "time": 10050.0,
+        "target": 3,
+        "nll_before": 3.3026303138505924,
+        "nll_after": 3.8557810153501566,
+        "nll_difference": 0.5531507014995642
+      },
+      {
+        "participant_id": "781756",
+        "time": 1620.0,
+        "target": 3,
+        "nll_before": 3.8503877087293716,
+        "nll_after": 4.3914344757405015,
+        "nll_difference": 0.5410467670111299
+      },
+      {
+        "participant_id": "781756",
+        "time": 1800.0,
+        "target": 3,
+        "nll_before": 3.666687845899599,
+        "nll_after": 4.19216578916199,
+        "nll_difference": 0.5254779432623913
+      },
+      {
+        "participant_id": "1066528",
+        "time": 750.0,
+        "target": 0,
+        "nll_before": 3.6771985848875284,
+        "nll_after": 3.1517527446886597,
+        "nll_difference": -0.5254458401988686
+      },
+      {
+        "participant_id": "781756",
+        "time": 2100.0,
+        "target": 3,
+        "nll_before": 3.4697502758224346,
+        "nll_after": 3.9945606842266317,
+        "nll_difference": 0.5248104084041971
+      },
+      {
+        "participant_id": "4314139",
+        "time": 20550.0,
+        "target": 0,
+        "nll_before": 3.0926528512447273,
+        "nll_after": 3.617176567835018,
+        "nll_difference": 0.5245237165902905
+      },
+      {
+        "participant_id": "781756",
+        "time": 2220.0,
+        "target": 3,
+        "nll_before": 3.8072216948234794,
+        "nll_after": 4.329537150036665,
+        "nll_difference": 0.5223154552131857
+      },
+      {
+        "participant_id": "781756",
+        "time": 1860.0,
+        "target": 3,
+        "nll_before": 3.835774999205812,
+        "nll_after": 4.356025112078068,
+        "nll_difference": 0.5202501128722563
+      },
+      {
+        "participant_id": "781756",
+        "time": 27240.0,
+        "target": 0,
+        "nll_before": 4.432235646694345,
+        "nll_after": 3.9151328879193015,
+        "nll_difference": -0.5171027587750432
+      },
+      {
+        "participant_id": "781756",
+        "time": 2160.0,
+        "target": 3,
+        "nll_before": 3.6189744317833563,
+        "nll_after": 4.134358331536818,
+        "nll_difference": 0.5153838997534619
+      },
+      {
+        "participant_id": "781756",
+        "time": 1890.0,
+        "target": 3,
+        "nll_before": 3.796213382343867,
+        "nll_after": 4.311005488643933,
+        "nll_difference": 0.514792106300066
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 14,
+    "after_epoch": 15,
+    "count": 4587,
+    "nll_difference": 0.00210841101256303,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.4576050862687733,
+        "mean_nll_after": 1.509932220276671,
+        "contribution_delta": 0.008601408119022186
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 1.109198610450245,
+        "mean_nll_after": 1.1305049343587623,
+        "contribution_delta": 0.0022760189045506174
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.6900028124421633,
+        "mean_nll_after": 0.6687711448742467,
+        "contribution_delta": -0.004448143129009783
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.7892479899941192,
+        "mean_nll_after": 0.8104235405630423,
+        "contribution_delta": 0.00214202211989979
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.9052358197894008,
+        "mean_nll_after": 0.8632016539583895,
+        "contribution_delta": -0.008925501966297161
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.8971549448896161,
+        "mean_nll_after": 0.9091210234337803,
+        "contribution_delta": 0.002462606964397381
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.8621430518107205,
+        "mean_nll_after": 1.7681834438697654,
+        "contribution_delta": -0.010590171638428951
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5785186861140206,
+        "mean_nll_after": 0.5191003170173419,
+        "contribution_delta": -0.03329086735959528
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.2714011579048399,
+        "mean_nll_after": 1.3927967776993426,
+        "contribution_delta": 0.01630252927695957
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.320990029823058,
+        "mean_nll_after": 1.475032909240649,
+        "contribution_delta": 0.02968692073362769
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "5132496",
+        "time": 12330.0,
+        "target": 1,
+        "nll_before": 0.6334899400658324,
+        "nll_after": 2.253048761280448,
+        "nll_difference": 1.619558821214616
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4830.0,
+        "target": 1,
+        "nll_before": 0.9938917173636053,
+        "nll_after": 2.5782953600806464,
+        "nll_difference": 1.5844036427170411
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5130.0,
+        "target": 2,
+        "nll_before": 2.4399934567875237,
+        "nll_after": 3.930930481154896,
+        "nll_difference": 1.4909370243673723
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12300.0,
+        "target": 1,
+        "nll_before": 0.5938180676494815,
+        "nll_after": 1.9412118552603794,
+        "nll_difference": 1.347393787610898
+      },
+      {
+        "participant_id": "5132496",
+        "time": 10500.0,
+        "target": 1,
+        "nll_before": 0.3995330318760373,
+        "nll_after": 1.472472465652843,
+        "nll_difference": 1.0729394337768057
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5430.0,
+        "target": 2,
+        "nll_before": 2.9033002647304818,
+        "nll_after": 3.954155580269603,
+        "nll_difference": 1.0508553155391214
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4770.0,
+        "target": 1,
+        "nll_before": 0.6574675510129241,
+        "nll_after": 1.7026246975930424,
+        "nll_difference": 1.0451571465801184
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12510.0,
+        "target": 1,
+        "nll_before": 1.2814810107966788,
+        "nll_after": 2.318487079015903,
+        "nll_difference": 1.0370060682192241
+      },
+      {
+        "participant_id": "781756",
+        "time": 24270.0,
+        "target": 1,
+        "nll_before": 1.3916257589496168,
+        "nll_after": 0.44556542419285694,
+        "nll_difference": -0.9460603347567599
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12210.0,
+        "target": 1,
+        "nll_before": 0.47395496416340843,
+        "nll_after": 1.3356945807018819,
+        "nll_difference": 0.8617396165384734
+      },
+      {
+        "participant_id": "9618981",
+        "time": 3750.0,
+        "target": 0,
+        "nll_before": 3.065304857517855,
+        "nll_after": 2.2158498763753935,
+        "nll_difference": -0.8494549811424617
+      },
+      {
+        "participant_id": "1066528",
+        "time": 21510.0,
+        "target": 3,
+        "nll_before": 1.2393282530055825,
+        "nll_after": 2.045444964847201,
+        "nll_difference": 0.8061167118416186
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5190.0,
+        "target": 2,
+        "nll_before": 3.3676490573347837,
+        "nll_after": 4.15093819574499,
+        "nll_difference": 0.7832891384102063
+      },
+      {
+        "participant_id": "5132496",
+        "time": 1470.0,
+        "target": 1,
+        "nll_before": 0.5309400438776031,
+        "nll_after": 1.3004665583217239,
+        "nll_difference": 0.7695265144441208
+      },
+      {
+        "participant_id": "9618981",
+        "time": 9180.0,
+        "target": 3,
+        "nll_before": 2.1791953248279174,
+        "nll_after": 2.94547516888034,
+        "nll_difference": 0.7662798440524226
+      },
+      {
+        "participant_id": "4314139",
+        "time": 2400.0,
+        "target": 0,
+        "nll_before": 5.161694934169803,
+        "nll_after": 4.397322976501844,
+        "nll_difference": -0.7643719576679588
+      },
+      {
+        "participant_id": "1066528",
+        "time": 18930.0,
+        "target": 0,
+        "nll_before": 3.7825492000279626,
+        "nll_after": 3.0287525048051296,
+        "nll_difference": -0.753796695222833
+      },
+      {
+        "participant_id": "4314139",
+        "time": 1380.0,
+        "target": 0,
+        "nll_before": 4.398282505417056,
+        "nll_after": 3.6455434466995267,
+        "nll_difference": -0.7527390587175291
+      },
+      {
+        "participant_id": "4314139",
+        "time": 1440.0,
+        "target": 0,
+        "nll_before": 4.3247821554306105,
+        "nll_after": 3.5772507148370627,
+        "nll_difference": -0.7475314405935478
+      },
+      {
+        "participant_id": "4314139",
+        "time": 2370.0,
+        "target": 0,
+        "nll_before": 4.897639606126587,
+        "nll_after": 4.150836965226456,
+        "nll_difference": -0.7468026409001309
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 15,
+    "after_epoch": 16,
+    "count": 4587,
+    "nll_difference": -0.0020674002780248953,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.509932220276671,
+        "mean_nll_after": 1.4836910305247732,
+        "contribution_delta": -0.00431346349965794
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 1.1305049343587623,
+        "mean_nll_after": 1.1597422525289576,
+        "contribution_delta": 0.0031232365169818147
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.6687711448742467,
+        "mean_nll_after": 0.6780017540192302,
+        "contribution_delta": 0.0019338599058925708
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.8104235405630423,
+        "mean_nll_after": 0.7985114473724501,
+        "contribution_delta": -0.001204973019497463
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.8632016539583895,
+        "mean_nll_after": 0.852905529872491,
+        "contribution_delta": -0.0021862709526193577
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.9091210234337803,
+        "mean_nll_after": 0.9119403314909897,
+        "contribution_delta": 0.0005802107708754797
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.7681834438697654,
+        "mean_nll_after": 1.7932554225057635,
+        "contribution_delta": 0.002825858503337898
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5191003170173419,
+        "mean_nll_after": 0.5215870279746257,
+        "contribution_delta": 0.001393252051497499
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.3927967776993426,
+        "mean_nll_after": 1.4587734313716978,
+        "contribution_delta": 0.00886017411427316
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.475032909240649,
+        "mean_nll_after": 1.3964380632536564,
+        "contribution_delta": -0.015146684947133454
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "5132496",
+        "time": 4830.0,
+        "target": 1,
+        "nll_before": 2.5782953600806464,
+        "nll_after": 0.9251563802668381,
+        "nll_difference": -1.6531389798138083
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5040.0,
+        "target": 2,
+        "nll_before": 3.8623172960536816,
+        "nll_after": 5.298437164158321,
+        "nll_difference": 1.4361198681046399
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12510.0,
+        "target": 1,
+        "nll_before": 2.318487079015903,
+        "nll_after": 0.947445667365623,
+        "nll_difference": -1.37104141165028
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5370.0,
+        "target": 2,
+        "nll_before": 4.724409565322086,
+        "nll_after": 5.9644941710036115,
+        "nll_difference": 1.2400846056815258
+      },
+      {
+        "participant_id": "9618981",
+        "time": 9180.0,
+        "target": 3,
+        "nll_before": 2.94547516888034,
+        "nll_after": 1.7659766802814523,
+        "nll_difference": -1.1794984885988877
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5160.0,
+        "target": 2,
+        "nll_before": 4.898473869319244,
+        "nll_after": 6.062756937156821,
+        "nll_difference": 1.1642830678375766
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5400.0,
+        "target": 2,
+        "nll_before": 3.564092055794502,
+        "nll_after": 4.682115025967951,
+        "nll_difference": 1.118022970173449
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5010.0,
+        "target": 2,
+        "nll_before": 5.322055255698218,
+        "nll_after": 6.428660993347942,
+        "nll_difference": 1.1066057376497245
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5220.0,
+        "target": 2,
+        "nll_before": 4.027887041442778,
+        "nll_after": 5.0534057478335335,
+        "nll_difference": 1.0255187063907556
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4770.0,
+        "target": 1,
+        "nll_before": 1.7026246975930424,
+        "nll_after": 0.7400112706847892,
+        "nll_difference": -0.9626134269082531
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12330.0,
+        "target": 1,
+        "nll_before": 2.253048761280448,
+        "nll_after": 1.327221842024384,
+        "nll_difference": -0.9258269192560642
+      },
+      {
+        "participant_id": "9618981",
+        "time": 3750.0,
+        "target": 0,
+        "nll_before": 2.2158498763753935,
+        "nll_after": 3.1402675879744884,
+        "nll_difference": 0.9244177115990948
+      },
+      {
+        "participant_id": "5132496",
+        "time": 3600.0,
+        "target": 2,
+        "nll_before": 1.5220215455398238,
+        "nll_after": 2.4316770550853493,
+        "nll_difference": 0.9096555095455254
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5070.0,
+        "target": 2,
+        "nll_before": 3.5687396089752053,
+        "nll_after": 4.452276299570785,
+        "nll_difference": 0.8835366905955802
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5310.0,
+        "target": 2,
+        "nll_before": 4.491886689872563,
+        "nll_after": 5.347441203821504,
+        "nll_difference": 0.8555545139489409
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4950.0,
+        "target": 2,
+        "nll_before": 3.786589624140556,
+        "nll_after": 4.62981793218862,
+        "nll_difference": 0.8432283080480638
+      },
+      {
+        "participant_id": "5132496",
+        "time": 3390.0,
+        "target": 2,
+        "nll_before": 1.3404483868532233,
+        "nll_after": 2.1823923259989817,
+        "nll_difference": 0.8419439391457584
+      },
+      {
+        "participant_id": "5132496",
+        "time": 12300.0,
+        "target": 1,
+        "nll_before": 1.9412118552603794,
+        "nll_after": 1.1537207539096195,
+        "nll_difference": -0.78749110135076
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5340.0,
+        "target": 2,
+        "nll_before": 4.029137992833723,
+        "nll_after": 4.8123485600918565,
+        "nll_difference": 0.7832105672581333
+      },
+      {
+        "participant_id": "5132496",
+        "time": 4710.0,
+        "target": 1,
+        "nll_before": 1.2529067750405543,
+        "nll_after": 0.47294938141059895,
+        "nll_difference": -0.7799573936299553
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 16,
+    "after_epoch": 17,
+    "count": 4587,
+    "nll_difference": 0.01147537473369869,
+    "participants": [
+      {
+        "participant_id": "1066528",
+        "count": 754,
+        "mean_nll_before": 1.4836910305247732,
+        "mean_nll_after": 1.47577734848321,
+        "contribution_delta": -0.0013008319728229187
+      },
+      {
+        "participant_id": "4018081",
+        "count": 490,
+        "mean_nll_before": 1.1597422525289576,
+        "mean_nll_after": 1.2126509655236755,
+        "contribution_delta": 0.005651900886725912
+      },
+      {
+        "participant_id": "4314139",
+        "count": 961,
+        "mean_nll_before": 0.6780017540192302,
+        "mean_nll_after": 0.6635349745164498,
+        "contribution_delta": -0.003030864421663858
+      },
+      {
+        "participant_id": "5132496",
+        "count": 464,
+        "mean_nll_before": 0.7985114473724501,
+        "mean_nll_after": 0.8074427030575384,
+        "contribution_delta": 0.000903445092191199
+      },
+      {
+        "participant_id": "781756",
+        "count": 974,
+        "mean_nll_before": 0.852905529872491,
+        "mean_nll_after": 0.9009533721216759,
+        "contribution_delta": 0.010202441323458893
+      },
+      {
+        "participant_id": "9618981",
+        "count": 944,
+        "mean_nll_before": 0.9119403314909897,
+        "mean_nll_after": 0.9073206968606805,
+        "contribution_delta": -0.0009507161741905335
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 517,
+        "mean_nll_before": 1.7932554225057635,
+        "mean_nll_after": 1.753080394284585,
+        "contribution_delta": -0.004528120686799542
+      },
+      {
+        "target": 1,
+        "count": 2570,
+        "mean_nll_before": 0.5215870279746257,
+        "mean_nll_after": 0.46885744379336836,
+        "contribution_delta": -0.029543281304955628
+      },
+      {
+        "target": 2,
+        "count": 616,
+        "mean_nll_before": 1.4587734313716978,
+        "mean_nll_after": 1.608749433369346,
+        "contribution_delta": 0.020140662138772875
+      },
+      {
+        "target": 3,
+        "count": 884,
+        "mean_nll_before": 1.3964380632536564,
+        "mean_nll_after": 1.528268207607848,
+        "contribution_delta": 0.025406114586680986
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "5132496",
+        "time": 5430.0,
+        "target": 2,
+        "nll_before": 4.158201319467977,
+        "nll_after": 2.76188872563536,
+        "nll_difference": -1.3963125938326173
+      },
+      {
+        "participant_id": "5132496",
+        "time": 5130.0,
+        "target": 2,
+        "nll_before": 3.772878921272842,
+        "nll_after": 2.908040477827742,
+        "nll_difference": -0.8648384434451
+      },
+      {
+        "participant_id": "781756",
+        "time": 3330.0,
+        "target": 0,
+        "nll_before": 2.331824579320231,
+        "nll_after": 1.4857608510008438,
+        "nll_difference": -0.8460637283193873
+      },
+      {
+        "participant_id": "1066528",
+        "time": 3030.0,
+        "target": 2,
+        "nll_before": 2.21770876949277,
+        "nll_after": 3.0614618482068723,
+        "nll_difference": 0.8437530787141023
+      },
+      {
+        "participant_id": "1066528",
+        "time": 3210.0,
+        "target": 2,
+        "nll_before": 2.249322564789282,
+        "nll_after": 3.088593044852535,
+        "nll_difference": 0.8392704800632531
+      },
+      {
+        "participant_id": "1066528",
+        "time": 3240.0,
+        "target": 2,
+        "nll_before": 1.5617899314344303,
+        "nll_after": 2.38681602182471,
+        "nll_difference": 0.8250260903902797
+      },
+      {
+        "participant_id": "9618981",
+        "time": 15180.0,
+        "target": 2,
+        "nll_before": 1.8513191600668824,
+        "nll_after": 2.671823346626487,
+        "nll_difference": 0.8205041865596046
+      },
+      {
+        "participant_id": "1066528",
+        "time": 3060.0,
+        "target": 2,
+        "nll_before": 1.187310110214096,
+        "nll_after": 2.0010850305562657,
+        "nll_difference": 0.8137749203421698
+      },
+      {
+        "participant_id": "1066528",
+        "time": 2700.0,
+        "target": 2,
+        "nll_before": 1.5528521543813005,
+        "nll_after": 2.3057456864164054,
+        "nll_difference": 0.7528935320351049
+      },
+      {
+        "participant_id": "781756",
+        "time": 9900.0,
+        "target": 3,
+        "nll_before": 3.639408924390121,
+        "nll_after": 4.371499421159387,
+        "nll_difference": 0.7320904967692665
+      },
+      {
+        "participant_id": "1066528",
+        "time": 8850.0,
+        "target": 2,
+        "nll_before": 1.881710779041078,
+        "nll_after": 2.613024272895644,
+        "nll_difference": 0.731313493854566
+      },
+      {
+        "participant_id": "1066528",
+        "time": 9270.0,
+        "target": 2,
+        "nll_before": 1.7425168549066998,
+        "nll_after": 2.4581092093571204,
+        "nll_difference": 0.7155923544504206
+      },
+      {
+        "participant_id": "1066528",
+        "time": 2910.0,
+        "target": 2,
+        "nll_before": 1.171544223972262,
+        "nll_after": 1.8784676670973346,
+        "nll_difference": 0.7069234431250726
+      },
+      {
+        "participant_id": "1066528",
+        "time": 9330.0,
+        "target": 2,
+        "nll_before": 1.9480444384716165,
+        "nll_after": 2.637321644515368,
+        "nll_difference": 0.6892772060437518
+      },
+      {
+        "participant_id": "781756",
+        "time": 11790.0,
+        "target": 3,
+        "nll_before": 2.5198076519857815,
+        "nll_after": 3.2065193475251035,
+        "nll_difference": 0.686711695539322
+      },
+      {
+        "participant_id": "1066528",
+        "time": 9420.0,
+        "target": 2,
+        "nll_before": 1.3941335136328465,
+        "nll_after": 2.0792688223361213,
+        "nll_difference": 0.6851353087032748
+      },
+      {
+        "participant_id": "1066528",
+        "time": 2820.0,
+        "target": 2,
+        "nll_before": 1.5688972198732978,
+        "nll_after": 2.249348278541952,
+        "nll_difference": 0.6804510586686543
+      },
+      {
+        "participant_id": "781756",
+        "time": 10050.0,
+        "target": 3,
+        "nll_before": 3.452621396010637,
+        "nll_after": 4.129237856960507,
+        "nll_difference": 0.6766164609498699
+      },
+      {
+        "participant_id": "9618981",
+        "time": 3300.0,
+        "target": 2,
+        "nll_before": 3.166353431831335,
+        "nll_after": 3.834655602105724,
+        "nll_difference": 0.668302170274389
+      },
+      {
+        "participant_id": "4314139",
+        "time": 6840.0,
+        "target": 3,
+        "nll_before": 2.2474989993761696,
+        "nll_after": 1.5836848356916917,
+        "nll_difference": -0.6638141636844779
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 13,
+    "after_epoch": 14,
+    "count": 4427,
+    "nll_difference": -0.012231203845815582,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.822713039355653,
+        "mean_nll_after": 0.7939186136104173,
+        "contribution_delta": -0.0062050784190094705
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 0.9521344182161245,
+        "mean_nll_after": 0.986958914087654,
+        "contribution_delta": 0.007622529139261816
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.874993466247878,
+        "mean_nll_after": 0.8650670206165624,
+        "contribution_delta": -0.0019462739570774927
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.8557945189607791,
+        "mean_nll_after": 0.8077847105042277,
+        "contribution_delta": -0.010150707186657336
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9171284455956418,
+        "mean_nll_after": 0.9073152195375438,
+        "contribution_delta": -0.0015516734223331007
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.2868714362771039,
+        "mean_nll_after": 1.2434070094735072,
+        "contribution_delta": -0.003613035704477881
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5722269704225619,
+        "mean_nll_after": 0.5789558898730712,
+        "contribution_delta": 0.0035567362805945415
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.3254001458505218,
+        "mean_nll_after": 1.4430277199160788,
+        "contribution_delta": 0.015224892690211028
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.1675046407094212,
+        "mean_nll_after": 1.0616591766470664,
+        "contribution_delta": -0.02739979711214327
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "8258170",
+        "time": 4740.0,
+        "target": 2,
+        "nll_before": 2.267774065279339,
+        "nll_after": 2.9763151972510697,
+        "nll_difference": 0.7085411319717307
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26550.0,
+        "target": 2,
+        "nll_before": 4.464678836760103,
+        "nll_after": 3.7945320354417578,
+        "nll_difference": -0.6701468013183454
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4710.0,
+        "target": 2,
+        "nll_before": 3.300078265829364,
+        "nll_after": 3.94736065620454,
+        "nll_difference": 0.6472823903751759
+      },
+      {
+        "participant_id": "8530312",
+        "time": 1080.0,
+        "target": 0,
+        "nll_before": 1.4489820519522896,
+        "nll_after": 0.8081396465674172,
+        "nll_difference": -0.6408424053848724
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1920.0,
+        "target": 0,
+        "nll_before": 2.2523197693022667,
+        "nll_after": 1.6262713672580411,
+        "nll_difference": -0.6260484020442256
+      },
+      {
+        "participant_id": "8258170",
+        "time": 11100.0,
+        "target": 2,
+        "nll_before": 3.100942176305794,
+        "nll_after": 3.72383998859997,
+        "nll_difference": 0.622897812294176
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8280.0,
+        "target": 3,
+        "nll_before": 1.5129814123080243,
+        "nll_after": 0.9381158141477208,
+        "nll_difference": -0.5748655981603035
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4800.0,
+        "target": 2,
+        "nll_before": 1.8442522073572474,
+        "nll_after": 2.4075766676745296,
+        "nll_difference": 0.5633244603172822
+      },
+      {
+        "participant_id": "8173033",
+        "time": 11130.0,
+        "target": 2,
+        "nll_before": 1.441221676315689,
+        "nll_after": 2.0036932674012076,
+        "nll_difference": 0.5624715910855185
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14100.0,
+        "target": 3,
+        "nll_before": 2.848281277796792,
+        "nll_after": 2.3160675306524827,
+        "nll_difference": -0.5322137471443091
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14940.0,
+        "target": 3,
+        "nll_before": 2.4944275078653497,
+        "nll_after": 1.9678261430637527,
+        "nll_difference": -0.526601364801597
+      },
+      {
+        "participant_id": "8692923",
+        "time": 9930.0,
+        "target": 3,
+        "nll_before": 1.9510262357973598,
+        "nll_after": 1.4268451515491423,
+        "nll_difference": -0.5241810842482175
+      },
+      {
+        "participant_id": "8258170",
+        "time": 11160.0,
+        "target": 2,
+        "nll_before": 3.8685572280904914,
+        "nll_after": 4.3900627583111085,
+        "nll_difference": 0.5215055302206171
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10860.0,
+        "target": 2,
+        "nll_before": 2.1631211353075903,
+        "nll_after": 2.6813564123834777,
+        "nll_difference": 0.5182352770758873
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4920.0,
+        "target": 2,
+        "nll_before": 4.118808361997022,
+        "nll_after": 4.631308064412058,
+        "nll_difference": 0.5124997024150355
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4950.0,
+        "target": 2,
+        "nll_before": 3.9314435058606354,
+        "nll_after": 4.443294876151598,
+        "nll_difference": 0.5118513702909628
+      },
+      {
+        "participant_id": "8173033",
+        "time": 28260.0,
+        "target": 3,
+        "nll_before": 2.200352823090866,
+        "nll_after": 1.6890399135661225,
+        "nll_difference": -0.5113129095247437
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1980.0,
+        "target": 0,
+        "nll_before": 2.273549775624563,
+        "nll_after": 1.7641863422115183,
+        "nll_difference": -0.5093634334130446
+      },
+      {
+        "participant_id": "9961348",
+        "time": 12750.0,
+        "target": 3,
+        "nll_before": 1.7040752629899938,
+        "nll_after": 1.2082507867805492,
+        "nll_difference": -0.4958244762094446
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14820.0,
+        "target": 3,
+        "nll_before": 2.649133560108742,
+        "nll_after": 2.156130081285922,
+        "nll_difference": -0.4930034788228199
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 14,
+    "after_epoch": 15,
+    "count": 4427,
+    "nll_difference": -0.004201488238396231,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.7939186136104173,
+        "mean_nll_after": 0.7865978149795275,
+        "contribution_delta": -0.0015776015120552908
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 0.986958914087654,
+        "mean_nll_after": 0.9682105224555367,
+        "contribution_delta": -0.004103725207029963
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.8650670206165624,
+        "mean_nll_after": 0.8795419507120366,
+        "contribution_delta": 0.002838093364100203
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.8077847105042277,
+        "mean_nll_after": 0.7960287378934732,
+        "contribution_delta": -0.0024855636692266434
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9073152195375438,
+        "mean_nll_after": 0.9144446423872653,
+        "contribution_delta": 0.0011273087858154637
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.2434070094735072,
+        "mean_nll_after": 1.1968087187579293,
+        "contribution_delta": -0.003873542124086887
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5789558898730712,
+        "mean_nll_after": 0.5423815148284924,
+        "contribution_delta": -0.019332287690154625
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.4430277199160788,
+        "mean_nll_after": 1.4982944515433345,
+        "contribution_delta": 0.007153340235468157
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.0616591766470664,
+        "mean_nll_after": 1.107439615507319,
+        "contribution_delta": 0.011851001340377122
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "9961348",
+        "time": 14100.0,
+        "target": 3,
+        "nll_before": 2.3160675306524827,
+        "nll_after": 3.1731901958875035,
+        "nll_difference": 0.8571226652350208
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26610.0,
+        "target": 1,
+        "nll_before": 0.8676469958155282,
+        "nll_after": 1.6353867719932127,
+        "nll_difference": 0.7677397761776845
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14970.0,
+        "target": 3,
+        "nll_before": 1.6524924404162245,
+        "nll_after": 2.222771146601188,
+        "nll_difference": 0.5702787061849635
+      },
+      {
+        "participant_id": "8530312",
+        "time": 22050.0,
+        "target": 3,
+        "nll_before": 2.227869722204605,
+        "nll_after": 2.788001502711387,
+        "nll_difference": 0.560131780506782
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8010.0,
+        "target": 3,
+        "nll_before": 2.4336430762081096,
+        "nll_after": 2.980967457880524,
+        "nll_difference": 0.5473243816724143
+      },
+      {
+        "participant_id": "9961348",
+        "time": 15300.0,
+        "target": 3,
+        "nll_before": 1.855236065851194,
+        "nll_after": 2.3945931053083442,
+        "nll_difference": 0.5393570394571503
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14160.0,
+        "target": 3,
+        "nll_before": 2.21749771367087,
+        "nll_after": 2.7411417434463274,
+        "nll_difference": 0.5236440297754577
+      },
+      {
+        "participant_id": "8692923",
+        "time": 6210.0,
+        "target": 3,
+        "nll_before": 2.207369613198361,
+        "nll_after": 2.721074241597559,
+        "nll_difference": 0.5137046283991982
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1890.0,
+        "target": 0,
+        "nll_before": 2.980746066299943,
+        "nll_after": 2.471923985378096,
+        "nll_difference": -0.5088220809218473
+      },
+      {
+        "participant_id": "8258170",
+        "time": 13530.0,
+        "target": 3,
+        "nll_before": 1.5335010656435752,
+        "nll_after": 2.041026196005097,
+        "nll_difference": 0.5075251303615218
+      },
+      {
+        "participant_id": "8258170",
+        "time": 2340.0,
+        "target": 0,
+        "nll_before": 2.9896855806796716,
+        "nll_after": 2.4868971895597625,
+        "nll_difference": -0.5027883911199091
+      },
+      {
+        "participant_id": "9961348",
+        "time": 15390.0,
+        "target": 3,
+        "nll_before": 0.7460480299844356,
+        "nll_after": 1.2458627075761024,
+        "nll_difference": 0.49981467759166676
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14460.0,
+        "target": 3,
+        "nll_before": 1.8416505409164017,
+        "nll_after": 2.315280272492803,
+        "nll_difference": 0.4736297315764013
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14310.0,
+        "target": 3,
+        "nll_before": 2.0162035675180423,
+        "nll_after": 2.489086895324073,
+        "nll_difference": 0.4728833278060307
+      },
+      {
+        "participant_id": "9961348",
+        "time": 21150.0,
+        "target": 3,
+        "nll_before": 1.5753111401698736,
+        "nll_after": 2.0413640936755733,
+        "nll_difference": 0.46605295350569964
+      },
+      {
+        "participant_id": "8258170",
+        "time": 26880.0,
+        "target": 3,
+        "nll_before": 1.3499701909674116,
+        "nll_after": 1.8148310012623872,
+        "nll_difference": 0.4648608102949756
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14820.0,
+        "target": 3,
+        "nll_before": 2.156130081285922,
+        "nll_after": 2.61643359002801,
+        "nll_difference": 0.4603035087420877
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1950.0,
+        "target": 0,
+        "nll_before": 3.099712199716662,
+        "nll_after": 2.654109958335081,
+        "nll_difference": -0.445602241381581
+      },
+      {
+        "participant_id": "8530312",
+        "time": 21870.0,
+        "target": 3,
+        "nll_before": 2.7283551572042266,
+        "nll_after": 3.1711493666086352,
+        "nll_difference": 0.4427942094044086
+      },
+      {
+        "participant_id": "9961348",
+        "time": 14370.0,
+        "target": 3,
+        "nll_before": 1.633082115006707,
+        "nll_after": 2.074530040794114,
+        "nll_difference": 0.4414479257874071
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 15,
+    "after_epoch": 16,
+    "count": 4427,
+    "nll_difference": 0.024111728344911234,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.7865978149795275,
+        "mean_nll_after": 0.8210975110394613,
+        "contribution_delta": 0.007434540330060283
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 0.9682105224555367,
+        "mean_nll_after": 0.9888115962437164,
+        "contribution_delta": 0.004509247910717423
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.8795419507120366,
+        "mean_nll_after": 0.8934060492791432,
+        "contribution_delta": 0.0027183278871128875
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.7960287378934732,
+        "mean_nll_after": 0.8242927097831249,
+        "contribution_delta": 0.005975847682112929
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9144446423872653,
+        "mean_nll_after": 0.9364137218101746,
+        "contribution_delta": 0.0034737645349077143
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.1968087187579293,
+        "mean_nll_after": 1.2906866015987857,
+        "contribution_delta": 0.007803718293524983
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5423815148284924,
+        "mean_nll_after": 0.5580432378413713,
+        "contribution_delta": 0.00827838984642805
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.4982944515433345,
+        "mean_nll_after": 1.4051319824180954,
+        "contribution_delta": -0.012058300160099875
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.107439615507319,
+        "mean_nll_after": 1.185039286934991,
+        "contribution_delta": 0.02008792036505808
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "8258170",
+        "time": 1860.0,
+        "target": 0,
+        "nll_before": 0.6657133978651051,
+        "nll_after": 2.214831327703023,
+        "nll_difference": 1.549117929837918
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26610.0,
+        "target": 1,
+        "nll_before": 1.6353867719932127,
+        "nll_after": 0.4067417302626671,
+        "nll_difference": -1.2286450417305457
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1920.0,
+        "target": 0,
+        "nll_before": 1.5856991468958963,
+        "nll_after": 2.7699243708780936,
+        "nll_difference": 1.1842252239821973
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8520.0,
+        "target": 3,
+        "nll_before": 2.7816339812171735,
+        "nll_after": 3.947131440833025,
+        "nll_difference": 1.1654974596158514
+      },
+      {
+        "participant_id": "9961348",
+        "time": 4440.0,
+        "target": 0,
+        "nll_before": 0.32764807363918297,
+        "nll_after": 1.4697932892475116,
+        "nll_difference": 1.1421452156083287
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8340.0,
+        "target": 3,
+        "nll_before": 3.1244924070927635,
+        "nll_after": 4.2146216571398964,
+        "nll_difference": 1.090129250047133
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8550.0,
+        "target": 3,
+        "nll_before": 2.617104707270569,
+        "nll_after": 3.672783211127497,
+        "nll_difference": 1.055678503856928
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8160.0,
+        "target": 3,
+        "nll_before": 4.0315323970643995,
+        "nll_after": 5.054821694704914,
+        "nll_difference": 1.0232892976405141
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1980.0,
+        "target": 0,
+        "nll_before": 1.6015322011786046,
+        "nll_after": 2.616322035838407,
+        "nll_difference": 1.0147898346598025
+      },
+      {
+        "participant_id": "8258170",
+        "time": 2010.0,
+        "target": 0,
+        "nll_before": 2.0616500981744688,
+        "nll_after": 3.0736689134797235,
+        "nll_difference": 1.0120188153052547
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8250.0,
+        "target": 3,
+        "nll_before": 3.7856107536948924,
+        "nll_after": 4.761384202984017,
+        "nll_difference": 0.9757734492891244
+      },
+      {
+        "participant_id": "8258170",
+        "time": 2340.0,
+        "target": 0,
+        "nll_before": 2.4868971895597625,
+        "nll_after": 3.4556642549365417,
+        "nll_difference": 0.9687670653767793
+      },
+      {
+        "participant_id": "9961348",
+        "time": 7830.0,
+        "target": 3,
+        "nll_before": 3.3400072436519874,
+        "nll_after": 4.308163178956681,
+        "nll_difference": 0.9681559353046936
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8190.0,
+        "target": 3,
+        "nll_before": 3.4038043673867886,
+        "nll_after": 4.3697981767931555,
+        "nll_difference": 0.9659938094063669
+      },
+      {
+        "participant_id": "8258170",
+        "time": 2130.0,
+        "target": 0,
+        "nll_before": 2.358462843148942,
+        "nll_after": 3.310308829580956,
+        "nll_difference": 0.9518459864320139
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1890.0,
+        "target": 0,
+        "nll_before": 2.471923985378096,
+        "nll_after": 3.3889915193173987,
+        "nll_difference": 0.9170675339393028
+      },
+      {
+        "participant_id": "9961348",
+        "time": 12750.0,
+        "target": 3,
+        "nll_before": 1.0263191121382083,
+        "nll_after": 1.9419005174991968,
+        "nll_difference": 0.9155814053609885
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8400.0,
+        "target": 3,
+        "nll_before": 4.146238370158373,
+        "nll_after": 5.047999143979598,
+        "nll_difference": 0.9017607738212252
+      },
+      {
+        "participant_id": "8258170",
+        "time": 2370.0,
+        "target": 0,
+        "nll_before": 2.490153080031491,
+        "nll_after": 3.388874719882319,
+        "nll_difference": 0.898721639850828
+      },
+      {
+        "participant_id": "9961348",
+        "time": 870.0,
+        "target": 1,
+        "nll_before": 1.224147839252213,
+        "nll_after": 0.32950729566538484,
+        "nll_difference": -0.8946405435868281
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 15,
+    "after_epoch": 40,
+    "count": 4427,
+    "nll_difference": 0.10149415948277807,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.7865978149795275,
+        "mean_nll_after": 0.8636845283247582,
+        "contribution_delta": 0.016611864588061916
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 0.9682105224555367,
+        "mean_nll_after": 1.1907568764085763,
+        "contribution_delta": 0.048711862882424996
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.8795419507120366,
+        "mean_nll_after": 0.9116001172709705,
+        "contribution_delta": 0.006285631030755527
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.7960287378934732,
+        "mean_nll_after": 0.8777893378999073,
+        "contribution_delta": 0.017286632393499524
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9144446423872653,
+        "mean_nll_after": 0.9941190600147453,
+        "contribution_delta": 0.012598168588036121
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.1968087187579293,
+        "mean_nll_after": 1.3882047836146199,
+        "contribution_delta": 0.01591004108137837
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5423815148284924,
+        "mean_nll_after": 0.6465036676867997,
+        "contribution_delta": 0.05503633107938537
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.4982944515433345,
+        "mean_nll_after": 1.7332169835318705,
+        "contribution_delta": 0.03040673386705017
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.107439615507319,
+        "mean_nll_after": 1.1079845052500124,
+        "contribution_delta": 0.00014105345496415305
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "8258170",
+        "time": 11160.0,
+        "target": 2,
+        "nll_before": 3.9582447808373,
+        "nll_after": 7.756288565300909,
+        "nll_difference": 3.798043784463609
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4770.0,
+        "target": 2,
+        "nll_before": 2.5565913487906657,
+        "nll_after": 6.2378303862718445,
+        "nll_difference": 3.6812390374811788
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4950.0,
+        "target": 2,
+        "nll_before": 4.662896166841399,
+        "nll_after": 8.166967917848494,
+        "nll_difference": 3.5040717510070944
+      },
+      {
+        "participant_id": "8530312",
+        "time": 20370.0,
+        "target": 2,
+        "nll_before": 3.5050336376568962,
+        "nll_after": 6.887871424920415,
+        "nll_difference": 3.3828377872635187
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4890.0,
+        "target": 2,
+        "nll_before": 4.522027210363321,
+        "nll_after": 7.870254685774232,
+        "nll_difference": 3.348227475410911
+      },
+      {
+        "participant_id": "8173033",
+        "time": 21330.0,
+        "target": 3,
+        "nll_before": 2.000183355389077,
+        "nll_after": 5.161328937215529,
+        "nll_difference": 3.1611455818264522
+      },
+      {
+        "participant_id": "8173033",
+        "time": 21360.0,
+        "target": 3,
+        "nll_before": 1.9782003117827616,
+        "nll_after": 5.121742008192947,
+        "nll_difference": 3.1435416964101854
+      },
+      {
+        "participant_id": "8258170",
+        "time": 6360.0,
+        "target": 2,
+        "nll_before": 1.2473583306933806,
+        "nll_after": 4.369469311300702,
+        "nll_difference": 3.1221109806073217
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4860.0,
+        "target": 2,
+        "nll_before": 4.253114679109445,
+        "nll_after": 7.30225262435121,
+        "nll_difference": 3.049137945241765
+      },
+      {
+        "participant_id": "8692923",
+        "time": 16290.0,
+        "target": 3,
+        "nll_before": 1.6635865900803113,
+        "nll_after": 4.672445879038143,
+        "nll_difference": 3.008859288957832
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4800.0,
+        "target": 2,
+        "nll_before": 2.5653898284714125,
+        "nll_after": 5.573418718712558,
+        "nll_difference": 3.0080288902411456
+      },
+      {
+        "participant_id": "8173033",
+        "time": 21390.0,
+        "target": 3,
+        "nll_before": 2.204486670427494,
+        "nll_after": 5.188415696103793,
+        "nll_difference": 2.983929025676299
+      },
+      {
+        "participant_id": "8173033",
+        "time": 21270.0,
+        "target": 3,
+        "nll_before": 3.2557843773395323,
+        "nll_after": 6.222355740302574,
+        "nll_difference": 2.966571362963042
+      },
+      {
+        "participant_id": "8258170",
+        "time": 6300.0,
+        "target": 2,
+        "nll_before": 1.0046070608035702,
+        "nll_after": 3.964754543531224,
+        "nll_difference": 2.960147482727654
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8310.0,
+        "target": 3,
+        "nll_before": 0.5567688498444388,
+        "nll_after": 3.496444160898104,
+        "nll_difference": 2.9396753110536653
+      },
+      {
+        "participant_id": "8692923",
+        "time": 16500.0,
+        "target": 3,
+        "nll_before": 1.8786033061782332,
+        "nll_after": 4.793257034258388,
+        "nll_difference": 2.9146537280801548
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4830.0,
+        "target": 2,
+        "nll_before": 4.858183007676341,
+        "nll_after": 7.728800845958024,
+        "nll_difference": 2.8706178382816834
+      },
+      {
+        "participant_id": "8692923",
+        "time": 16260.0,
+        "target": 3,
+        "nll_before": 1.3959859197056896,
+        "nll_after": 4.262998928266293,
+        "nll_difference": 2.867013008560603
+      },
+      {
+        "participant_id": "8173033",
+        "time": 13200.0,
+        "target": 3,
+        "nll_before": 3.054119953966063,
+        "nll_after": 5.907110648292067,
+        "nll_difference": 2.8529906943260035
+      },
+      {
+        "participant_id": "8258170",
+        "time": 6420.0,
+        "target": 2,
+        "nll_before": 1.5612533047324855,
+        "nll_after": 4.393243634468004,
+        "nll_difference": 2.831990329735519
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 16,
+    "after_epoch": 17,
+    "count": 4427,
+    "nll_difference": 0.031896170803743684,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.8210975110394613,
+        "mean_nll_after": 0.889390056638243,
+        "contribution_delta": 0.014716758188669014
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 0.9888115962437164,
+        "mean_nll_after": 0.974458653850161,
+        "contribution_delta": -0.0031416311676881014
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.8934060492791432,
+        "mean_nll_after": 0.8883455279067156,
+        "contribution_delta": -0.0009922142650253597
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.8242927097831249,
+        "mean_nll_after": 0.8707423827968791,
+        "contribution_delta": 0.0098208479649591
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9364137218101746,
+        "mean_nll_after": 1.0090950067197233,
+        "contribution_delta": 0.01149241008282903
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.2906866015987857,
+        "mean_nll_after": 1.1924175836255788,
+        "contribution_delta": -0.008168736980831273
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5580432378413713,
+        "mean_nll_after": 0.5960600009111762,
+        "contribution_delta": 0.020094697443718803
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.4051319824180954,
+        "mean_nll_after": 1.4370230986498422,
+        "contribution_delta": 0.004127763632435282
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.185039286934991,
+        "mean_nll_after": 1.24623868621787,
+        "contribution_delta": 0.015842446708420877
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "9961348",
+        "time": 8280.0,
+        "target": 3,
+        "nll_before": 1.8973664407233428,
+        "nll_after": 3.251861499792017,
+        "nll_difference": 1.3544950590686742
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10380.0,
+        "target": 1,
+        "nll_before": 0.641178436086999,
+        "nll_after": 1.9647238581913344,
+        "nll_difference": 1.3235454221043355
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10410.0,
+        "target": 1,
+        "nll_before": 0.35722756354229596,
+        "nll_after": 1.655164219863328,
+        "nll_difference": 1.2979366563210322
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1860.0,
+        "target": 0,
+        "nll_before": 2.214831327703023,
+        "nll_after": 1.071341011891435,
+        "nll_difference": -1.143490315811588
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26610.0,
+        "target": 1,
+        "nll_before": 0.4067417302626671,
+        "nll_after": 1.525188723075048,
+        "nll_difference": 1.118446992812381
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1920.0,
+        "target": 0,
+        "nll_before": 2.7699243708780936,
+        "nll_after": 1.6575451772733065,
+        "nll_difference": -1.112379193604787
+      },
+      {
+        "participant_id": "9961348",
+        "time": 4440.0,
+        "target": 0,
+        "nll_before": 1.4697932892475116,
+        "nll_after": 0.41665278357472507,
+        "nll_difference": -1.0531405056727865
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10470.0,
+        "target": 1,
+        "nll_before": 0.2742079555552189,
+        "nll_after": 1.3016451023904256,
+        "nll_difference": 1.0274371468352068
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8070.0,
+        "target": 3,
+        "nll_before": 2.7804623576687986,
+        "nll_after": 3.8014637995253038,
+        "nll_difference": 1.0210014418565052
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8310.0,
+        "target": 3,
+        "nll_before": 0.8740222732683546,
+        "nll_after": 1.823690859006828,
+        "nll_difference": 0.9496685857384733
+      },
+      {
+        "participant_id": "8258170",
+        "time": 1980.0,
+        "target": 0,
+        "nll_before": 2.616322035838407,
+        "nll_after": 1.6765888574925638,
+        "nll_difference": -0.9397331783458434
+      },
+      {
+        "participant_id": "8173033",
+        "time": 11130.0,
+        "target": 2,
+        "nll_before": 2.8230403267196826,
+        "nll_after": 3.7529997970396014,
+        "nll_difference": 0.9299594703199188
+      },
+      {
+        "participant_id": "9961348",
+        "time": 8100.0,
+        "target": 3,
+        "nll_before": 2.1484945688351056,
+        "nll_after": 3.069396532562927,
+        "nll_difference": 0.9209019637278213
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10830.0,
+        "target": 2,
+        "nll_before": 2.7335170684870205,
+        "nll_after": 3.605270401836226,
+        "nll_difference": 0.8717533333492056
+      },
+      {
+        "participant_id": "9961348",
+        "time": 12630.0,
+        "target": 2,
+        "nll_before": 4.939128689153624,
+        "nll_after": 5.79005904266112,
+        "nll_difference": 0.8509303535074961
+      },
+      {
+        "participant_id": "8173033",
+        "time": 10860.0,
+        "target": 2,
+        "nll_before": 3.104908425429626,
+        "nll_after": 3.9554964278891718,
+        "nll_difference": 0.8505880024595456
+      },
+      {
+        "participant_id": "8173033",
+        "time": 22110.0,
+        "target": 3,
+        "nll_before": 1.3999913055304218,
+        "nll_after": 2.2487616185459265,
+        "nll_difference": 0.8487703130155047
+      },
+      {
+        "participant_id": "8692923",
+        "time": 16440.0,
+        "target": 3,
+        "nll_before": 1.9216498304386442,
+        "nll_after": 2.7421875046032604,
+        "nll_difference": 0.8205376741646162
+      },
+      {
+        "participant_id": "8692923",
+        "time": 16050.0,
+        "target": 3,
+        "nll_before": 1.9093947521607213,
+        "nll_after": 2.720726139072587,
+        "nll_difference": 0.8113313869118659
+      },
+      {
+        "participant_id": "8173033",
+        "time": 22170.0,
+        "target": 3,
+        "nll_before": 1.0723902803332506,
+        "nll_after": 1.8831175686593118,
+        "nll_difference": 0.8107272883260612
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 24,
+    "after_epoch": 25,
+    "count": 4427,
+    "nll_difference": 0.05062669026734266,
+    "participants": [
+      {
+        "participant_id": "8173033",
+        "count": 954,
+        "mean_nll_before": 0.8135866717090916,
+        "mean_nll_after": 0.8222780593190746,
+        "contribution_delta": 0.001872957709492608
+      },
+      {
+        "participant_id": "8258170",
+        "count": 969,
+        "mean_nll_before": 1.034244526225298,
+        "mean_nll_after": 1.1721828666837681,
+        "contribution_delta": 0.030192512289193042
+      },
+      {
+        "participant_id": "8530312",
+        "count": 868,
+        "mean_nll_before": 0.9180772868390158,
+        "mean_nll_after": 0.9575537848613258,
+        "contribution_delta": 0.007740140113703431
+      },
+      {
+        "participant_id": "8692923",
+        "count": 936,
+        "mean_nll_before": 0.8024457246554533,
+        "mean_nll_after": 0.795340681058915,
+        "contribution_delta": -0.0015022183886062375
+      },
+      {
+        "participant_id": "9961348",
+        "count": 700,
+        "mean_nll_before": 0.9386302286157203,
+        "mean_nll_after": 1.0165662895476335,
+        "contribution_delta": 0.012323298543559808
+      }
+    ],
+    "classes": [
+      {
+        "target": 0,
+        "count": 368,
+        "mean_nll_before": 1.2256860123914908,
+        "mean_nll_after": 1.1219433940551247,
+        "contribution_delta": -0.008623736965842057
+      },
+      {
+        "target": 1,
+        "count": 2340,
+        "mean_nll_before": 0.5804714196119892,
+        "mean_nll_after": 0.6263422300508603,
+        "contribution_delta": 0.024246147826283718
+      },
+      {
+        "target": 2,
+        "count": 573,
+        "mean_nll_before": 1.5699516508098819,
+        "mean_nll_after": 1.7590866284055748,
+        "contribution_delta": 0.02448031221195661
+      },
+      {
+        "target": 3,
+        "count": 1146,
+        "mean_nll_before": 1.112066495324062,
+        "mean_nll_after": 1.152720598964567,
+        "contribution_delta": 0.010523967194944387
+      }
+    ],
+    "largest_targets": [
+      {
+        "participant_id": "9961348",
+        "time": 930.0,
+        "target": 1,
+        "nll_before": 0.2805312221299479,
+        "nll_after": 2.3914678605102235,
+        "nll_difference": 2.1109366383802755
+      },
+      {
+        "participant_id": "9961348",
+        "time": 1020.0,
+        "target": 1,
+        "nll_before": 0.1140049736613295,
+        "nll_after": 2.1895137875855153,
+        "nll_difference": 2.075508813924186
+      },
+      {
+        "participant_id": "9961348",
+        "time": 1110.0,
+        "target": 1,
+        "nll_before": 0.11175326487012344,
+        "nll_after": 2.16745579811478,
+        "nll_difference": 2.0557025332446566
+      },
+      {
+        "participant_id": "9961348",
+        "time": 1230.0,
+        "target": 1,
+        "nll_before": 0.12000307402668259,
+        "nll_after": 2.029945045179496,
+        "nll_difference": 1.9099419711528132
+      },
+      {
+        "participant_id": "9961348",
+        "time": 1140.0,
+        "target": 1,
+        "nll_before": 0.15183555571144114,
+        "nll_after": 1.8123535868236464,
+        "nll_difference": 1.6605180311122054
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26550.0,
+        "target": 2,
+        "nll_before": 3.4384611459622345,
+        "nll_after": 5.083897253451658,
+        "nll_difference": 1.6454361074894237
+      },
+      {
+        "participant_id": "8173033",
+        "time": 26610.0,
+        "target": 1,
+        "nll_before": 0.5068737670182424,
+        "nll_after": 2.054233054589375,
+        "nll_difference": 1.5473592875711328
+      },
+      {
+        "participant_id": "9961348",
+        "time": 870.0,
+        "target": 1,
+        "nll_before": 0.3327750325081104,
+        "nll_after": 1.7687907065043167,
+        "nll_difference": 1.4360156739962062
+      },
+      {
+        "participant_id": "9961348",
+        "time": 960.0,
+        "target": 1,
+        "nll_before": 0.1388158801950384,
+        "nll_after": 1.4962771810425115,
+        "nll_difference": 1.3574613008474732
+      },
+      {
+        "participant_id": "8258170",
+        "time": 28350.0,
+        "target": 3,
+        "nll_before": 1.6508213329037054,
+        "nll_after": 2.9600382221080337,
+        "nll_difference": 1.3092168892043283
+      },
+      {
+        "participant_id": "8258170",
+        "time": 5820.0,
+        "target": 2,
+        "nll_before": 2.194250537728294,
+        "nll_after": 3.4157821838412428,
+        "nll_difference": 1.2215316461129486
+      },
+      {
+        "participant_id": "9961348",
+        "time": 4440.0,
+        "target": 0,
+        "nll_before": 2.177727131186991,
+        "nll_after": 0.9855102554835123,
+        "nll_difference": -1.1922168757034788
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4800.0,
+        "target": 2,
+        "nll_before": 3.680405761935488,
+        "nll_after": 4.854621532825703,
+        "nll_difference": 1.1742157708902154
+      },
+      {
+        "participant_id": "8258170",
+        "time": 5700.0,
+        "target": 2,
+        "nll_before": 2.043749833958036,
+        "nll_after": 3.1865043899070726,
+        "nll_difference": 1.1427545559490366
+      },
+      {
+        "participant_id": "8530312",
+        "time": 3780.0,
+        "target": 1,
+        "nll_before": 1.5141322761396103,
+        "nll_after": 2.629618898191016,
+        "nll_difference": 1.1154866220514057
+      },
+      {
+        "participant_id": "9961348",
+        "time": 900.0,
+        "target": 1,
+        "nll_before": 0.1999612479197182,
+        "nll_after": 1.3040765255303417,
+        "nll_difference": 1.1041152776106236
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4740.0,
+        "target": 2,
+        "nll_before": 4.264408545295219,
+        "nll_after": 5.326568389428706,
+        "nll_difference": 1.062159844133487
+      },
+      {
+        "participant_id": "8258170",
+        "time": 4770.0,
+        "target": 2,
+        "nll_before": 3.9444798961223344,
+        "nll_after": 5.003743166941835,
+        "nll_difference": 1.0592632708195002
+      },
+      {
+        "participant_id": "8530312",
+        "time": 3930.0,
+        "target": 1,
+        "nll_before": 2.224700166916851,
+        "nll_after": 3.273566597056881,
+        "nll_difference": 1.0488664301400301
+      },
+      {
+        "participant_id": "8258170",
+        "time": 5790.0,
+        "target": 2,
+        "nll_before": 2.4264029752818788,
+        "nll_after": 3.456962668934362,
+        "nll_difference": 1.0305596936524832
+      }
+    ]
+  }
+]

@@ -117,3 +117,25 @@ Read-only MPS replay reproduces selected fold-01 and fold-04 predictions exactly
 Scalar histories cannot identify the participants or confidence changes behind earlier loss spikes.
 Recommend a two-fold instrumented fixed-recipe repeat before another grid or larger model.
 See the [replication evidence](experiments/transformer-dropout-seeds-2026-11-11/README.md) and [complete notebook explanation](notebook-19-guide.md).
+
+## Evidence collection before the diagnostic repeat
+
+The next study repeats seed-42 dropout 0.2 on original folds 01 and 04 only.
+Its model, split, optimizer, sampling, stopping, and selection settings remain fixed.
+It adds per-epoch predictions, class/participant loss decompositions, gradient/LR records, and epochs thirteen through seventeen checkpoints.
+Fixed-weight training evaluation permits a clearer training/validation comparison with dropout disabled.
+Synthetic active-dropout tests preserve exact CPU histories, selected weights, predictions, and Torch random state with diagnostics enabled.
+This is implementation evidence, not a new participant-data model result.
+The local evidence inspector supports partial runs and verified matched-epoch comparisons without loading models.
+See the [protocol and interpretation rules](transformer-diagnostics.md). Timo will run the real-data optimization locally.
+
+## Measured diagnostic repeat
+
+The two instrumented MPS runs exactly reproduce their original histories and selected weights.
+They support probability overfitting: evaluation-mode training NLL falls while held-out NLL rises.
+Matched persistent errors become more costly, while some correct labels become more confident.
+The largest spikes differ: REM drives fold 01's epoch 11→12 rise; Light/Deep drive fold 04's epoch 24→25 rise.
+Gradients remain finite, and the fixed learning rate stays 0.001. Late clipping is frequent, not proof of an exploding-gradient event.
+Selected macro-F1 still improves after minimum NLL, so the checkpoint rule remains unchanged.
+Recommend one constant-learning-rate comparison at 0.0003 before another architecture change.
+See the [complete diagnostic evidence](experiments/transformer-diagnostics-2026-11-12/README.md).

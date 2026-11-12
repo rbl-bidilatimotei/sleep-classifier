@@ -301,3 +301,121 @@ def test_synthetic_transformer_folds_use_generic_predictions(tmp_path: Path) -> 
     assert len(pooled) == 16
     for fold in summary["plan"]["folds"]:
         assert (experiment.output_dir / fold["name"] / "results/model_checkpoint.pt").is_file()
+
+
+def _selected_configuration(root: Path, selected: object) -> Path:
+    """Add a fold selector to a synthetic grouped experiment.
+
+    Args:
+        root (Path): Temporary synthetic data directory.
+        selected (object): Selector value, including invalid test inputs.
+    """
+    path = _configuration(root)
+    settings = yaml.safe_load(path.read_text())
+    settings["selected_folds"] = selected
+    path.write_text(yaml.safe_dump(settings))
+
+    return path
+
+
+def test_selected_folds_preserve_original_assignments_and_order(tmp_path: Path) -> None:
+    """Select original folds without redefining their participant partitions.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+    """
+    path = _configuration(tmp_path)
+    original = GroupedValidationExperiment(path).plan()
+    settings = yaml.safe_load(path.read_text())
+    settings["selected_folds"] = ["fold-03", "fold-01"]
+    path.write_text(yaml.safe_dump(settings))
+
+    selected = GroupedValidationExperiment(path).plan()
+
+    assert selected["folds"] == [original["folds"][0], original["folds"][2]]
+    assert selected["development"] == original["development"]
+    assert selected["reserved_test"] == original["reserved_test"]
+    assert selected["maximum_epochs"] == 4
+    assert selected["validation_scope"] == "selected development folds"
+    assert "validation_scope" not in original
+
+
+def test_selected_fold_preparation_and_aggregation_cover_only_planned_people(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Prepare two original partitions and pool their validation people exactly once.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Replace optimization with saved synthetic predictions.
+    """
+    experiment = GroupedValidationExperiment(
+        _selected_configuration(tmp_path, ["fold-01", "fold-03"])
+    )
+    experiment.prepare()
+    assert {path.name for path in experiment.output_dir.glob("fold-*")} == {
+        "fold-01", "fold-03",
+    }
+    monkeypatch.setattr(
+        "sleep_classifier.grouped_validation.GRUExperiment", SyntheticFoldExperiment,
+    )
+
+    summary = json.loads(experiment.run().read_text())
+    expected = {person for fold in summary["plan"]["folds"] for person in fold["validation"]}
+
+    assert summary["status"] == "complete"
+    assert [result["fold"] for result in summary["results"]] == ["fold-01", "fold-03"]
+    assert summary["aggregate"]["validation_participants"] == len(expected) == 5
+    assert summary["aggregate"]["eligible_epochs"] == len(expected) * 2
+    assert set(summary["aggregate"]["participants"]) == expected
+    assert len(expected) < len(summary["plan"]["development"])
+    assert summary["plan"]["validation_scope"] == "selected development folds"
+
+    first = summary["results"][0]
+    participant = next(iter(first["participants"]))
+    first["participants"].pop(participant)
+    predictions_path = Path(first["metrics_path"]).parent / "validation_predictions.csv"
+    predictions = pd.read_csv(predictions_path, dtype={"participant_id": str})
+    predictions[predictions.participant_id != participant].to_csv(predictions_path, index=False)
+    with pytest.raises(ValueError, match="planned validation participants"):
+        experiment._aggregate(summary["results"])
+
+
+@pytest.mark.parametrize("selected", [
+    None, [], ["fold-01"], ["fold-01", "fold-01"], ["fold-01", "fold-99"],
+    "fold-01", ["fold-01", 2], ["fold-01", ["fold-03"]],
+])
+def test_invalid_selected_fold_names_are_rejected(tmp_path: Path, selected: object) -> None:
+    """Reject ambiguous or unsupported subsets before reading observations.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+        selected (object): Invalid selector to reject.
+    """
+    path = _selected_configuration(tmp_path, selected)
+
+    with pytest.raises(ValueError, match="selected_folds"):
+        GroupedValidationExperiment(path)
+    assert not (tmp_path / "grouped").exists()
+
+
+def test_changed_selected_folds_are_rejected_after_preparation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject a changed fold selection before constructing any training instance.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Detect an unintended attempt to start optimization.
+    """
+    path = _selected_configuration(tmp_path, ["fold-01", "fold-03"])
+    GroupedValidationExperiment(path).prepare()
+    settings = yaml.safe_load(path.read_text())
+    settings["selected_folds"] = ["fold-01", "fold-02"]
+    path.write_text(yaml.safe_dump(settings))
+    model = Mock(side_effect=AssertionError("Training must not start"))
+    monkeypatch.setattr("sleep_classifier.grouped_validation.GRUExperiment", model)
+
+    with pytest.raises(ValueError, match="changed"):
+        GroupedValidationExperiment(path).run()
+    model.assert_not_called()

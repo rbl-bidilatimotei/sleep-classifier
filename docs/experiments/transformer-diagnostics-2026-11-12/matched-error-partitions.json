@@ -1,0 +1,434 @@
+[
+  {
+    "fold": "fold-01",
+    "before_epoch": 5,
+    "after_epoch": 26,
+    "nll_difference": 0.14387744439912212,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1447,
+        "contribution_delta": 0.18100282611854682,
+        "mean_true_probability_before": 0.22018547315162085,
+        "mean_true_probability_after": 0.15944352392922237
+      },
+      {
+        "group": "new_errors",
+        "count": 332,
+        "contribution_delta": 0.04831734650776652,
+        "mean_true_probability_before": 0.5748996252575552,
+        "mean_true_probability_after": 0.3247344095416995
+      },
+      {
+        "group": "corrected_errors",
+        "count": 251,
+        "contribution_delta": -0.031405715461067185,
+        "mean_true_probability_before": 0.37290102213739873,
+        "mean_true_probability_after": 0.6512450121075983
+      },
+      {
+        "group": "correct_both",
+        "count": 2557,
+        "contribution_delta": -0.05403701276612399,
+        "mean_true_probability_before": 0.6964859491010919,
+        "mean_true_probability_after": 0.769826336337292
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 11,
+    "after_epoch": 12,
+    "nll_difference": 0.033034333241602015,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1608,
+        "contribution_delta": 0.04675152722277354,
+        "mean_true_probability_before": 0.19568164663769266,
+        "mean_true_probability_after": 0.17597161801760688
+      },
+      {
+        "group": "new_errors",
+        "count": 156,
+        "contribution_delta": 0.011066418197483977,
+        "mean_true_probability_before": 0.5270948694684566,
+        "mean_true_probability_after": 0.384698359725567
+      },
+      {
+        "group": "corrected_errors",
+        "count": 162,
+        "contribution_delta": -0.009687561065771857,
+        "mean_true_probability_before": 0.4063695063009674,
+        "mean_true_probability_after": 0.5312061359484991
+      },
+      {
+        "group": "correct_both",
+        "count": 2661,
+        "contribution_delta": -0.015096051112883629,
+        "mean_true_probability_before": 0.7253338933797404,
+        "mean_true_probability_after": 0.7449043461453059
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 13,
+    "after_epoch": 14,
+    "nll_difference": 0.019559743697101485,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1671,
+        "contribution_delta": 0.011841175835076422,
+        "mean_true_probability_before": 0.2039522884683494,
+        "mean_true_probability_after": 0.19966504915807182
+      },
+      {
+        "group": "new_errors",
+        "count": 81,
+        "contribution_delta": 0.0031860496288151617,
+        "mean_true_probability_before": 0.49170528407450076,
+        "mean_true_probability_after": 0.41071798072920906
+      },
+      {
+        "group": "corrected_errors",
+        "count": 72,
+        "contribution_delta": -0.0020265360022819283,
+        "mean_true_probability_before": 0.44309888200627434,
+        "mean_true_probability_after": 0.5047071613371372
+      },
+      {
+        "group": "correct_both",
+        "count": 2763,
+        "contribution_delta": 0.006559054235491827,
+        "mean_true_probability_before": 0.736168542343596,
+        "mean_true_probability_after": 0.7290629391496785
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 14,
+    "after_epoch": 15,
+    "nll_difference": 0.00210841101256303,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1638,
+        "contribution_delta": 0.01902643696530142,
+        "mean_true_probability_before": 0.19529248542891206,
+        "mean_true_probability_after": 0.1796048738216465
+      },
+      {
+        "group": "new_errors",
+        "count": 117,
+        "contribution_delta": 0.007280969436125049,
+        "mean_true_probability_before": 0.5231129814926375,
+        "mean_true_probability_after": 0.39927623994075334
+      },
+      {
+        "group": "corrected_errors",
+        "count": 114,
+        "contribution_delta": -0.005931237734682796,
+        "mean_true_probability_before": 0.41245054780391227,
+        "mean_true_probability_after": 0.5241940296009967
+      },
+      {
+        "group": "correct_both",
+        "count": 2718,
+        "contribution_delta": -0.01826775765418064,
+        "mean_true_probability_before": 0.731985135265709,
+        "mean_true_probability_after": 0.7532260375504463
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 15,
+    "after_epoch": 16,
+    "nll_difference": -0.0020674002780248953,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1687,
+        "contribution_delta": -0.006475993378245128,
+        "mean_true_probability_before": 0.18588880368794916,
+        "mean_true_probability_after": 0.19338302442041586
+      },
+      {
+        "group": "new_errors",
+        "count": 48,
+        "contribution_delta": 0.001485321917430594,
+        "mean_true_probability_before": 0.4939089560260375,
+        "mean_true_probability_after": 0.42794357364376384
+      },
+      {
+        "group": "corrected_errors",
+        "count": 68,
+        "contribution_delta": -0.0033518805460430417,
+        "mean_true_probability_before": 0.4016719348728657,
+        "mean_true_probability_after": 0.4991592795533292
+      },
+      {
+        "group": "correct_both",
+        "count": 2784,
+        "contribution_delta": 0.006275151728832682,
+        "mean_true_probability_before": 0.7483185558719025,
+        "mean_true_probability_after": 0.7409444086296463
+      }
+    ]
+  },
+  {
+    "fold": "fold-01",
+    "before_epoch": 16,
+    "after_epoch": 17,
+    "nll_difference": 0.01147537473369869,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1647,
+        "contribution_delta": 0.033252599635896385,
+        "mean_true_probability_before": 0.18844003474741888,
+        "mean_true_probability_after": 0.1762994583071287
+      },
+      {
+        "group": "new_errors",
+        "count": 78,
+        "contribution_delta": 0.003274989524601939,
+        "mean_true_probability_before": 0.4879497774900534,
+        "mean_true_probability_after": 0.40543236831823987
+      },
+      {
+        "group": "corrected_errors",
+        "count": 88,
+        "contribution_delta": -0.004089369523308092,
+        "mean_true_probability_before": 0.4138376875357194,
+        "mean_true_probability_after": 0.5110657242211428
+      },
+      {
+        "group": "correct_both",
+        "count": 2774,
+        "contribution_delta": -0.02096284490349154,
+        "mean_true_probability_before": 0.7421312119647936,
+        "mean_true_probability_after": 0.7675906614962463
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 13,
+    "after_epoch": 14,
+    "nll_difference": -0.012231203845815582,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1471,
+        "contribution_delta": -0.0085194926866486,
+        "mean_true_probability_before": 0.22183725401860604,
+        "mean_true_probability_after": 0.22714218606992406
+      },
+      {
+        "group": "new_errors",
+        "count": 105,
+        "contribution_delta": 0.003230131075651956,
+        "mean_true_probability_before": 0.49567918465251015,
+        "mean_true_probability_after": 0.43219210987999324
+      },
+      {
+        "group": "corrected_errors",
+        "count": 122,
+        "contribution_delta": -0.003996494840796577,
+        "mean_true_probability_before": 0.42703762601633544,
+        "mean_true_probability_after": 0.49327513502269493
+      },
+      {
+        "group": "correct_both",
+        "count": 2729,
+        "contribution_delta": -0.00294534739402236,
+        "mean_true_probability_before": 0.7002617009680278,
+        "mean_true_probability_after": 0.7026510201735827
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 14,
+    "after_epoch": 15,
+    "nll_difference": -0.004201488238396231,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1480,
+        "contribution_delta": 0.008663575160058078,
+        "mean_true_probability_before": 0.22800959471823187,
+        "mean_true_probability_after": 0.22449658649479592
+      },
+      {
+        "group": "new_errors",
+        "count": 48,
+        "contribution_delta": 0.0014272477632018164,
+        "mean_true_probability_before": 0.47725734921793145,
+        "mean_true_probability_after": 0.42042360703150433
+      },
+      {
+        "group": "corrected_errors",
+        "count": 96,
+        "contribution_delta": -0.002106573063915208,
+        "mean_true_probability_before": 0.4380429902424415,
+        "mean_true_probability_after": 0.4831766647597154
+      },
+      {
+        "group": "correct_both",
+        "count": 2803,
+        "contribution_delta": -0.012185738097740916,
+        "mean_true_probability_before": 0.6973977337723921,
+        "mean_true_probability_after": 0.7104484177341727
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 15,
+    "after_epoch": 16,
+    "nll_difference": 0.024111728344911234,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1403,
+        "contribution_delta": 0.030936382580172714,
+        "mean_true_probability_before": 0.2145288492566544,
+        "mean_true_probability_after": 0.20163965118354943
+      },
+      {
+        "group": "new_errors",
+        "count": 164,
+        "contribution_delta": 0.008111599075048544,
+        "mean_true_probability_before": 0.5171734681580125,
+        "mean_true_probability_after": 0.4167308954567444
+      },
+      {
+        "group": "corrected_errors",
+        "count": 125,
+        "contribution_delta": -0.007031551718402869,
+        "mean_true_probability_before": 0.4116104451417923,
+        "mean_true_probability_after": 0.5269078097343445
+      },
+      {
+        "group": "correct_both",
+        "count": 2735,
+        "contribution_delta": -0.007904701591907152,
+        "mean_true_probability_before": 0.7140604848072777,
+        "mean_true_probability_after": 0.7239873740311297
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 15,
+    "after_epoch": 40,
+    "nll_difference": 0.10149415948277807,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1244,
+        "contribution_delta": 0.10112955188986941,
+        "mean_true_probability_before": 0.20185378301642398,
+        "mean_true_probability_after": 0.1876186475072836
+      },
+      {
+        "group": "new_errors",
+        "count": 388,
+        "contribution_delta": 0.048165393147497626,
+        "mean_true_probability_before": 0.5754797931030854,
+        "mean_true_probability_after": 0.3440162324845868
+      },
+      {
+        "group": "corrected_errors",
+        "count": 284,
+        "contribution_delta": -0.035130909910190966,
+        "mean_true_probability_before": 0.35679286999077026,
+        "mean_true_probability_after": 0.5891245386340249
+      },
+      {
+        "group": "correct_both",
+        "count": 2511,
+        "contribution_delta": -0.01266987564439799,
+        "mean_true_probability_before": 0.7226147809644848,
+        "mean_true_probability_after": 0.7393244889118623
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 16,
+    "after_epoch": 17,
+    "nll_difference": 0.031896170803743684,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1505,
+        "contribution_delta": 0.016920039650480907,
+        "mean_true_probability_before": 0.21641940618455224,
+        "mean_true_probability_after": 0.21085482514469167
+      },
+      {
+        "group": "new_errors",
+        "count": 133,
+        "contribution_delta": 0.007537079837653054,
+        "mean_true_probability_before": 0.5270253917328397,
+        "mean_true_probability_after": 0.41103346253696244
+      },
+      {
+        "group": "corrected_errors",
+        "count": 62,
+        "contribution_delta": -0.002572440367335506,
+        "mean_true_probability_before": 0.41182405093023855,
+        "mean_true_probability_after": 0.4942686971156828
+      },
+      {
+        "group": "correct_both",
+        "count": 2727,
+        "contribution_delta": 0.01001149168294523,
+        "mean_true_probability_before": 0.7245597972465951,
+        "mean_true_probability_after": 0.7135334491926452
+      }
+    ]
+  },
+  {
+    "fold": "fold-04",
+    "before_epoch": 24,
+    "after_epoch": 25,
+    "nll_difference": 0.05062669026734266,
+    "error_partitions": [
+      {
+        "group": "wrong_both",
+        "count": 1494,
+        "contribution_delta": 0.0345711159700943,
+        "mean_true_probability_before": 0.21730746073630644,
+        "mean_true_probability_after": 0.20515791183523258
+      },
+      {
+        "group": "new_errors",
+        "count": 148,
+        "contribution_delta": 0.010941985283196497,
+        "mean_true_probability_before": 0.5455885287877675,
+        "mean_true_probability_after": 0.4008923579208754
+      },
+      {
+        "group": "corrected_errors",
+        "count": 68,
+        "contribution_delta": -0.0026746935398140074,
+        "mean_true_probability_before": 0.4222173219656243,
+        "mean_true_probability_after": 0.5011360136901631
+      },
+      {
+        "group": "correct_both",
+        "count": 2717,
+        "contribution_delta": 0.007788282553865865,
+        "mean_true_probability_before": 0.7216231938359664,
+        "mean_true_probability_after": 0.7137243152432552
+      }
+    ]
+  }
+]
