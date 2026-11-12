@@ -1,0 +1,40 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/transformer-plateau-single
+model_type: transformer
+seed: 42
+epochs: 40
+batch_size: 64
+context_epochs: 30
+learning_rate: 0.001
+patience: 12
+gradient_clip: 1.0
+device: auto
+transformer:
+  d_model: 16
+  nhead: 2
+  num_layers: 1
+  feedforward_dim: 32
+  dropout: 0.2
+  max_context: 30
+diagnostics:
+  enabled: true
+  save_predictions: true
+  evaluate_training: true
+  checkpoint_epochs:
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  high_confidence_threshold: 0.8
+lr_scheduler:
+  kind: reduce_on_plateau
+  monitor: validation_macro_f1
+  mode: max
+  factor: 0.3
+  patience: 3
+  threshold: 0.0001
+  threshold_mode: abs
+  cooldown: 0
+  min_lr: 3.0e-05
+  eps: 1.0e-08

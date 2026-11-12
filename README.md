@@ -282,3 +282,6 @@ It reuses the completed instrumented reference and prepares only learning rate 0
 
 The [measured learning-rate comparison](docs/experiments/transformer-learning-rate-2026-11-12/README.md) improves NLL but loses mean macro-F1 and REM/Deep recall.
 The proposed next diagnostic retains initial learning rate 0.001 and tests a plateau schedule.
+
+Use [notebook 22](notebooks/22_transformer_plateau.ipynb) for the [plateau scheduler diagnostic](docs/transformer-plateau.md).
+It starts at 0.001 and reduces the rate after validation macro-F1 plateaus, with all other controls fixed.

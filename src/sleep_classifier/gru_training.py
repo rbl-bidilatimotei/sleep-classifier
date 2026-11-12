@@ -24,6 +24,7 @@ from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.epoch_diagnostics import EpochDiagnostics, EpochDiagnosticsSettings
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.lr_schedule import PlateauSchedule, PlateauSettings
 from sleep_classifier.model_factory import ModelFactory
 from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
@@ -47,6 +48,9 @@ class TrainingConfig:
         """
         self.values = values
         AgentOptimizerSettings(values.get("optimizer_agent"))
+        schedule = PlateauSettings(values.get("lr_scheduler"))
+        if schedule.enabled and values.get("optimizer_agent"):
+            raise ValueError("Plateau schedules currently require plain Adam")
         diagnostics = EpochDiagnosticsSettings(values.get("diagnostics"))
         if diagnostics.enabled and values.get("optimizer_agent"):
             raise ValueError("Epoch diagnostics currently require plain Adam")
@@ -71,6 +75,9 @@ class TrainingConfig:
                 raise ValueError(f"{name} must be numeric")
             if not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be positive")
+
+        if schedule.enabled and schedule.values["min_lr"] > values["learning_rate"]:
+            raise ValueError("Scheduler min_lr cannot exceed the initial learning rate")
 
         if values.get("device", "auto") not in ("auto", "cpu", "cuda", "mps"):
             raise ValueError("device must be 'auto', 'cpu', 'cuda', or 'mps'")
@@ -161,6 +168,7 @@ class GRUExperiment:
         self.agent_runtime: dict[str, Any] | None = None
         self.prepared_dir = Path()
         self.output_dir = Path()
+        self.schedule: PlateauSchedule | None = None
         self.diagnostics: EpochDiagnostics | None = None
         self.diagnostic_train_loader: DataLoader[dict[str, Any]] | None = None
 
@@ -211,6 +219,10 @@ class GRUExperiment:
         context = self._prepare()
         train_loader, validation_loader = self._build_loaders(context)
         optimizer = self._create_optimizer(context["model"], len(train_loader), allow_live_agent)
+        schedule_settings = PlateauSettings(self.settings.get("lr_scheduler"))
+        self.schedule = (
+            PlateauSchedule(schedule_settings, optimizer) if schedule_settings.enabled else None
+        )
         self._prepare_diagnostics(context)
         criterion = nn.CrossEntropyLoss()
         LOGGER.info(
@@ -478,6 +490,7 @@ class GRUExperiment:
                 model, criterion, device, frame, probabilities, summary, optimizer,
             )
             stop = stopping.update(model, epoch, summary["validation_macro_f1"])
+            self._advance_schedule(summary, has_next_epoch=not stop and epoch < max_epochs)
             if stop:
                 LOGGER.info(
                     "Early stopping at epoch %d; best validation macro-F1 epoch=%d",
@@ -488,6 +501,30 @@ class GRUExperiment:
         stopping.restore(model)
 
         return stopping.best_epoch, history
+
+
+    def _advance_schedule(self, summary: dict[str, Any], has_next_epoch: bool) -> None:
+        """Record a scheduler decision after current-epoch diagnostics and stopping checks.
+
+        Args:
+            summary (dict[str, Any]): Completed epoch history row updated with rate provenance.
+            has_next_epoch (bool): Permit a scheduler update only when training will continue.
+        """
+        if self.schedule is None:
+            return
+        if has_next_epoch:
+            decision = self.schedule.advance(summary)
+        else:
+            decision = {
+                "learning_rates_used": self.schedule.optimizer.learning_rates(),
+                "learning_rates_next_epoch": None, "scheduler_reduced": False,
+            }
+        summary.update(decision)
+        LOGGER.info(
+            "Schedule epoch=%d monitor=%s lr_used=%s lr_next=%s reduced=%s",
+            summary["epoch"], self.schedule.settings.monitor, decision["learning_rates_used"],
+            decision["learning_rates_next_epoch"], decision["scheduler_reduced"],
+        )
 
 
     def _epoch_summary(

@@ -36,7 +36,8 @@ Completed: constant 0.0003 improves selected NLL but loses mean macro-F1 and REM
 Retain the measured constant-0.001 stage-classification reference.
 See the [learning-rate results](experiments/transformer-learning-rate-2026-11-12/README.md).
 
-Proposed next: start at 0.001 and reduce by factor 0.3 after validation macro-F1 plateaus.
+Prepared next: start at 0.001 and reduce by factor 0.3 after validation macro-F1 plateaus.
+The [plateau protocol](transformer-plateau.md) and notebook 22 retain the stronger constant-0.001 reference.
 Keep the same model, seed, folds, evidence controls, sampling, loss, clipping, and budget 40/12.
 Maximum new work is two fits and eighty epochs. This is a targeted optimization comparison, not a global recipe decision.
 If this bounded check provides little benefit, return to the planned small causal patch encoder.
