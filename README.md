@@ -279,3 +279,6 @@ It identifies class/participant loss spikes and worsening true-class probabiliti
 
 Use [notebook 21](notebooks/21_transformer_learning_rate.ipynb) for the [fixed-recipe learning-rate diagnostic](docs/transformer-learning-rate.md).
 It reuses the completed instrumented reference and prepares only learning rate 0.0003 on the same two folds.
+
+The [measured learning-rate comparison](docs/experiments/transformer-learning-rate-2026-11-12/README.md) improves NLL but loses mean macro-F1 and REM/Deep recall.
+The proposed next diagnostic retains initial learning rate 0.001 and tests a plateau schedule.

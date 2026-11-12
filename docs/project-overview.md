@@ -106,3 +106,6 @@ The next proposal tests one lower constant learning rate with the remaining reci
 
 The [lower-learning-rate diagnostic](transformer-learning-rate.md) is prepared in notebook 21.
 It changes only Adam's constant learning rate to 0.0003 and reuses the completed two-fold reference.
+
+The completed [lower-rate diagnostic](experiments/transformer-learning-rate-2026-11-12/README.md) reveals a probability-loss versus stage-detection trade-off.
+Keep constant 0.001 as the reference; test a single plateau scheduler before another architecture experiment.

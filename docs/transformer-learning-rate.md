@@ -1,6 +1,8 @@
 # Fixed-recipe learning-rate diagnostic
 
-Status: prepared for Timo to run locally. The candidate has no participant-data training result yet.
+Status: completed locally by Timo.
+See the [measured results](experiments/transformer-learning-rate-2026-11-12/README.md).
+The lower rate improves pooled NLL but loses mean fold macro-F1; retain 0.001 as the stage-classification reference.
 
 ## Question and hypothesis
 
@@ -107,7 +109,9 @@ See the [evidence protocol](transformer-diagnostics.md) for NLL decomposition, c
 If this bounded check gives little benefit, return to the planned small causal patch encoder rather than expanding the learning-rate grid.
 If it helps, verify the benefit beyond these diagnostic folds before adopting the setting.
 
-## Local preparation checks
+## Historical preparation checks
+
+These checks describe the pre-training state. The measured report supersedes pending-result status.
 
 On 2026-11-12, both candidate folds were prepared without model optimization.
 All 52 participant feature CSV files match the completed reference byte for byte.
