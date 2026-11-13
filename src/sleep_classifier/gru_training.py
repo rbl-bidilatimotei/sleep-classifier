@@ -28,6 +28,8 @@ from sleep_classifier.lr_schedule import PlateauSchedule, PlateauSettings
 from sleep_classifier.model_factory import ModelFactory
 from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
+from sleep_classifier.optimizer_factory import OptimizerFactory
+from sleep_classifier.optimizer_settings import OptimizerSettings
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
 
 # Keep shared trainer logs independent of the legacy implementation module
@@ -48,6 +50,9 @@ class TrainingConfig:
         """
         self.values = values
         AgentOptimizerSettings(values.get("optimizer_agent"))
+        optimizer = OptimizerSettings(values.get("optimizer"))
+        if optimizer.name != "adam" and values.get("optimizer_agent"):
+            raise ValueError("OPAL currently requires the original Adam optimizer")
         schedule = PlateauSettings(values.get("lr_scheduler"))
         if schedule.enabled and values.get("optimizer_agent"):
             raise ValueError("Plateau schedules currently require plain Adam")
@@ -200,6 +205,12 @@ class GRUExperiment:
             "parameter_count": sum(
                 parameter.numel() for parameter in context["model"].parameters()
             ),
+            "optimizer": {
+                "settings": OptimizerSettings(self.settings.get("optimizer")).values,
+                "param_groups": OptimizerFactory(self.settings.get("optimizer")).describe_groups(
+                    context["model"]
+                ),
+            },
         }
         LOGGER.info("Neural model check passed: %s", json.dumps(result, sort_keys=True))
 
@@ -296,7 +307,7 @@ class GRUExperiment:
     def _create_optimizer(
         self, model: nn.Module, batches: int, allow_live_agent: bool
     ) -> OptimizerAdapter:
-        """Build Adam or the explicitly selected OPAL wrapper.
+        """Build the configured optimizer or the explicitly selected OPAL wrapper.
 
         Args:
             model (nn.Module): Initialized training model.
@@ -314,10 +325,12 @@ class GRUExperiment:
                 self.agent_runtime = CodexRuntime.check(settings.get("binary"))
             self.output_dir.mkdir(parents=True, exist_ok=False)
 
-        adam = torch.optim.Adam(model.parameters(), lr=float(self.settings["learning_rate"]))
+        optimizer = OptimizerFactory(self.settings.get("optimizer")).create(
+            model, float(self.settings["learning_rate"])
+        )
 
         return OptimizerAdapter.create(
-            adam,
+            optimizer,
             model,
             batches * int(self.settings["epochs"]),
             self.output_dir,

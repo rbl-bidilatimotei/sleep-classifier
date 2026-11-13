@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "exact_match": true,
+  "device": "cpu",
+  "steps": 20,
+  "seed": 42,
+  "torch_version": "2.15.0",
+  "synthetic_only": true,
+  "participant_data_read": false,
+  "dropout_enabled": true,
+  "rtol": 1e-06,
+  "atol": 1e-07,
+  "max_loss_difference": 0.0,
+  "max_gradient_difference": 0.0,
+  "max_parameter_difference": 0.0,
+  "max_optimizer_state_difference": 0.0,
+  "groups": [
+    {
+      "name": "decay",
+      "weight_decay": 0.0,
+      "parameter_names": [
+        "backbone.input_projection.weight",
+        "backbone.position_embedding.weight",
+        "backbone.encoder.layers.0.self_attn.in_proj_weight",
+        "backbone.encoder.layers.0.self_attn.out_proj.weight",
+        "backbone.encoder.layers.0.linear1.weight",
+        "backbone.encoder.layers.0.linear2.weight",
+        "backbone.classifier.weight"
+      ],
+      "parameter_count": 2560
+    },
+    {
+      "name": "no_decay",
+      "weight_decay": 0.0,
+      "parameter_names": [
+        "backbone.input_projection.bias",
+        "backbone.encoder.layers.0.self_attn.in_proj_bias",
+        "backbone.encoder.layers.0.self_attn.out_proj.bias",
+        "backbone.encoder.layers.0.linear1.bias",
+        "backbone.encoder.layers.0.linear2.bias",
+        "backbone.encoder.layers.0.norm1.weight",
+        "backbone.encoder.layers.0.norm1.bias",
+        "backbone.encoder.layers.0.norm2.weight",
+        "backbone.encoder.layers.0.norm2.bias",
+        "backbone.classifier.bias"
+      ],
+      "parameter_count": 196
+    }
+  ],
+  "interpretation": "Bounded synthetic numerical control; not a proof of equal participant trajectories"
+}

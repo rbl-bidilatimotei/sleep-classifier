@@ -205,3 +205,33 @@ def test_notebook_displays_not_started_rows_for_missing_retries(tmp_path):
     assert all(record["status"] == "not_started" for record in records)
     assert sum(record["group"] == "Retry" for record in records) == 3
     assert not (tmp_path / "artifacts").exists()
+
+
+@pytest.mark.parametrize("recorded,configured,expected", [
+    (None, None, "adam"),
+    ("Adam", None, "adam"),
+    ("AdamW", "adamw", "adamw"),
+    (None, "adamw", "adamw"),
+    ("AdamW", "adam", "adamw"),
+])
+def test_plain_optimizer_status_uses_effective_optimizer(
+    tmp_path: Path, recorded: str | None, configured: str | None, expected: str,
+) -> None:
+    """Distinguish AdamW from Adam without inventing agent activity.
+
+    Args:
+        tmp_path (Path): Temporary run directory.
+        recorded (str | None): Effective optimizer class from saved provenance.
+        configured (str | None): Optional optimizer name from the recipe.
+        expected (str): Expected normalized conventional optimizer backend.
+    """
+    optimizer = {"base_optimizer": recorded} if recorded else {}
+    config = {"optimizer": {"name": configured}} if configured else {}
+    (tmp_path / "metrics.json").write_text(json.dumps({
+        "optimizer": optimizer, "config": config, "accuracy": 0.5,
+    }))
+
+    report = OpalRunReport(tmp_path).build()
+    assert report["backend"] == expected
+    assert report["status"] == f"plain_{expected}"
+    assert report["decision_counts"] is None
