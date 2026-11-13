@@ -121,3 +121,9 @@ It preserves thirty raw epochs while replacing per-epoch attention tokens with t
 
 The [completed patch comparison](experiments/causal-patch-transformer-2026-11-13/README.md) supports a modest seed-42 architecture gain.
 Replicate its unchanged recipe before adopting it; first-partial-history and transition behavior remain explicit limits.
+
+The [patch seed replication](patch-transformer-seeds.md) is prepared in notebook 24.
+It tests training-randomness sensitivity with all model settings fixed and all measured references reused.
+
+The [completed patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md) supports the patch architecture across three training seeds.
+The next hypothesis tests finer temporal granularity while retaining the same raw history and optimization recipe.
