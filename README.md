@@ -291,3 +291,6 @@ The next proposal returns to representation learning with a small causal patch e
 
 Use [notebook 23](notebooks/23_causal_patch_transformer.ipynb) for the [small causal patch architecture comparison](docs/causal-patch-transformer.md).
 It reuses the full five-fold constant-rate reference and prepares five new patch-model fits.
+
+The [measured patch comparison](docs/experiments/causal-patch-transformer-2026-11-13/README.md) improves mean fold macro-F1 by 0.01334 and REM precision/recall/F1.
+The next proposal replicates the unchanged patch recipe across seeds 43 and 44 before further tuning.

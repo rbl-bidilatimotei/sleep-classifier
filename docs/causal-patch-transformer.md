@@ -1,6 +1,8 @@
 # Small causal patch Transformer
 
-Status: prepared for Timo to train locally. No participant-data patch-model training result exists yet.
+Status: completed locally by Timo and reviewed on 2026-11-13.
+The [measured comparison](experiments/causal-patch-transformer-2026-11-13/README.md) improves mean fold macro-F1, pooled NLL, and REM precision/recall/F1.
+Replicate seeds 43 and 44 before selecting a new default.
 
 ## Why change representation now?
 
@@ -157,7 +159,9 @@ A negative result is informative about this patch size and joint-channel archite
 Tests require patch-size-one equivalence, chronological packing, correct partial histories, padding invariance, causal attention, finite gradients, and checkpoint restoration.
 The shared training/inference interfaces continue accepting six-feature raw epoch histories; patching remains inside the model.
 
-## Local preparation evidence
+## Historical preparation evidence
+
+The following checks describe the pre-training state. The measured review supersedes pending-result status.
 
 On 2026-11-12, all five candidate folds were prepared without model optimization.
 All 130 copied participant feature CSV files match the original full-fold reference byte for byte.

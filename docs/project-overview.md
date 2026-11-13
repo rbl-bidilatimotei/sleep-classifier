@@ -1,6 +1,6 @@
 # Sleep classifier: project overview
 
-Updated on 2026-11-12.
+Updated on 2026-11-13.
 
 ## Purpose
 
@@ -118,3 +118,6 @@ The next proposal tests a causal patch-based encoder across all five development
 
 The [causal patch model](causal-patch-transformer.md) is prepared for all five development folds.
 It preserves thirty raw epochs while replacing per-epoch attention tokens with ten ordered three-epoch patches.
+
+The [completed patch comparison](experiments/causal-patch-transformer-2026-11-13/README.md) supports a modest seed-42 architecture gain.
+Replicate its unchanged recipe before adopting it; first-partial-history and transition behavior remain explicit limits.

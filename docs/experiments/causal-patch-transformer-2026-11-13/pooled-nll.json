@@ -1,0 +1,12 @@
+[
+  {
+    "recipe": "reference",
+    "targets": 22708,
+    "selected_pooled_nll": 0.925772894641489
+  },
+  {
+    "recipe": "candidate",
+    "targets": 22708,
+    "selected_pooled_nll": 0.8955318508180324
+  }
+]

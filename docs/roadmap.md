@@ -1,6 +1,6 @@
 # Project roadmap
 
-Updated on 2026-11-11. Each milestone uses a separate reviewed work chunk.
+Updated on 2026-11-13. Each milestone uses a separate reviewed work chunk.
 Training remains operator-controlled. Keep final test participants reserved until model choices are fixed.
 
 ## Completed foundation
@@ -40,12 +40,14 @@ Completed: plateau scheduling improves NLL and within-run smoothness but loses m
 Retain the constant-0.001 reference. Stop the local optimizer grid.
 See the [measured scheduler results](experiments/transformer-plateau-2026-11-12/README.md).
 
-Prepared next: a small causal patch-based Transformer using three completed epochs per token.
-The [causal patch protocol](causal-patch-transformer.md) and notebook 23 prepare the architecture comparison.
-Keep the same thirty-epoch history, six features, width sixteen, dropout 0.2, Adam 0.001, and budget 40/12.
-Compare all five original development folds at seed 42. Reuse the completed constant-rate dropout-0.2 reference.
-Maximum new work is five fits and 200 epochs. Timo runs training locally.
-The patching idea comes from PatchTST; the classifier is a joint-channel causal adaptation, not a forecasting reproduction.
+Completed: the seed-42 patch architecture gains mean fold macro-F1, pooled NLL, and REM precision/recall/F1.
+Four of five folds and fourteen of 26 participants improve macro-F1. Cold-start performance remains a concern.
+See the [measured patch comparison](experiments/causal-patch-transformer-2026-11-13/README.md).
+
+Proposed next: replicate the same patch-size-three recipe with seeds 43 and 44.
+Reuse all measured dropout-0.2 references and the completed seed-42 patch candidate.
+Keep all settings fixed. Only ten new candidate fits are needed, capped at 400 epochs.
+Seed repeats assess initialization and training randomness on the same participants, not independent generalization.
 The final test participants remain reserved.
 
 ## Model and evaluation milestones
