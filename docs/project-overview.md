@@ -127,3 +127,7 @@ It tests training-randomness sensitivity with all model settings fixed and all m
 
 The [completed patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md) supports the patch architecture across three training seeds.
 The next hypothesis tests finer temporal granularity while retaining the same raw history and optimization recipe.
+
+The [patch-size-two comparison](experiments/patch-size-comparison-2026-11-13/README.md) does not improve the primary score.
+The replicated three-epoch patch model remains the working development reference.
+The proposed next experiment tests explicit weight decay with the remaining controls fixed.

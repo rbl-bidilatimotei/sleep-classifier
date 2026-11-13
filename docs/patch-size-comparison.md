@@ -1,6 +1,8 @@
 # Patch-size comparison
 
-Status: prepared for local training by Timo. No candidate scores exist yet.
+Status: completed locally by Timo and reviewed on 2026-11-13.
+The [measured comparison](experiments/patch-size-comparison-2026-11-13/README.md) loses mean fold macro-F1 despite a small REM F1 gain.
+Retain the replicated patch-size-three reference.
 
 ## Question and evidence
 
@@ -98,7 +100,9 @@ uv run --locked --group gru --group notebook python scripts/execute_notebook.py 
 The fresh-kernel HTML export skips setup, preparation, training, and recursive export.
 Keep source notebooks output-free. Store executed HTML and large run files under ignored artifacts.
 
-## Preparation evidence
+## Historical preparation evidence
+
+These checks describe the state before Timo trained the candidate. The measured report supersedes pending status.
 
 All five candidate folds were prepared on 2026-11-13 without optimization.
 All 130 copied feature CSV files match the measured reference byte for byte.
