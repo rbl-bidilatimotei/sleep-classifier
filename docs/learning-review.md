@@ -158,3 +158,12 @@ Within-run smoothness is different from robustness across participants or seeds.
 Both constant-lower-rate and plateau interventions trade some stage detection for probability loss.
 Keep constant Adam 0.001 and test the planned patch representation on all five development folds next.
 See the [measured scheduler report](experiments/transformer-plateau-2026-11-12/README.md).
+
+## Measured causal patch representation
+
+The patch model improves seed-42 mean fold macro-F1 by 0.01334, with four fold gains and fourteen participant gains.
+REM precision, recall, and F1 improve together; every pooled class gains F1, although Deep recall barely changes.
+Selected NLL improves in all five folds, while late validation-loss growth remains.
+Post-hoc transition scores are essentially unchanged, and the small first-two-epoch history slice loses macro-F1.
+The next milestone replicates the exact patch recipe at seeds 43 and 44, reusing all measured references.
+See the [complete patch review](experiments/causal-patch-transformer-2026-11-13/README.md).

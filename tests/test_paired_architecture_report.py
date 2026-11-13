@@ -1288,3 +1288,38 @@ def test_plateau_notebook_reports_populated_scheduler_pair(tmp_path: Path) -> No
     assert report["validation_scope"] == "selected development folds"
     assert len(namespace["class_rows"]) == 8
     assert namespace["display"].call_count == 3
+
+
+def test_patch_notebook_renders_populated_architecture_scores_and_confusion(tmp_path: Path) -> None:
+    """Render paired class scores and confusion matrices from synthetic saved predictions.
+
+    Args:
+        tmp_path (Path): Temporary matched architecture result artifacts.
+    """
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    import matplotlib
+
+    matplotlib.use("Agg", force=True)
+    import matplotlib.pyplot as plt
+
+    reference, candidate = _write_pair(tmp_path)
+    notebook = json.loads((Path(__file__).resolve().parents[1]
+                           / "notebooks/23_causal_patch_transformer.ipynb").read_text())
+    namespace = {"experiment": SimpleNamespace(output_dir=candidate.parent),
+                 "reference_summary": reference,
+                 "PairedArchitectureReport": PairedArchitectureReport,
+                 "pd": pd, "json": json, "logger": Mock(), "display": Mock(), "plt": plt}
+    try:
+        for cell in notebook["cells"]:
+            source = "".join(cell["source"])
+            if cell["cell_type"] == "code" and (source.startswith("comparison = None")
+                                                or "ConfusionMatrixDisplay" in source):
+                exec(source, namespace)
+        assert namespace["comparison"]["eligible_epochs"] == 8
+        assert len(namespace["class_rows"]) == 8
+        assert namespace["display"].call_count >= 4
+        assert len(namespace["figure"].axes) == 2
+    finally:
+        plt.close("all")

@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -106,3 +107,85 @@ def test_transformer_recipe_keeps_the_gru_training_and_fold_controls() -> None:
     comparison["base_model_config"] = reference["base_model_config"]
     comparison["output_dir"] = reference["output_dir"]
     assert comparison == reference
+
+
+def test_patch_factory_preserves_raw_context_and_exposes_patch_token_capacity() -> None:
+    """Build the small patch recipe while keeping checkpoint features at raw epoch resolution."""
+    factory = ModelFactory({"model_type": "patch_transformer", "context_epochs": 30,
+                            "patch_size": 3, "transformer": {"dropout": 0.2}})
+    model = factory.build(6, 4)
+    config = factory.checkpoint_config(6, 4)
+
+    assert model.input_size == 6 and model.max_context == 30
+    assert model.patch_size == 3 and model.backbone.max_context == 10
+    assert config["input_size"] == 6 and config["max_context"] == 30
+    assert config["patch_size"] == 3
+    assert sum(parameter.numel() for parameter in model.parameters()) == 2756
+    assert factory.checkpoint_filename == "model_checkpoint.pt"
+    assert factory.prediction_column == "prediction"
+
+
+def test_patch_checkpoint_roundtrip_preserves_metadata_and_logits(tmp_path: Path) -> None:
+    """Load portable patch weights through the same CPU inference interface.
+
+    Args:
+        tmp_path (Path): Temporary checkpoint directory.
+    """
+    factory = ModelFactory({"model_type": "patch_transformer", "context_epochs": 3,
+                            "patch_size": 3, "transformer": {"d_model": 8, "nhead": 2,
+                            "feedforward_dim": 16, "dropout": 0.0}})
+    model = factory.build(6, 4).eval()
+    checkpoint = {"model_type": factory.model_type,
+                  "model_config": factory.checkpoint_config(6, 4),
+                  "state_dict": copy.deepcopy(model.state_dict()), "context_epochs": 3}
+    path = tmp_path / "patch.pt"
+    torch.save(checkpoint, path)
+    restored = ModelFactory.from_checkpoint(torch.load(path, weights_only=True))
+    features = torch.randn(2, 3, 6)
+    lengths = torch.tensor([1, 3])
+
+    torch.testing.assert_close(
+        restored(features, lengths), model(features, lengths), atol=0, rtol=0,
+    )
+    assert not restored.training
+    assert all(parameter.device.type == "cpu" for parameter in restored.parameters())
+
+
+@pytest.mark.parametrize("patch_size", [True, 0, -1, 1.5, 4])
+def test_patch_factory_rejects_invalid_patch_sizes(patch_size: Any) -> None:
+    """Reject unsupported patch lengths before constructing a model.
+
+    Args:
+        patch_size (Any): Invalid noninteger, nonpositive, or excessive patch length.
+    """
+    with pytest.raises(ValueError, match="patch_size"):
+        ModelFactory({"model_type": "patch_transformer", "context_epochs": 3,
+                      "patch_size": patch_size})
+
+
+@pytest.mark.parametrize("model_type", ["gru", "transformer"])
+def test_patch_size_cannot_be_silently_ignored_by_legacy_models(model_type: str) -> None:
+    """Reject patch settings that do not belong to the selected architecture.
+
+    Args:
+        model_type (str): Legacy sequence architecture.
+    """
+    with pytest.raises(ValueError, match="patch_size"):
+        ModelFactory(_settings(model_type) | {"patch_size": 1})
+
+
+@pytest.mark.parametrize("mutation", ["missing_patch_size", "unknown_setting"])
+def test_patch_checkpoint_rejects_ambiguous_or_unused_constructor_fields(mutation: str) -> None:
+    """Reject patch metadata that cannot define the trained architecture exactly.
+
+    Args:
+        mutation (str): Invalid constructor metadata change.
+    """
+    arguments = {"input_size": 6, "num_classes": 4, "max_context": 3, "patch_size": 3}
+    if mutation == "missing_patch_size":
+        arguments.pop("patch_size")
+    else:
+        arguments["unused_setting"] = 1
+    with pytest.raises(ValueError):
+        ModelFactory.from_checkpoint({"model_type": "patch_transformer", "model_config": arguments,
+                                      "context_epochs": 3, "state_dict": {}})

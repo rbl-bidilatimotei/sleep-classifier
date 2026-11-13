@@ -1,0 +1,92 @@
+[
+  {
+    "recipe": "reference",
+    "fold": "fold-01",
+    "best_epoch": 14,
+    "completed_epochs": 26,
+    "selected_nll": 0.9593327405127838,
+    "selected_macro_f1": 0.5375408093444908,
+    "final_validation_nll": 1.0143351895579955
+  },
+  {
+    "recipe": "reference",
+    "fold": "fold-02",
+    "best_epoch": 19,
+    "completed_epochs": 31,
+    "selected_nll": 1.0586656779754784,
+    "selected_macro_f1": 0.5151822084945108,
+    "final_validation_nll": 1.1203045679700825
+  },
+  {
+    "recipe": "reference",
+    "fold": "fold-03",
+    "best_epoch": 17,
+    "completed_epochs": 29,
+    "selected_nll": 0.8482324052374633,
+    "selected_macro_f1": 0.565128242814353,
+    "final_validation_nll": 0.9202037008855498
+  },
+  {
+    "recipe": "reference",
+    "fold": "fold-04",
+    "best_epoch": 31,
+    "completed_epochs": 40,
+    "selected_nll": 0.9224053181947603,
+    "selected_macro_f1": 0.60478284434559,
+    "final_validation_nll": 0.9682768192373659
+  },
+  {
+    "recipe": "reference",
+    "fold": "fold-05",
+    "best_epoch": 25,
+    "completed_epochs": 37,
+    "selected_nll": 0.8572952788023761,
+    "selected_macro_f1": 0.5375752901687422,
+    "final_validation_nll": 0.8859682204359669
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-01",
+    "best_epoch": 24,
+    "completed_epochs": 36,
+    "selected_nll": 0.9304917767194161,
+    "selected_macro_f1": 0.5680178380668277,
+    "final_validation_nll": 0.9872502451866105
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-02",
+    "best_epoch": 9,
+    "completed_epochs": 21,
+    "selected_nll": 1.01437752694329,
+    "selected_macro_f1": 0.516399926755908,
+    "final_validation_nll": 1.0548622405226866
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-03",
+    "best_epoch": 13,
+    "completed_epochs": 25,
+    "selected_nll": 0.8125704360514103,
+    "selected_macro_f1": 0.5851922293416822,
+    "final_validation_nll": 0.8800797660979683
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-04",
+    "best_epoch": 14,
+    "completed_epochs": 26,
+    "selected_nll": 0.8968005518155747,
+    "selected_macro_f1": 0.5994511442533066,
+    "final_validation_nll": 0.9691581901845314
+  },
+  {
+    "recipe": "candidate",
+    "fold": "fold-05",
+    "best_epoch": 17,
+    "completed_epochs": 29,
+    "selected_nll": 0.839294724246011,
+    "selected_macro_f1": 0.5578346870870392,
+    "final_validation_nll": 0.8575791556956405
+  }
+]

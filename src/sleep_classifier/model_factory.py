@@ -18,8 +18,10 @@ class ModelFactory:
         self.settings = settings
         self.model_type = settings.get("model_type", "gru")
 
-        if self.model_type not in ("gru", "transformer"):
-            raise ValueError("model_type must be gru or transformer")
+        if self.model_type not in ("gru", "transformer", "patch_transformer"):
+            raise ValueError("model_type must be gru, transformer, or patch_transformer")
+        if "patch_size" in settings and self.model_type != "patch_transformer":
+            raise ValueError("patch_size requires model_type patch_transformer")
 
         self.checkpoint_filename = (
             "gru_checkpoint.pt" if self.model_type == "gru" else "model_checkpoint.pt"
@@ -35,6 +37,12 @@ class ModelFactory:
             if "hidden_size" in settings:
                 raise ValueError("hidden_size is a GRU setting; use transformer.d_model")
             self.architecture = self._transformer_settings()
+            if self.model_type == "patch_transformer":
+                patch_size = settings.get("patch_size", 3)
+                self._positive_integer("patch_size", patch_size)
+                if patch_size > settings.get("context_epochs", 10):
+                    raise ValueError("patch_size must not exceed context_epochs")
+                self.architecture["patch_size"] = patch_size
 
 
     @staticmethod
@@ -106,6 +114,10 @@ class ModelFactory:
         arguments = self.checkpoint_config(input_size, num_classes)
         if self.model_type == "gru":
             return CausalGRUClassifier(**arguments)
+        if self.model_type == "patch_transformer":
+            from sleep_classifier.patch_transformer_model import CausalPatchTransformerClassifier
+
+            return CausalPatchTransformerClassifier(**arguments)
 
         from sleep_classifier.transformer_model import CausalTransformerClassifier
 
@@ -132,6 +144,15 @@ class ModelFactory:
             settings = {
                 "model_type": model_type,
                 "context_epochs": checkpoint["context_epochs"],
+                "transformer": arguments,
+            }
+        elif model_type == "patch_transformer":
+            if "patch_size" not in arguments:
+                raise ValueError("Patch Transformer checkpoints require patch_size")
+            settings = {
+                "model_type": model_type,
+                "context_epochs": checkpoint["context_epochs"],
+                "patch_size": arguments.pop("patch_size"),
                 "transformer": arguments,
             }
         else:
