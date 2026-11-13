@@ -48,7 +48,7 @@ Completed: patch-size-three gains repeat across all three seeds. Mean paired mac
 Use it as the working development reference while retaining stage, transition, and short-history caveats.
 See the [measured patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md).
 
-Proposed next: patch size two versus three at seed 42 on all five original folds.
+Prepared next: [patch size two versus three](patch-size-comparison.md) at seed 42 on all five original folds.
 Keep raw context thirty and all optimization/evidence settings fixed. Reuse the measured patch-size-three reference.
 The candidate has fifteen temporal tokens and 2,740 parameters, versus ten tokens and 2,756.
 Maximum new work is five fits and 200 epochs. Timo runs training locally.
