@@ -124,3 +124,6 @@ Replicate its unchanged recipe before adopting it; first-partial-history and tra
 
 The [patch seed replication](patch-transformer-seeds.md) is prepared in notebook 24.
 It tests training-randomness sensitivity with all model settings fixed and all measured references reused.
+
+The [completed patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md) supports the patch architecture across three training seeds.
+The next hypothesis tests finer temporal granularity while retaining the same raw history and optimization recipe.

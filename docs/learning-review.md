@@ -167,3 +167,12 @@ Selected NLL improves in all five folds, while late validation-loss growth remai
 Post-hoc transition scores are essentially unchanged, and the small first-two-epoch history slice loses macro-F1.
 The next milestone replicates the exact patch recipe at seeds 43 and 44, reusing all measured references.
 See the [complete patch review](experiments/causal-patch-transformer-2026-11-13/README.md).
+
+## Replicated patch gains
+
+All three training seeds gain mean fold macro-F1; the mean paired effect is 0.01201 with sample deviation 0.00190.
+REM precision, recall, and F1 improve for every seed. Candidate stage leaders differ by metric and seed.
+Deep F1 declines for two seeds, and NLL improves for only two seeds.
+First-two-epoch history and Deep-transition F1 decline at every seed, in small post-hoc slices.
+Retain patch size three as the working development reference, then test patch size two with other controls fixed.
+See the [replication review](experiments/patch-transformer-seeds-2026-11-13/README.md).

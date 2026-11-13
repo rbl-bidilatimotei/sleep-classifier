@@ -44,12 +44,15 @@ Completed: the seed-42 patch architecture gains mean fold macro-F1, pooled NLL, 
 Four of five folds and fourteen of 26 participants improve macro-F1. Cold-start performance remains a concern.
 See the [measured patch comparison](experiments/causal-patch-transformer-2026-11-13/README.md).
 
-Prepared next: replicate the same patch-size-three recipe with seeds 43 and 44.
-The [shared-seed protocol](patch-transformer-seeds.md) and notebook 24 reuse all measured references.
-Reuse all measured dropout-0.2 references and the completed seed-42 patch candidate.
-Keep all settings fixed. Only ten new candidate fits are needed, capped at 400 epochs.
-Seed repeats assess initialization and training randomness on the same participants, not independent generalization.
-The final test participants remain reserved.
+Completed: patch-size-three gains repeat across all three seeds. Mean paired macro-F1 gain is 0.01201.
+Use it as the working development reference while retaining stage, transition, and short-history caveats.
+See the [measured patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md).
+
+Proposed next: patch size two versus three at seed 42 on all five original folds.
+Keep raw context thirty and all optimization/evidence settings fixed. Reuse the measured patch-size-three reference.
+The candidate has fifteen temporal tokens and 2,740 parameters, versus ten tokens and 2,756.
+Maximum new work is five fits and 200 epochs. Timo runs training locally.
+The final-test participants remain reserved.
 
 ## Model and evaluation milestones
 

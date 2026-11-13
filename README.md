@@ -297,3 +297,6 @@ The next proposal replicates the unchanged patch recipe across seeds 43 and 44 b
 
 Use [notebook 24](notebooks/24_patch_transformer_seeds.ipynb) for the [shared-seed patch replication](docs/patch-transformer-seeds.md).
 It reuses every measured reference and seed 42, preparing only patch candidates for seeds 43 and 44.
+
+The [measured patch seed replication](docs/experiments/patch-transformer-seeds-2026-11-13/README.md) confirms mean macro-F1 and REM gains at all three seeds.
+Patch size three is the working development reference; the next proposal tests finer two-epoch patches.

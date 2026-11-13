@@ -1,6 +1,8 @@
 # Replicate the three-epoch patch recipe across seeds
 
-Status: prepared for Timo to run locally. Only seed 42 has measured patch-model results.
+Status: completed locally by Timo and reviewed on 2026-11-13.
+The [measured replication](experiments/patch-transformer-seeds-2026-11-13/README.md) confirms positive mean fold macro-F1 and REM gains across all three seeds.
+Use patch size three as the working development reference, with stage-specific and short-history limits.
 
 ## Question
 
@@ -117,7 +119,9 @@ Then consider short-history handling or a bounded patch-size comparison.
 A mixed result should remain a mixed result; do not select a favorable seed or silently combine new settings.
 Do not inspect final-test observations during this replication.
 
-## Local preparation evidence
+## Historical preparation evidence
+
+These checks describe the pre-training state. The completed review supersedes pending-result status.
 
 On 2026-11-13, only the two new candidate studies were prepared without model optimization.
 All 260 copied feature CSV files match the seed-42 patch folds byte for byte.
