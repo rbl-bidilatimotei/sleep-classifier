@@ -44,7 +44,8 @@ Completed: the seed-42 patch architecture gains mean fold macro-F1, pooled NLL, 
 Four of five folds and fourteen of 26 participants improve macro-F1. Cold-start performance remains a concern.
 See the [measured patch comparison](experiments/causal-patch-transformer-2026-11-13/README.md).
 
-Proposed next: replicate the same patch-size-three recipe with seeds 43 and 44.
+Prepared next: replicate the same patch-size-three recipe with seeds 43 and 44.
+The [shared-seed protocol](patch-transformer-seeds.md) and notebook 24 reuse all measured references.
 Reuse all measured dropout-0.2 references and the completed seed-42 patch candidate.
 Keep all settings fixed. Only ten new candidate fits are needed, capped at 400 epochs.
 Seed repeats assess initialization and training randomness on the same participants, not independent generalization.

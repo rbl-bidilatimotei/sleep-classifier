@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-patch-seed-43.yaml
+output_dir: ../artifacts/transformer-patch-seeds/seed-43/candidate
+folds: 5
+split_seed: 42

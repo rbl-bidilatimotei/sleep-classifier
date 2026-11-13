@@ -1323,3 +1323,74 @@ def test_patch_notebook_renders_populated_architecture_scores_and_confusion(tmp_
         assert len(namespace["figure"].axes) == 2
     finally:
         plt.close("all")
+
+
+def test_patch_seed_notebook_reports_completed_synthetic_pairs_without_training(
+    tmp_path: Path,
+) -> None:
+    """Render complete paired seed scores, class charts, and probability diagnostics.
+
+    Args:
+        tmp_path (Path): Temporary verified synthetic seed-study artifacts.
+    """
+    from unittest.mock import Mock, patch
+
+    import matplotlib
+
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    matplotlib.use("Agg", force=True)
+    import matplotlib.pyplot as plt
+
+    study = PairedSeedReport(_write_dropout_seed_study(tmp_path))
+    notebook = json.loads((Path(__file__).resolve().parents[1]
+                           / "notebooks/24_patch_transformer_seeds.ipynb").read_text())
+    namespace = {"study": study, "Path": Path, "json": json, "pd": pd,
+                 "logger": Mock(), "display": Mock(),
+                 "PairedArchitectureReport": PairedArchitectureReport}
+    try:
+        for cell in notebook["cells"]:
+            source = "".join(cell["source"])
+            if cell["cell_type"] == "code" and any(marker in source for marker in (
+                "statuses = study.status()", 'if all(row["status"]', "if seed_rows:",
+                "if class_rows:", "probability_diagnostics = []",
+            )):
+                with patch.object(plt, "show"):
+                    exec(source, namespace)
+        assert len(namespace["seed_rows"]) == 2
+        assert len(namespace["class_rows"]) == 16
+        assert len(namespace["probability_diagnostics"]) == 4
+        assert namespace["probability_diagnostics"][1]["checkpoint_nll"] == pytest.approx(
+            0.3566749439,
+        )
+        saved = json.loads((study.output_dir / "summary.json").read_text())
+        assert saved["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    finally:
+        plt.close("all")
+
+
+def test_patch_seed_probability_diagnostic_rejects_changed_argmax(tmp_path: Path) -> None:
+    """Reject normalized probabilities that contradict the recorded predicted stage.
+
+    Args:
+        tmp_path (Path): Temporary synthetic seed-study artifacts to alter.
+    """
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    study = PairedSeedReport(_write_dropout_seed_study(tmp_path))
+    saved = json.loads(Path(study.cases[0]["reference_summary"]).read_text())
+    path = Path(saved["results"][0]["metrics_path"]).parent / "validation_predictions.csv"
+    predictions = pd.read_csv(path)
+    column = "prediction" if "prediction" in predictions else "gru_prediction"
+    different = (int(predictions.loc[0, column]) + 1) % 4
+    predictions.loc[0, [f"probability_{stage}" for stage in range(4)]] = 0.1
+    predictions.loc[0, f"probability_{different}"] = 0.7
+    predictions.to_csv(path, index=False)
+    notebook = json.loads((Path(__file__).resolve().parents[1]
+                           / "notebooks/24_patch_transformer_seeds.ipynb").read_text())
+    namespace = {"study": study, "statuses": study.status(), "Path": Path,
+                 "json": json, "pd": pd}
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if "probability_diagnostics = []" in "".join(cell["source"]))
+    with pytest.raises(ValueError, match="probabilities disagree"):
+        exec(source, namespace)

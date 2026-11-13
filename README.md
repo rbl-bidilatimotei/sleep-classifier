@@ -294,3 +294,6 @@ It reuses the full five-fold constant-rate reference and prepares five new patch
 
 The [measured patch comparison](docs/experiments/causal-patch-transformer-2026-11-13/README.md) improves mean fold macro-F1 by 0.01334 and REM precision/recall/F1.
 The next proposal replicates the unchanged patch recipe across seeds 43 and 44 before further tuning.
+
+Use [notebook 24](notebooks/24_patch_transformer_seeds.ipynb) for the [shared-seed patch replication](docs/patch-transformer-seeds.md).
+It reuses every measured reference and seed 42, preparing only patch candidates for seeds 43 and 44.
