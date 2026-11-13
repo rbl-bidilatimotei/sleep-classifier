@@ -131,3 +131,6 @@ The next hypothesis tests finer temporal granularity while retaining the same ra
 The [patch-size-two comparison](experiments/patch-size-comparison-2026-11-13/README.md) does not improve the primary score.
 The replicated three-epoch patch model remains the working development reference.
 The proposed next experiment tests explicit weight decay with the remaining controls fixed.
+
+The [AdamW experiment](patch-adamw.md) is prepared in notebook 26.
+CPU and MPS zero-decay controls match exactly on twenty synthetic updates. Positive-decay participant results remain pending.

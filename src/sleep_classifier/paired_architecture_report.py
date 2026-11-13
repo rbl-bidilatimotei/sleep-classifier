@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
 
 from sleep_classifier.features import FEATURE_COLUMNS
+from sleep_classifier.optimizer_settings import OptimizerSettings
 
 SHARED_RECIPE_KEYS = (
     "seed", "epochs", "batch_size", "context_epochs", "learning_rate", "patience",
@@ -24,7 +25,8 @@ class PairedArchitectureReport:
     def __init__(
         self, reference_summary: Path, candidate_summary: Path,
         comparison: Literal[
-            "architecture", "training_budget", "context", "learning_rate", "scheduler"
+            "architecture", "training_budget", "context", "learning_rate", "scheduler",
+            "weight_decay"
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -32,10 +34,11 @@ class PairedArchitectureReport:
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
-            comparison (str): Permitted architecture, budget, context, rate, or scheduler change.
+            comparison (str): Permitted model, budget, context, rate, scheduler, or decay change.
         """
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
+            "weight_decay",
         ):
             raise ValueError("Unknown paired comparison policy")
 
@@ -99,7 +102,7 @@ class PairedArchitectureReport:
         candidate_folds = {fold["name"]: fold for fold in candidate["folds"]}
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
-        if (self.comparison in ("learning_rate", "scheduler")
+        if (self.comparison in ("learning_rate", "scheduler", "weight_decay")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -173,6 +176,15 @@ class PairedArchitectureReport:
             self._validate_learning_rate_recipe(reference, candidate)
         elif self.comparison == "scheduler":
             self._validate_scheduler_recipe(reference, candidate)
+        elif self.comparison == "weight_decay":
+            self._validate_weight_decay_recipe(reference, candidate)
+
+        reference_optimizer = self._optimizer_signature(reference["config"])
+        candidate_optimizer = self._optimizer_signature(candidate["config"])
+        if self.comparison != "weight_decay" and reference_optimizer != candidate_optimizer:
+            raise ValueError("Optimizer changes require the explicit weight_decay policy")
+        self._validate_optimizer_record(reference, reference_optimizer)
+        self._validate_optimizer_record(candidate, candidate_optimizer)
 
         for key in SHARED_RECIPE_KEYS:
             if key in ("epochs", "patience") and self.comparison == "training_budget":
@@ -188,7 +200,7 @@ class PairedArchitectureReport:
                 != candidate["config"].get("lr_scheduler")):
             raise ValueError("Scheduler changes require the explicit scheduler comparison policy")
         if reference["config"].get("optimizer_agent") or candidate["config"].get("optimizer_agent"):
-            raise ValueError("Paired comparisons require the plain Adam recipes")
+            raise ValueError("Paired comparisons require recipes without optimizer agents")
         if reference["coverage"] != candidate["coverage"]:
             raise ValueError("Fold eligibility or coverage differs")
         if reference["device"] != candidate["device"]:
@@ -199,6 +211,98 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _optimizer_signature(config: dict[str, Any]) -> dict[str, Any]:
+        """Normalize supported optimizer settings without importing the training runtime.
+
+        Args:
+            config (dict[str, Any]): Recorded training recipe with an optional optimizer mapping.
+        """
+        return OptimizerSettings(config.get("optimizer")).values
+
+
+    @staticmethod
+    def _validate_optimizer_record(
+        metrics: dict[str, Any], settings: dict[str, Any], required: bool = False,
+    ) -> None:
+        """Check effective optimizer provenance against the saved recipe.
+
+        Args:
+            metrics (dict[str, Any]): Verified fold metrics and optional optimizer provenance.
+            settings (dict[str, Any]): Normalized optimizer settings.
+            required (bool): Require effective parameter-group evidence for a new AdamW fit.
+        """
+        record = metrics.get("optimizer")
+        if record is None and not required:
+            return
+        expected = "AdamW" if settings["name"] == "adamw" else "Adam"
+        if not isinstance(record, dict) or record.get("base_optimizer") != expected:
+            raise ValueError("Recorded optimizer differs from the recipe")
+        if not required:
+            return
+
+        groups = record.get("param_groups")
+        if (not isinstance(groups, list) or len(groups) != 2
+                or any(not isinstance(group, dict) for group in groups)
+                or any(not isinstance(group.get("name"), str) for group in groups)
+                or {group.get("name") for group in groups} != {"decay", "no_decay"}):
+            raise ValueError("AdamW requires effective decay and no_decay parameter groups")
+        names = []
+        count = 0
+        for group in groups:
+            expected_decay = settings["weight_decay"] if group["name"] == "decay" else 0.0
+            decay = group.get("weight_decay")
+            parameters = group.get("parameter_names")
+            size = group.get("parameter_count")
+            if (isinstance(decay, bool) or not isinstance(decay, (int, float))
+                    or not math.isfinite(decay) or decay != expected_decay
+                    or type(size) is not int or size <= 0
+                    or not isinstance(parameters, list) or not parameters
+                    or any(not isinstance(name, str) or not name for name in parameters)):
+                raise ValueError("AdamW effective parameter-group metadata is invalid")
+            names.extend(parameters)
+            count += size
+        if len(names) != len(set(names)) or count != metrics["parameter_count"]:
+            raise ValueError("AdamW parameter groups must cover the model exactly once")
+
+
+    @classmethod
+    def _validate_weight_decay_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit explicit AdamW decay with an otherwise unchanged zero-decay Adam control.
+
+        Args:
+            reference (dict[str, Any]): Verified zero-decay Adam fold metrics.
+            candidate (dict[str, Any]): Verified positive-decay AdamW fold metrics.
+        """
+        for key in ("model_config", "parameter_count"):
+            if key not in reference or reference[key] != candidate.get(key):
+                raise ValueError(f"Weight-decay model differs at {key}")
+        if (not isinstance(reference["model_config"], dict) or not reference["model_config"]
+                or type(reference["parameter_count"]) is not int
+                or reference["parameter_count"] <= 0):
+            raise ValueError("Weight-decay comparison requires valid model metadata")
+
+        excluded = {"optimizer", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Weight-decay comparison requires the same model and base recipe")
+        if reference["config"].get("lr_scheduler") or candidate["config"].get("lr_scheduler"):
+            raise ValueError("Weight-decay comparison requires the constant-rate recipes")
+
+        control = cls._optimizer_signature(reference["config"])
+        treatment = cls._optimizer_signature(candidate["config"])
+        if control != {"name": "adam", "weight_decay": 0.0, "exclude_bias_and_norm": False}:
+            raise ValueError("Weight-decay comparison requires the legacy zero-decay Adam control")
+        if (treatment["name"] != "adamw" or treatment["weight_decay"] <= 0
+                or not treatment["exclude_bias_and_norm"]):
+            raise ValueError("Weight-decay comparison requires AdamW with bias and norm exclusions")
+        cls._validate_optimizer_record(reference, control)
+        cls._validate_optimizer_record(candidate, treatment, required=True)
 
 
     @staticmethod
@@ -434,7 +538,9 @@ class PairedArchitectureReport:
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
-            if self.comparison in ("training_budget", "context", "learning_rate", "scheduler"):
+            if self.comparison in (
+                "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
+            ):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
             self._validate_population(
@@ -471,6 +577,15 @@ class PairedArchitectureReport:
                     "Targeted post-hoc development subset; not a full-cohort benchmark "
                     "or independent evidence for a global recipe"
                 )
+
+        if self.comparison == "weight_decay":
+            report["comparison"] = "weight_decay"
+            report["optimization_caveat"] = (
+                "A synthetic zero-decay check does not prove identical participant trajectories"
+            )
+            report["selection_caveat"] = (
+                "Development validation selects checkpoints; the reserved test remains separate"
+            )
 
         if self.comparison == "scheduler":
             report["comparison"] = "scheduler"
@@ -577,7 +692,7 @@ def main() -> None:
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--comparison", choices=(
-        "architecture", "training_budget", "context", "learning_rate", "scheduler",
+        "architecture", "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
     ),
                         default="architecture")
     args = parser.parse_args()

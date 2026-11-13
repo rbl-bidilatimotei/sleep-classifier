@@ -307,3 +307,6 @@ Short-history and stage-transition reports expose the remaining temporal weaknes
 
 The [measured patch-size comparison](docs/experiments/patch-size-comparison-2026-11-13/README.md) loses mean fold macro-F1 by 0.00773.
 REM recall/F1 improve, but Deep F1 and selected pooled NLL worsen. Retain patch size three as the working reference.
+
+Use [notebook 26](notebooks/26_patch_adamw.ipynb) for the [fixed-recipe AdamW weight-decay experiment](docs/patch-adamw.md).
+CPU and MPS zero-decay controls match exactly on twenty synthetic updates. Participant training stays opt-in.
