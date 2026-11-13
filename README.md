@@ -300,3 +300,10 @@ It reuses every measured reference and seed 42, preparing only patch candidates 
 
 The [measured patch seed replication](docs/experiments/patch-transformer-seeds-2026-11-13/README.md) confirms mean macro-F1 and REM gains at all three seeds.
 Patch size three is the working development reference; the next proposal tests finer two-epoch patches.
+
+Use [notebook 25](notebooks/25_patch_size_comparison.ipynb) for the [two-epoch versus three-epoch patch comparison](docs/patch-size-comparison.md).
+It reuses seed-42 patch-size-three results and prepares five candidate fits with every other setting fixed.
+Short-history and stage-transition reports expose the remaining temporal weaknesses. Training stays opt-in.
+
+The [measured patch-size comparison](docs/experiments/patch-size-comparison-2026-11-13/README.md) loses mean fold macro-F1 by 0.00773.
+REM recall/F1 improve, but Deep F1 and selected pooled NLL worsen. Retain patch size three as the working reference.

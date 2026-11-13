@@ -176,3 +176,12 @@ Deep F1 declines for two seeds, and NLL improves for only two seeds.
 First-two-epoch history and Deep-transition F1 decline at every seed, in small post-hoc slices.
 Retain patch size three as the working development reference, then test patch size two with other controls fixed.
 See the [replication review](experiments/patch-transformer-seeds-2026-11-13/README.md).
+
+## Measured two-epoch patches
+
+Smaller patches lose mean fold macro-F1 by 0.00773, with only one of five fold gains.
+REM F1 improves through recall while precision falls. Deep recall/F1 decline, and selected pooled NLL worsens.
+Short-history F1 gains do not extend to the full-history or overall transition slices.
+Fold 05 has the lowest candidate NLL but loses F1 against its matched reference.
+Retain patch size three. Recommend one explicit weight-decay experiment before more architecture changes.
+See the [complete measured review](experiments/patch-size-comparison-2026-11-13/README.md).

@@ -48,10 +48,14 @@ Completed: patch-size-three gains repeat across all three seeds. Mean paired mac
 Use it as the working development reference while retaining stage, transition, and short-history caveats.
 See the [measured patch replication](experiments/patch-transformer-seeds-2026-11-13/README.md).
 
-Proposed next: patch size two versus three at seed 42 on all five original folds.
-Keep raw context thirty and all optimization/evidence settings fixed. Reuse the measured patch-size-three reference.
-The candidate has fifteen temporal tokens and 2,740 parameters, versus ten tokens and 2,756.
-Maximum new work is five fits and 200 epochs. Timo runs training locally.
+Completed: [patch size two versus three](experiments/patch-size-comparison-2026-11-13/README.md) loses mean fold macro-F1 by 0.00773.
+Only one of five folds improves. REM F1 rises through recall, while Deep F1 and selected pooled NLL worsen.
+Retain patch size three. Short-history gains do not establish a general transition benefit.
+
+Proposed next: one patch-size-three explicit weight-decay experiment at seed 42 on all five original folds.
+Predefine AdamW decay 0.01 and parameter groups. Verify zero-decay equivalence before defining the controlled comparison.
+Keep the other training controls fixed. Do not automatically replicate the negative patch-size-two result.
+This proposal is not implemented yet. Timo runs future training locally.
 The final-test participants remain reserved.
 
 ## Model and evaluation milestones
