@@ -134,3 +134,6 @@ The proposed next experiment tests explicit weight decay with the remaining cont
 
 The [AdamW experiment](patch-adamw.md) is prepared in notebook 26.
 CPU and MPS zero-decay controls match exactly on twenty synthetic updates. Positive-decay participant results remain pending.
+
+The [completed AdamW experiment](experiments/patch-adamw-2026-11-16/README.md) is essentially neutral on the primary score.
+The original Adam, patch-size-three model remains the working reference. The next proposal changes only training-label smoothing.

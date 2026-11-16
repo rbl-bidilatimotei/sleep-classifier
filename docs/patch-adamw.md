@@ -1,6 +1,8 @@
 # Patch Transformer weight-decay experiment
 
-Status: prepared for local training by Timo. No participant-data AdamW results exist yet.
+Status: completed locally by Timo and reviewed on 2026-11-16.
+The [measured results](experiments/patch-adamw-2026-11-16/README.md) show only a 0.00075 mean fold macro-F1 gain.
+Retain the replicated original Adam reference.
 
 ## Question and control
 
@@ -127,7 +129,9 @@ It can run the bounded synthetic control and no-gradient forward checks.
 Keep source notebooks output-free. Store executed HTML and large run artifacts under ignored artifacts.
 Small reviewed control evidence is recorded under docs/experiments.
 
-## Preparation evidence
+## Historical preparation evidence
+
+The following checks describe the state before Timo ran participant-data training.
 
 All five candidate folds were prepared on 2026-11-13 without participant-data optimization.
 All 130 feature CSV files match the measured reference byte for byte.
