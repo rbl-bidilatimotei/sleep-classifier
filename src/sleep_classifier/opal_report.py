@@ -146,7 +146,7 @@ class OpalRunReport:
             str: Status classification of the operational run.
         """
         if not events:
-            return "plain_adam" if backend == "adam" else "unknown_missing_events"
+            return f"plain_{backend}" if backend in ("adam", "adamw") else "unknown_missing_events"
         if not end:
             return "incomplete"
         if end["kind"] != "end":
@@ -183,7 +183,11 @@ class OpalRunReport:
         agent = metrics.get("optimizer", {}).get("agent", {})
         backend = start.get("backend", agent.get("backend"))
         if not backend and metrics and not metrics.get("config", {}).get("optimizer_agent"):
-            backend = "adam"
+            configured = metrics.get("config", {}).get("optimizer") or {}
+            recorded = metrics.get("optimizer", {}).get("base_optimizer")
+            backend = recorded.lower() if recorded in ("Adam", "AdamW") else configured.get(
+                "name", "adam",
+            )
 
         schedule = next(
             (event["schedule"] for event in reversed(events) if "schedule" in event), None

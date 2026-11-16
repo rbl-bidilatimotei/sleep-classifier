@@ -185,3 +185,12 @@ Short-history F1 gains do not extend to the full-history or overall transition s
 Fold 05 has the lowest candidate NLL but loses F1 against its matched reference.
 Retain patch size three. Recommend one explicit weight-decay experiment before more architecture changes.
 See the [complete measured review](experiments/patch-size-comparison-2026-11-13/README.md).
+
+## Measured AdamW decay
+
+AdamW decay 0.01 gains only 0.00075 mean fold macro-F1, with gains on folds 04 and 05.
+Wake/REM F1 improve; Light/Deep F1 decline. Accuracy falls slightly.
+Most selected pooled NLL improvement comes from fold 01 selecting epoch eight instead of twenty-four.
+The matched-epoch effect is much smaller, and the late generalization gap remains.
+Retain the original multi-seed Adam reference. Propose one training-only label-smoothing test at 0.05.
+See the [measured review](experiments/patch-adamw-2026-11-16/README.md).

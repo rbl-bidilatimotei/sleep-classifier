@@ -1394,3 +1394,201 @@ def test_patch_seed_probability_diagnostic_rejects_changed_argmax(tmp_path: Path
                   if "probability_diagnostics = []" in "".join(cell["source"]))
     with pytest.raises(ValueError, match="probabilities disagree"):
         exec(source, namespace)
+
+
+def _write_weight_decay_pair(root: Path) -> tuple[Path, Path]:
+    """Write identical architecture recipes with one explicit decoupled-decay candidate.
+
+    Args:
+        root (Path): Temporary directory for two synthetic grouped experiments.
+    """
+    paths = _write_learning_rate_pair(root)
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"]["learning_rate"] = 0.001
+            metrics["optimizer"] = {"base_optimizer": "Adam", "updates": 2}
+            if index == 1:
+                metrics["config"]["optimizer"] = {
+                    "name": "adamw", "weight_decay": 0.01, "exclude_bias_and_norm": True,
+                }
+                metrics["optimizer"] = {
+                    "base_optimizer": "AdamW", "updates": 2,
+                    "param_groups": [
+                        {"name": "decay", "weight_decay": 0.01,
+                         "parameter_names": ["projection.weight"], "parameter_count": 2500},
+                        {"name": "no_decay", "weight_decay": 0.0,
+                         "parameter_names": ["projection.bias"], "parameter_count": 64},
+                    ],
+                }
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_weight_decay_report_requires_explicit_policy(tmp_path: Path) -> None:
+    """Accept only the declared decay intervention with effective optimizer evidence.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    with pytest.raises(ValueError, match="explicit weight_decay"):
+        PairedArchitectureReport(reference, candidate).build()
+
+    report = PairedArchitectureReport(reference, candidate, "weight_decay").build()
+    assert report["comparison"] == "weight_decay"
+    assert report["eligible_epochs"] == 8
+    assert not report["independent_outer_test"]
+    assert "synthetic" in report["optimization_caveat"].lower()
+    assert "reserved test" in report["selection_caveat"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "model", "parameter_count", "rate", "architecture", "diagnostics", "extra_setting",
+    "agent", "schedule", "zero_decay", "negative_decay", "boolean_decay", "nonfinite_decay",
+    "no_exclusion", "unknown_optimizer_key", "reference_decay", "recorded_class", "missing_record",
+    "recorded_decay", "recorded_count", "duplicate_parameters", "missing_group", "model_metadata",
+])
+def test_weight_decay_report_rejects_confounded_or_unverified_pairs(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject recipe drift, invalid decay, or effective parameter-group mismatches.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+        mutation (str): Change that invalidates the controlled comparison.
+    """
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    metrics_path = Path(json.loads(candidate.read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(metrics_path.read_text())
+    if mutation == "model":
+        metrics["model_config"]["d_model"] = 32
+    elif mutation == "parameter_count":
+        metrics["parameter_count"] += 1
+    elif mutation == "rate":
+        metrics["config"]["learning_rate"] = 0.0003
+    elif mutation == "architecture":
+        metrics["config"]["transformer"]["dropout"] = 0.3
+    elif mutation == "diagnostics":
+        metrics["config"]["diagnostics"]["save_predictions"] = False
+    elif mutation == "extra_setting":
+        metrics["config"]["label_smoothing"] = 0.1
+    elif mutation == "agent":
+        metrics["config"]["optimizer_agent"] = {"backend": "keep"}
+    elif mutation == "schedule":
+        metrics["config"]["lr_scheduler"] = {"kind": "reduce_on_plateau"}
+    elif mutation in ("zero_decay", "negative_decay", "boolean_decay", "nonfinite_decay"):
+        metrics["config"]["optimizer"]["weight_decay"] = {
+            "zero_decay": 0.0, "negative_decay": -1.0,
+            "boolean_decay": True, "nonfinite_decay": float("inf"),
+        }[mutation]
+    elif mutation == "no_exclusion":
+        metrics["config"]["optimizer"]["exclude_bias_and_norm"] = False
+    elif mutation == "unknown_optimizer_key":
+        metrics["config"]["optimizer"]["unused"] = 1
+    elif mutation == "reference_decay":
+        reference_path = Path(json.loads(reference.read_text())["results"][0]["metrics_path"])
+        control = json.loads(reference_path.read_text())
+        control["config"]["optimizer"] = {"name": "adamw", "weight_decay": 0.01}
+        _rewrite_metrics(reference, control)
+    elif mutation == "recorded_class":
+        metrics["optimizer"]["base_optimizer"] = "Adam"
+    elif mutation == "missing_record":
+        metrics["optimizer"] = None
+    elif mutation == "recorded_decay":
+        metrics["optimizer"]["param_groups"][1]["weight_decay"] = 0.01
+    elif mutation == "recorded_count":
+        metrics["optimizer"]["param_groups"][0]["parameter_count"] += 1
+    elif mutation == "duplicate_parameters":
+        metrics["optimizer"]["param_groups"][1]["parameter_names"] = ["projection.weight"]
+    elif mutation == "missing_group":
+        metrics["optimizer"]["param_groups"].pop()
+    else:
+        metrics["model_config"] = {}
+    _rewrite_metrics(candidate, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "weight_decay").build()
+
+
+def test_weight_decay_report_accepts_explicit_legacy_adam_control(tmp_path: Path) -> None:
+    """Normalize a recorded zero-decay Adam setting to the historical implicit control.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    summary = json.loads(reference.read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"]["optimizer"] = {"name": "adam", "weight_decay": 0.0}
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    reference.write_text(json.dumps(summary))
+
+    assert PairedArchitectureReport(reference, candidate, "weight_decay").build()["comparison"] == (
+        "weight_decay"
+    )
+
+
+def test_weight_decay_report_preserves_epoch_population_checks(tmp_path: Path) -> None:
+    """Reject mismatched targets even when the optimizer recipes are valid.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    path = Path(json.loads(candidate.read_text())["results"][0]["metrics_path"]).parent
+    frame = pd.read_csv(path / "validation_predictions.csv")
+    frame.loc[0, "time"] = 1
+    frame.to_csv(path / "validation_predictions.csv", index=False)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "weight_decay").build()
+
+
+def test_weight_decay_report_checks_grouped_epoch_cap(tmp_path: Path) -> None:
+    """Require the saved grouped cap to agree with every recorded fold budget.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    for summary_path in (reference, candidate):
+        summary = json.loads(summary_path.read_text())
+        summary["plan"]["maximum_epochs"] = 10
+        summary_path.write_text(json.dumps(summary))
+
+    with pytest.raises(ValueError, match="epoch budget"):
+        PairedArchitectureReport(reference, candidate, "weight_decay").build()
+
+
+def test_temporal_adapter_forwards_explicit_weight_decay_policy(tmp_path: Path) -> None:
+    """Accept the paired optimizer policy before requiring temporal preparation metadata.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    from sleep_classifier.temporal_slice_report import TemporalSliceReport
+
+    reference, candidate = _write_weight_decay_pair(tmp_path)
+    with pytest.raises(FileNotFoundError, match="manifest"):
+        TemporalSliceReport.from_grouped(reference, candidate, comparison="weight_decay")
+
+
+def test_architecture_report_rejects_inconsistent_optimizer_provenance(tmp_path: Path) -> None:
+    """Reject an effective optimizer that contradicts an otherwise unchanged recipe.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+    """
+    reference, candidate = _write_pair(tmp_path)
+    _rewrite_metrics(candidate, {"optimizer": {"base_optimizer": "AdamW", "updates": 2}})
+
+    with pytest.raises(ValueError, match="Recorded optimizer"):
+        PairedArchitectureReport(reference, candidate).build()

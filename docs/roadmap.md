@@ -52,11 +52,13 @@ Completed: [patch size two versus three](experiments/patch-size-comparison-2026-
 Only one of five folds improves. REM F1 rises through recall, while Deep F1 and selected pooled NLL worsen.
 Retain patch size three. Short-history gains do not establish a general transition benefit.
 
-Proposed next: one patch-size-three explicit weight-decay experiment at seed 42 on all five original folds.
-Predefine AdamW decay 0.01 and parameter groups. Verify zero-decay equivalence before defining the controlled comparison.
-Keep the other training controls fixed. Do not automatically replicate the negative patch-size-two result.
-This proposal is not implemented yet. Timo runs future training locally.
-The final-test participants remain reserved.
+Completed: [AdamW decay 0.01](experiments/patch-adamw-2026-11-16/README.md) gains only 0.00075 mean fold macro-F1.
+Only folds 04 and 05 improve. Selected NLL gains include material checkpoint-selection effects.
+Retain the original Adam, patch-size-three recipe as the working reference.
+
+Proposed next: training-only label smoothing 0.05 on all five original seed-42 folds.
+Keep validation NLL unsmoothed and macro-F1 checkpoint selection fixed. Change no optimizer or architecture settings.
+Timo runs participant-data training locally. The final-test participants remain reserved.
 
 ## Model and evaluation milestones
 

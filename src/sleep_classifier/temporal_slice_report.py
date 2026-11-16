@@ -98,6 +98,7 @@ class TemporalSliceReport:
     @classmethod
     def from_grouped(
         cls, reference_summary: Path, candidate_summary: Path, short_history_epochs: int = 2,
+        comparison: str = "architecture",
     ) -> "TemporalSliceReport":
         """Load verified grouped predictions and immutable prepared segment metadata.
 
@@ -105,8 +106,9 @@ class TemporalSliceReport:
             reference_summary (Path): Completed reference grouped summary.
             candidate_summary (Path): Completed candidate grouped summary.
             short_history_epochs (int): Upper bound of the short-history slice.
+            comparison (str): Explicit paired policy for the recorded recipe change.
         """
-        PairedArchitectureReport(reference_summary, candidate_summary).build()
+        PairedArchitectureReport(reference_summary, candidate_summary, comparison).build()
         reference = cls._load_predictions(reference_summary)
         candidate = cls._load_predictions(candidate_summary)
         rows, context = cls._load_metadata(candidate_summary)

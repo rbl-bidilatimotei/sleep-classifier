@@ -419,3 +419,41 @@ def test_shared_trainer_logs_under_an_architecture_neutral_name(
     assert records[0].name == "sleep_classifier.neural_training"
     assert json.loads(records[0].message.split(": ", 1)[1])["model_type"] == model_type
     assert not (tmp_path / "results").exists()
+
+
+def test_adamw_check_exposes_groups_without_optimizer_updates(tmp_path: Path) -> None:
+    """Report AdamW groups during the synthetic no-gradient data check.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+    """
+    config = _config(tmp_path)
+    settings = yaml.safe_load(config.read_text())
+    settings["optimizer"] = {
+        "name": "adamw", "weight_decay": 0.01, "exclude_bias_and_norm": True,
+    }
+    config.write_text(yaml.safe_dump(settings))
+
+    result = GRUExperiment(config).run_check()
+    assert result["optimizer"]["settings"] == settings["optimizer"]
+    groups = result["optimizer"]["param_groups"]
+    assert {group["name"] for group in groups} == {"decay", "no_decay"}
+    assert sum(group["parameter_count"] for group in groups) == result["parameter_count"]
+    assert not (tmp_path / "results").exists()
+
+
+def test_synthetic_adamw_training_records_effective_optimizer(tmp_path: Path) -> None:
+    """Use AdamW for a tiny synthetic fit and save its effective decay provenance.
+
+    Args:
+        tmp_path (Path): Temporary synthetic experiment directory.
+    """
+    config = _config(tmp_path)
+    settings = yaml.safe_load(config.read_text())
+    settings["optimizer"] = {"name": "adamw", "weight_decay": 0.01}
+    config.write_text(yaml.safe_dump(settings))
+
+    metrics = json.loads(GRUExperiment(config).run().read_text())
+    assert metrics["optimizer"]["base_optimizer"] == "AdamW"
+    assert metrics["optimizer"]["updates"] > 0
+    assert [group["weight_decay"] for group in metrics["optimizer"]["param_groups"]] == [0.01, 0.0]

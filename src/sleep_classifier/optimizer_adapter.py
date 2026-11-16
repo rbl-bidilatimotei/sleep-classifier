@@ -115,7 +115,7 @@ class AgentOptimizerSettings:
 
 
 class OptimizerAdapter:
-    """Keep Adam and OPAL update calls behind one training interface."""
+    """Keep conventional and OPAL optimizer updates behind one training interface."""
 
     def __init__(self, optimizer: Any, settings: AgentOptimizerSettings) -> None:
         """Initialize the optimizer adapter with the given optimizer and settings.
@@ -156,6 +156,8 @@ class OptimizerAdapter:
         if validated.values.get("schedule") and validated.values["schedule"][-1] >= total_steps:
             raise ValueError("Scheduled decisions must precede the maximum training update")
         if validated.values:
+            if isinstance(optimizer, torch.optim.AdamW):
+                raise ValueError("OPAL currently requires the original Adam optimizer")
             if validated.values["backend"] == "codex" and not allow_live_agent:
                 raise RuntimeError("Live OPAL requires explicit --allow-live-agent opt-in")
             options = validated.wrapper_options(output_dir)
@@ -205,7 +207,14 @@ class OptimizerAdapter:
         Returns:
             dict[str, Any]: Settings, package version, and completed updates.
         """
-        record = {"base_optimizer": "Adam", "updates": self.updates}
+        name = "AdamW" if isinstance(self.optimizer, torch.optim.AdamW) else "Adam"
+        record = {"base_optimizer": name, "updates": self.updates}
+        if name == "AdamW":
+            record["param_groups"] = [
+                {key: group[key] for key in
+                 ("name", "weight_decay", "parameter_names", "parameter_count") if key in group}
+                for group in self.optimizer.param_groups
+            ]
         if self.settings.values:
             record.update(
                 agent=self.settings.values,
