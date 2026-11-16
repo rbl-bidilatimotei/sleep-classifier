@@ -137,3 +137,9 @@ CPU and MPS zero-decay controls match exactly on twenty synthetic updates. Posit
 
 The [completed AdamW experiment](experiments/patch-adamw-2026-11-16/README.md) is essentially neutral on the primary score.
 The original Adam, patch-size-three model remains the working reference. The next proposal changes only training-label smoothing.
+
+The [training-only smoothing experiment](patch-label-smoothing.md) is prepared in notebook 27.
+It changes the target distribution in training while retaining ordinary hard-label evaluation NLL and the original Adam optimizer.
+
+The [completed smoothing comparison](experiments/patch-label-smoothing-2026-11-16/README.md) improves accuracy and NLL but loses the primary macro-F1 score.
+The original unsmoothed Adam/P3 reference remains selected. The proposed next milestone is a bounded causal feature-information audit.

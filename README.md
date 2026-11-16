@@ -313,3 +313,9 @@ CPU and MPS zero-decay controls match exactly on twenty synthetic updates. Parti
 
 The [measured AdamW comparison](docs/experiments/patch-adamw-2026-11-16/README.md) gains only 0.00075 mean fold macro-F1.
 Accuracy falls slightly, while selected NLL improves with checkpoint-selection effects. Retain the original Adam reference.
+
+Use [notebook 27](notebooks/27_patch_label_smoothing.ipynb) for the [training-only label-smoothing experiment](docs/patch-label-smoothing.md).
+It reuses the original Adam/P3 reference and trains five smoothing-0.05 candidates. Evaluation NLL stays unsmoothed.
+
+The [measured label-smoothing comparison](docs/experiments/patch-label-smoothing-2026-11-16/README.md) gains accuracy but loses mean fold macro-F1.
+Retain the original unsmoothed Adam/P3 recipe. The next proposal audits causal feature information before further tuning.

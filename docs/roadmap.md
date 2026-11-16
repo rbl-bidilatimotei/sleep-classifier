@@ -56,9 +56,14 @@ Completed: [AdamW decay 0.01](experiments/patch-adamw-2026-11-16/README.md) gain
 Only folds 04 and 05 improve. Selected NLL gains include material checkpoint-selection effects.
 Retain the original Adam, patch-size-three recipe as the working reference.
 
-Proposed next: training-only label smoothing 0.05 on all five original seed-42 folds.
-Keep validation NLL unsmoothed and macro-F1 checkpoint selection fixed. Change no optimizer or architecture settings.
-Timo runs participant-data training locally. The final-test participants remain reserved.
+Completed: [training-only label smoothing 0.05](experiments/patch-label-smoothing-2026-11-16/README.md) loses mean fold macro-F1 by 0.00130.
+Accuracy rises by 0.185 percentage points, mainly through Light. Deep and REM F1 decline; late probability overfitting remains.
+Retain the original unsmoothed Adam/P3 reference and stop the local optimizer/loss grid for now.
+
+Proposed next: a bounded causal feature-information audit of persistent Deep/REM-to-Light errors.
+Inspect discarded motion dynamics and strictly past-relative heart-rate trends on development participants.
+Choose one feature family for a controlled ablation only if the audit supports a clear hypothesis.
+This audit and the next training recipe are not implemented yet. The final-test participants remain reserved.
 
 ## Model and evaluation milestones
 

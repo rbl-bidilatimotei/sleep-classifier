@@ -1,0 +1,136 @@
+{
+  "uniform_four_class_nll": 1.3862943611198906,
+  "training_prior_pooled_validation_nll": 1.1367730932510105,
+  "smoothed_target_entropy_floor": 0.20111391613971086,
+  "geometric_mean_true_probability_candidate": 0.4171267155503451,
+  "folds": [
+    {
+      "fold": "fold-01",
+      "training_class_counts": [
+        1387,
+        10255,
+        2503,
+        3976
+      ],
+      "training_class_priors": [
+        0.07654102974449534,
+        0.5659179956956017,
+        0.13812703493184703,
+        0.21941393962805586
+      ],
+      "validation_targets": 4587,
+      "training_prior_validation_nll": 1.1667841208591403,
+      "validation_class_counts": [
+        517,
+        2570,
+        616,
+        884
+      ]
+    },
+    {
+      "fold": "fold-02",
+      "training_class_counts": [
+        1509,
+        10493,
+        2417,
+        4107
+      ],
+      "training_class_priors": [
+        0.08145309295044802,
+        0.5663931771564288,
+        0.13046529202202312,
+        0.22168843787110007
+      ],
+      "validation_targets": 4182,
+      "training_prior_validation_nll": 1.166983548549343,
+      "validation_class_counts": [
+        395,
+        2332,
+        702,
+        753
+      ]
+    },
+    {
+      "fold": "fold-03",
+      "training_class_counts": [
+        1668,
+        9954,
+        2402,
+        3892
+      ],
+      "training_class_priors": [
+        0.09310113864701942,
+        0.5555927662424648,
+        0.1340701049341371,
+        0.21723599017637865
+      ],
+      "validation_targets": 4792,
+      "training_prior_validation_nll": 1.0781035456426626,
+      "validation_class_counts": [
+        236,
+        2871,
+        717,
+        968
+      ]
+    },
+    {
+      "fold": "fold-04",
+      "training_class_counts": [
+        1536,
+        10485,
+        2546,
+        3714
+      ],
+      "training_class_priors": [
+        0.08402166183469176,
+        0.5735463049067338,
+        0.13927028061922214,
+        0.20316175263935232
+      ],
+      "validation_targets": 4427,
+      "training_prior_validation_nll": 1.1674454843354949,
+      "validation_class_counts": [
+        368,
+        2340,
+        573,
+        1146
+      ]
+    },
+    {
+      "fold": "fold-05",
+      "training_class_counts": [
+        1516,
+        10113,
+        2608,
+        3751
+      ],
+      "training_class_priors": [
+        0.08427840782744052,
+        0.5622081387591727,
+        0.14498554591950188,
+        0.2085279074938848
+      ],
+      "validation_targets": 4720,
+      "training_prior_validation_nll": 1.1116368833171273,
+      "validation_class_counts": [
+        388,
+        2712,
+        511,
+        1109
+      ]
+    }
+  ],
+  "stage_order": [
+    "wake",
+    "light",
+    "deep",
+    "REM"
+  ],
+  "smoothed_target_distribution": [
+    0.9625,
+    0.0125,
+    0.0125,
+    0.0125
+  ],
+  "baseline_method": "Fit constant probabilities from each training fold; score hard-label validation NLL"
+}

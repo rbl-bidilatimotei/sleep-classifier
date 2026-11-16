@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.loss_settings import LossSettings
 
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
@@ -99,9 +100,10 @@ class EpochEvidenceReport:
             epoch = record.get("epoch")
             count = record.get("validation", {}).get("count")
             if (type(record.get("schema_version")) is not int
-                    or record["schema_version"] != 1 or type(epoch) is not int or epoch <= 0
+                    or record["schema_version"] not in (1, 2)
+                    or type(epoch) is not int or epoch <= 0
                     or type(count) is not int or count <= 0):
-                raise ValueError("Evidence requires version 1 and positive epoch/count values")
+                raise ValueError("Evidence requires version 1 or 2 and positive epoch/count values")
             if path.name != f"epoch-{epoch:03d}.json":
                 raise ValueError("Evidence epoch filename differs from its recorded number")
             if not isinstance(record.get("files"), dict):
@@ -152,6 +154,24 @@ class EpochEvidenceReport:
         return groups
 
 
+    def _training_objective(self, record: dict[str, Any]) -> float:
+        """Read a legacy NLL or explicitly smoothed objective without mixing definitions.
+
+        Args:
+            record (dict[str, Any]): Epoch record in either supported evidence schema.
+        """
+        if record["schema_version"] == 1:
+            return self._number(record["training"]["stochastic_nll"], "training_stochastic_nll")
+        provenance = record.get("loss")
+        if not isinstance(provenance, dict):
+            raise ValueError("Smoothed epoch evidence requires loss provenance")
+        loss = LossSettings(provenance.get("training"))
+        if (loss.values["label_smoothing"] <= 0 or provenance != loss.provenance()
+                or record["training"].get("stochastic_nll") is not None):
+            raise ValueError("Smoothed objective must remain separate from hard-label NLL")
+        return self._number(record["training"]["stochastic_objective"], "training_objective")
+
+
     def _flat_epoch(self, record: dict[str, Any]) -> dict[str, Any]:
         """Extract measured scalar columns without replacing absent values with zero.
 
@@ -178,8 +198,9 @@ class EpochEvidenceReport:
             "training_evaluation_nll": self._number(
                 record["training"]["evaluation_nll"], "training_evaluation_nll", optional=True,
             ),
+            "training_stochastic_objective": self._training_objective(record),
             "training_stochastic_nll": self._number(
-                record["training"]["stochastic_nll"], "training_stochastic_nll",
+                record["training"].get("stochastic_nll"), "training_stochastic_nll", optional=True,
             ),
             "learning_rates": rates,
             "validation_classes": self._group_summaries(
@@ -245,9 +266,9 @@ class EpochEvidenceReport:
         figure, axes = plt.subplots(len(folds), 4, figsize=(18, 4 * len(folds)), squeeze=False)
         for row, fold in enumerate(folds):
             frame = pd.DataFrame(fold["epochs"])
-            for column, label in (("training_stochastic_nll", "Train, stochastic"),
-                                  ("training_evaluation_nll", "Train, evaluation mode"),
-                                  ("validation_nll", "Validation")):
+            for column, label in (("training_stochastic_objective", "Train objective, stochastic"),
+                                  ("training_evaluation_nll", "Train hard-label NLL"),
+                                  ("validation_nll", "Validation hard-label NLL")):
                 axes[row, 0].plot(frame.epoch, frame[column], label=label)
             axes[row, 1].plot(frame.epoch, frame.validation_macro_f1, label="Validation macro-F1")
             for column, label in (("gradient_norm_pre_clip_mean", "Mean"),
@@ -258,7 +279,8 @@ class EpochEvidenceReport:
                 rates = [values[index] if index < len(values) else np.nan
                          for values in frame.learning_rates]
                 axes[row, 3].plot(frame.epoch, rates, label=f"Group {index}")
-            for axis, title in zip(axes[row], ("NLL", "Macro-F1", "Pre-clip gradient norm", "LR")):
+            titles = ("Objective / hard-label NLL", "Macro-F1", "Pre-clip gradient norm", "LR")
+            for axis, title in zip(axes[row], titles):
                 axis.set(title=f"{fold['fold']}: {title}", xlabel="Optimization epoch")
                 axis.xaxis.set_major_locator(MaxNLocator(integer=True))
                 axis.legend(fontsize=8)

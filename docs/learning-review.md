@@ -194,3 +194,12 @@ Most selected pooled NLL improvement comes from fold 01 selecting epoch eight in
 The matched-epoch effect is much smaller, and the late generalization gap remains.
 Retain the original multi-seed Adam reference. Propose one training-only label-smoothing test at 0.05.
 See the [measured review](experiments/patch-adamw-2026-11-16/README.md).
+
+## Measured training-label smoothing
+
+Smoothing 0.05 increases pooled accuracy by 0.185 percentage points but reduces mean fold macro-F1 by 0.00130.
+Light drives the accuracy gain; Deep and REM F1 decline, while Wake F1 is almost unchanged and slightly higher.
+Selected hard-label NLL improves, but all five late training/validation gaps remain.
+Smoothed stochastic training loss has a different definition and must not be treated as ordinary NLL.
+Retain the original reference. Next, audit persistent Deep/REM-to-Light errors and discarded causal motion/heart-rate information.
+See the [complete measured review](experiments/patch-label-smoothing-2026-11-16/README.md).

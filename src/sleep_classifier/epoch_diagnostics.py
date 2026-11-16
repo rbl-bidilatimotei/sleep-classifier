@@ -9,6 +9,8 @@ import pandas as pd
 import torch
 from torch import nn
 
+from sleep_classifier.loss_settings import LossSettings
+
 
 class EpochDiagnosticsSettings:
     """Validate optional evidence settings without changing the training recipe."""
@@ -290,6 +292,13 @@ class EpochDiagnostics:
             "training": {"evaluation_nll": training_nll, "stochastic_nll": train_loss},
             "optimizer": self._optimizer_summary(learning_rates), "files": {},
         }
+        loss = LossSettings(self.checkpoint_metadata.get("training_config", {}).get("loss"))
+        if loss.values["label_smoothing"] > 0:
+            record["schema_version"] = 2
+            record["loss"] = loss.provenance()
+            record["training"] = {
+                "evaluation_nll": training_nll, "stochastic_objective": train_loss,
+            }
         if self.settings.save_predictions:
             record["files"]["validation_predictions"] = self._save_predictions(epoch, table)
         if epoch in self.settings.checkpoint_epochs:
