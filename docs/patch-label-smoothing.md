@@ -1,6 +1,8 @@
 # Training-only label smoothing
 
-Status: prepared for local training by Timo. No candidate results exist yet.
+Status: completed locally by Timo and reviewed on 2026-11-16.
+The [measured comparison](experiments/patch-label-smoothing-2026-11-16/README.md) improves accuracy and selected NLL but loses mean fold macro-F1.
+Retain the original unsmoothed Adam/P3 reference.
 
 ## Why this intervention?
 
@@ -111,7 +113,9 @@ uv run --locked --group gru --group notebook python scripts/execute_notebook.py 
 HTML export skips setup, preparation, participant training, and recursive export.
 Keep source notebooks output-free. Executed HTML and large run artifacts remain local under ignored artifacts.
 
-## Preparation evidence
+## Historical preparation evidence
+
+The following checks describe the state before Timo ran participant-data training.
 
 All five candidate folds were prepared on 2026-11-16 without participant-data optimization.
 All 130 feature tables match the reused reference byte for byte.

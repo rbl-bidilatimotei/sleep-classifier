@@ -140,3 +140,6 @@ The original Adam, patch-size-three model remains the working reference. The nex
 
 The [training-only smoothing experiment](patch-label-smoothing.md) is prepared in notebook 27.
 It changes the target distribution in training while retaining ordinary hard-label evaluation NLL and the original Adam optimizer.
+
+The [completed smoothing comparison](experiments/patch-label-smoothing-2026-11-16/README.md) improves accuracy and NLL but loses the primary macro-F1 score.
+The original unsmoothed Adam/P3 reference remains selected. The proposed next milestone is a bounded causal feature-information audit.
