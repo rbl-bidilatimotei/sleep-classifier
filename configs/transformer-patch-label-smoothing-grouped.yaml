@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: transformer-patch-label-smoothing.yaml
+output_dir: ../artifacts/transformer-patch-label-smoothing-grouped-validation
+folds: 5
+split_seed: 42

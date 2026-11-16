@@ -56,7 +56,7 @@ Completed: [AdamW decay 0.01](experiments/patch-adamw-2026-11-16/README.md) gain
 Only folds 04 and 05 improve. Selected NLL gains include material checkpoint-selection effects.
 Retain the original Adam, patch-size-three recipe as the working reference.
 
-Proposed next: training-only label smoothing 0.05 on all five original seed-42 folds.
+Prepared next: [training-only label smoothing 0.05](patch-label-smoothing.md) on all five original seed-42 folds.
 Keep validation NLL unsmoothed and macro-F1 checkpoint selection fixed. Change no optimizer or architecture settings.
 Timo runs participant-data training locally. The final-test participants remain reserved.
 

@@ -24,6 +24,7 @@ from sleep_classifier.codex_runtime import CodexRuntime
 from sleep_classifier.epoch_diagnostics import EpochDiagnostics, EpochDiagnosticsSettings
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.loss_settings import LossSettings
 from sleep_classifier.lr_schedule import PlateauSchedule, PlateauSettings
 from sleep_classifier.model_factory import ModelFactory
 from sleep_classifier.opal_report import OpalRunReport
@@ -51,6 +52,9 @@ class TrainingConfig:
         self.values = values
         AgentOptimizerSettings(values.get("optimizer_agent"))
         optimizer = OptimizerSettings(values.get("optimizer"))
+        loss = LossSettings(values.get("loss"))
+        if loss.values["label_smoothing"] and values.get("optimizer_agent"):
+            raise ValueError("OPAL with label smoothing is not supported")
         if optimizer.name != "adam" and values.get("optimizer_agent"):
             raise ValueError("OPAL currently requires the original Adam optimizer")
         schedule = PlateauSettings(values.get("lr_scheduler"))
@@ -205,6 +209,7 @@ class GRUExperiment:
             "parameter_count": sum(
                 parameter.numel() for parameter in context["model"].parameters()
             ),
+            "loss": LossSettings(self.settings.get("loss")).provenance(),
             "optimizer": {
                 "settings": OptimizerSettings(self.settings.get("optimizer")).values,
                 "param_groups": OptimizerFactory(self.settings.get("optimizer")).describe_groups(
@@ -235,7 +240,12 @@ class GRUExperiment:
             PlateauSchedule(schedule_settings, optimizer) if schedule_settings.enabled else None
         )
         self._prepare_diagnostics(context)
-        criterion = nn.CrossEntropyLoss()
+        loss_settings = LossSettings(self.settings.get("loss"))
+        criterion = nn.CrossEntropyLoss(
+            label_smoothing=loss_settings.values["label_smoothing"],
+        )
+        evaluation_criterion = nn.CrossEntropyLoss()
+        LOGGER.info("Loss definitions: %s", json.dumps(loss_settings.provenance()))
         LOGGER.info(
             "Training %s: train_sequences=%d validation_sequences=%d device=%s",
             context["model_type"],
@@ -253,6 +263,7 @@ class GRUExperiment:
                 criterion,
                 context["device"],
                 context["validation_frame"],
+                evaluation_criterion=evaluation_criterion,
             )
         finally:
             optimizer.close()
@@ -262,7 +273,9 @@ class GRUExperiment:
             context["optimizer_provenance"]["runtime"] = self.agent_runtime
 
         context["elapsed_seconds"] = perf_counter() - started
-        metrics_path = self._finish(context, validation_loader, criterion, best_epoch, history)
+        metrics_path = self._finish(
+            context, validation_loader, evaluation_criterion, best_epoch, history,
+        )
         self._write_optimizer_report()
 
         LOGGER.info(
@@ -411,6 +424,7 @@ class GRUExperiment:
         directory.mkdir(parents=True, exist_ok=False)
         record = {
             "schema_version": 1, "config": self.settings,
+            "loss": LossSettings(self.settings.get("loss")).provenance(),
             "provenance": context["dataset"]["provenance"],
             "device": str(context["device"]),
             "packages": {"python": platform.python_version(), "torch": str(torch.__version__),
@@ -462,6 +476,7 @@ class GRUExperiment:
         criterion: nn.Module,
         device: torch.device,
         frame: pd.DataFrame,
+        evaluation_criterion: nn.Module | None = None,
     ) -> tuple[int, list[dict[str, Any]]]:
         """Run epochs and restore the checkpoint with the best validation macro-F1.
 
@@ -470,13 +485,15 @@ class GRUExperiment:
             train_loader (DataLoader): DataLoader for the training set.
             validation_loader (DataLoader): DataLoader for the validation set.
             optimizer (OptimizerAdapter): Optimizer for training.
-            criterion (nn.Module): Loss function.
+            criterion (nn.Module): Training objective, optionally using label smoothing.
             device (torch.device): Device to run the training on.
             frame (pd.DataFrame): Ordered held-out targets and participant identities.
+            evaluation_criterion (nn.Module | None): Hard-label loss; defaults to cross-entropy.
 
         Returns:
             tuple[int, list[dict[str, Any]]]: Best epoch and training history.
         """
+        evaluation_criterion = evaluation_criterion or nn.CrossEntropyLoss()
         stopping = EarlyStopping(int(self.settings["patience"]))
         history = []
         max_epochs = int(self.settings["epochs"])
@@ -492,7 +509,7 @@ class GRUExperiment:
                 float(self.settings["gradient_clip"]),
             )
             validation_loss, targets, predictions, probabilities = self._evaluate(
-                model, validation_loader, criterion, device
+                model, validation_loader, evaluation_criterion, device
             )
             self._assert_target_alignment(targets, frame)
             summary = self._epoch_summary(
@@ -500,7 +517,7 @@ class GRUExperiment:
             )
             history.append(summary)
             self._record_diagnostics(
-                model, criterion, device, frame, probabilities, summary, optimizer,
+                model, evaluation_criterion, device, frame, probabilities, summary, optimizer,
             )
             stop = stopping.update(model, epoch, summary["validation_macro_f1"])
             self._advance_schedule(summary, has_next_epoch=not stop and epoch < max_epochs)
@@ -617,6 +634,7 @@ class GRUExperiment:
         metrics["best_epoch"] = best_epoch
         metrics["history"] = history
         metrics["config"] = self.settings
+        metrics["loss"] = LossSettings(self.settings.get("loss")).provenance()
 
         factory = ModelFactory(self.settings)
         metrics["model_type"] = factory.model_type

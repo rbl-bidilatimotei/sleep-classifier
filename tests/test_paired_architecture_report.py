@@ -1592,3 +1592,155 @@ def test_architecture_report_rejects_inconsistent_optimizer_provenance(tmp_path:
 
     with pytest.raises(ValueError, match="Recorded optimizer"):
         PairedArchitectureReport(reference, candidate).build()
+
+
+def _write_label_smoothing_pair(root: Path) -> tuple[Path, Path]:
+    """Create matched recipes that differ only in training-label smoothing.
+
+    Args:
+        root (Path): Temporary grouped experiment directory.
+    """
+    paths = _write_learning_rate_pair(root)
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"]["learning_rate"] = 0.001
+            metrics["optimizer"] = {"base_optimizer": "Adam", "updates": 2}
+            if index == 1:
+                metrics["config"]["loss"] = {
+                    "name": "cross_entropy", "label_smoothing": 0.05,
+                }
+                metrics["loss"] = {
+                    "training": {"name": "cross_entropy", "label_smoothing": 0.05},
+                    "evaluation": {"name": "cross_entropy", "label_smoothing": 0.0},
+                }
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_label_smoothing_report_requires_explicit_policy(tmp_path: Path) -> None:
+    """Validate one isolated training loss intervention and preserve evaluation semantics.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment root.
+    """
+    reference, candidate = _write_label_smoothing_pair(tmp_path)
+    with pytest.raises(ValueError, match="explicit label_smoothing"):
+        PairedArchitectureReport(reference, candidate).build()
+
+    report = PairedArchitectureReport(reference, candidate, "label_smoothing").build()
+    assert report["comparison"] == "label_smoothing"
+    assert report["eligible_epochs"] == 8
+    assert "not ordinary NLL" in report["objective_caveat"]
+    assert not report["independent_outer_test"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "no_smoothing", "negative", "nonfinite", "boolean", "too_large", "wrong_loss",
+    "extra_loss_field", "missing_provenance", "wrong_training_record", "smoothed_evaluation",
+    "missing_evaluation", "optimizer", "rate", "dropout", "diagnostics", "model_metadata",
+    "scheduler", "agent", "smoothed_reference",
+])
+def test_label_smoothing_policy_rejects_confounded_or_invalid_recipes(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject unsupported objectives, changed controls, and missing hard-label evidence.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment directory.
+        mutation (str): Confound or invalid provenance to inject.
+    """
+    reference, candidate = _write_label_smoothing_pair(tmp_path)
+    saved = json.loads(candidate.read_text())
+    metrics = json.loads(Path(saved["results"][0]["metrics_path"]).read_text())
+    if mutation in ("no_smoothing", "negative", "nonfinite", "boolean", "too_large"):
+        metrics["config"]["loss"]["label_smoothing"] = {
+            "no_smoothing": 0.0, "negative": -0.05, "nonfinite": float("nan"),
+            "boolean": True, "too_large": 1.01,
+        }[mutation]
+    elif mutation == "wrong_loss":
+        metrics["config"]["loss"]["name"] = "focal"
+    elif mutation == "extra_loss_field":
+        metrics["config"]["loss"]["class_weights"] = [1, 1, 2, 2]
+    elif mutation == "missing_provenance":
+        metrics["loss"] = None
+    elif mutation == "wrong_training_record":
+        metrics["loss"]["training"]["label_smoothing"] = 0.1
+    elif mutation == "smoothed_evaluation":
+        metrics["loss"]["evaluation"]["label_smoothing"] = 0.05
+    elif mutation == "missing_evaluation":
+        metrics["loss"].pop("evaluation")
+    elif mutation == "optimizer":
+        metrics["config"]["optimizer"] = {"name": "adamw", "weight_decay": 0.0}
+    elif mutation == "rate":
+        metrics["config"]["learning_rate"] = 0.0003
+    elif mutation == "dropout":
+        metrics["config"]["transformer"]["dropout"] = 0.3
+    elif mutation == "diagnostics":
+        metrics["config"]["diagnostics"]["enabled"] = False
+    elif mutation == "model_metadata":
+        metrics["model_config"]["d_model"] = 32
+    elif mutation == "scheduler":
+        metrics["config"]["lr_scheduler"] = {"name": "plateau"}
+    elif mutation == "agent":
+        metrics["config"]["optimizer_agent"] = {"backend": "keep"}
+    else:
+        control_saved = json.loads(reference.read_text())
+        control = json.loads(Path(control_saved["results"][0]["metrics_path"]).read_text())
+        control["config"]["loss"] = {"name": "cross_entropy", "label_smoothing": 0.01}
+        _rewrite_metrics(reference, control)
+
+    _rewrite_metrics(candidate, metrics)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "label_smoothing").build()
+
+
+def test_label_smoothing_policy_accepts_explicit_unsmoothed_control(tmp_path: Path) -> None:
+    """Treat explicit zero smoothing like the historical missing loss configuration.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped experiment directory.
+    """
+    reference, candidate = _write_label_smoothing_pair(tmp_path)
+    saved = json.loads(reference.read_text())
+    metrics = json.loads(Path(saved["results"][0]["metrics_path"]).read_text())
+    metrics["config"]["loss"] = {"name": "cross_entropy", "label_smoothing": 0.0}
+    metrics["loss"] = {
+        "training": {"name": "cross_entropy", "label_smoothing": 0.0},
+        "evaluation": {"name": "cross_entropy", "label_smoothing": 0.0},
+    }
+    _rewrite_metrics(reference, metrics)
+    report = PairedArchitectureReport(reference, candidate, "label_smoothing").build()
+    assert report["eligible_epochs"] == 8
+
+
+def test_architecture_policy_checks_recorded_loss_semantics(tmp_path: Path) -> None:
+    """Reject smoothed evaluation hidden in an otherwise unchanged architecture recipe.
+
+    Args:
+        tmp_path (Path): Temporary synthetic architecture pair root.
+    """
+    reference, candidate = _write_pair(tmp_path)
+    _rewrite_metrics(candidate, {"loss": {
+        "training": {"name": "cross_entropy", "label_smoothing": 0.0},
+        "evaluation": {"name": "cross_entropy", "label_smoothing": 0.05},
+    }})
+    with pytest.raises(ValueError, match="unsmoothed hard-label"):
+        PairedArchitectureReport(reference, candidate).build()
+
+
+def test_temporal_adapter_accepts_explicit_label_smoothing_policy(tmp_path: Path) -> None:
+    """Validate the smoothing recipe before requiring temporal preparation metadata.
+
+    Args:
+        tmp_path (Path): Temporary paired artifacts without prepared feature metadata.
+    """
+    from sleep_classifier.temporal_slice_report import TemporalSliceReport
+
+    reference, candidate = _write_label_smoothing_pair(tmp_path)
+    with pytest.raises(FileNotFoundError, match="manifest.json"):
+        TemporalSliceReport.from_grouped(reference, candidate, comparison="label_smoothing")

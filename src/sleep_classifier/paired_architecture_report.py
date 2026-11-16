@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
 
 from sleep_classifier.features import FEATURE_COLUMNS
+from sleep_classifier.loss_settings import LossSettings
 from sleep_classifier.optimizer_settings import OptimizerSettings
 
 SHARED_RECIPE_KEYS = (
@@ -26,7 +27,7 @@ class PairedArchitectureReport:
         self, reference_summary: Path, candidate_summary: Path,
         comparison: Literal[
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay"
+            "weight_decay", "label_smoothing"
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -34,11 +35,11 @@ class PairedArchitectureReport:
         Args:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
-            comparison (str): Permitted model, budget, context, rate, scheduler, or decay change.
+            comparison (str): Explicit policy for the intended recipe change.
         """
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay",
+            "weight_decay", "label_smoothing",
         ):
             raise ValueError("Unknown paired comparison policy")
 
@@ -102,7 +103,7 @@ class PairedArchitectureReport:
         candidate_folds = {fold["name"]: fold for fold in candidate["folds"]}
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
-        if (self.comparison in ("learning_rate", "scheduler", "weight_decay")
+        if (self.comparison in ("learning_rate", "scheduler", "weight_decay", "label_smoothing")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -178,6 +179,17 @@ class PairedArchitectureReport:
             self._validate_scheduler_recipe(reference, candidate)
         elif self.comparison == "weight_decay":
             self._validate_weight_decay_recipe(reference, candidate)
+        elif self.comparison == "label_smoothing":
+            self._validate_label_smoothing_recipe(reference, candidate)
+
+        reference_loss = LossSettings(reference["config"].get("loss")).values
+        candidate_loss = LossSettings(candidate["config"].get("loss")).values
+        if self.comparison != "label_smoothing" and reference_loss != candidate_loss:
+            raise ValueError("Loss changes require the explicit label_smoothing policy")
+        self._validate_loss_record(reference, reference_loss)
+        self._validate_loss_record(
+            candidate, candidate_loss, required=self.comparison == "label_smoothing",
+        )
 
         reference_optimizer = self._optimizer_signature(reference["config"])
         candidate_optimizer = self._optimizer_signature(candidate["config"])
@@ -211,6 +223,65 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _validate_loss_record(
+        metrics: dict[str, Any], settings: dict[str, Any], required: bool = False,
+    ) -> None:
+        """Require declared training smoothing and unchanged hard-label evaluation.
+
+        Args:
+            metrics (dict[str, Any]): Fold metrics with optional loss provenance.
+            settings (dict[str, Any]): Normalized training loss settings.
+            required (bool): Require provenance for a new smoothing candidate.
+        """
+        record = metrics.get("loss")
+        if record is None and not required:
+            return
+        if (not isinstance(record, dict)
+                or any(not isinstance(record.get(key), dict)
+                       for key in ("training", "evaluation"))):
+            raise ValueError("Loss provenance must declare training and evaluation settings")
+        if LossSettings(record["training"]).values != settings:
+            raise ValueError("Recorded training loss differs from the recipe")
+        if LossSettings(record["evaluation"]).values != LossSettings(None).values:
+            raise ValueError("Paired evaluation must retain unsmoothed hard-label cross-entropy")
+
+
+    @classmethod
+    def _validate_label_smoothing_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit training-only smoothing for a fixed zero-decay Adam architecture.
+
+        Args:
+            reference (dict[str, Any]): Verified unsmoothed reference fold metrics.
+            candidate (dict[str, Any]): Verified smoothed candidate fold metrics.
+        """
+        for key in ("model_config", "parameter_count"):
+            if key not in reference or reference[key] != candidate.get(key):
+                raise ValueError(f"Label-smoothing model differs at {key}")
+        if (not isinstance(reference["model_config"], dict) or not reference["model_config"]
+                or type(reference["parameter_count"]) is not int
+                or reference["parameter_count"] <= 0):
+            raise ValueError("Label-smoothing comparison requires valid model metadata")
+
+        excluded = {"loss", "optimizer", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Label-smoothing comparison requires the same model and base recipe")
+        for metrics in (reference, candidate):
+            if metrics["config"].get("lr_scheduler"):
+                raise ValueError("Label-smoothing comparison requires the constant-rate recipes")
+            if cls._optimizer_signature(metrics["config"]) != OptimizerSettings(None).values:
+                raise ValueError("Label-smoothing comparison requires the original zero-decay Adam")
+
+        control = LossSettings(reference["config"].get("loss")).values
+        treatment = LossSettings(candidate["config"].get("loss")).values
+        if control["label_smoothing"] != 0.0 or treatment["label_smoothing"] <= 0.0:
+            raise ValueError("Label-smoothing comparison requires zero versus positive smoothing")
 
 
     @staticmethod
@@ -540,6 +611,7 @@ class PairedArchitectureReport:
             self._validate_recipes(left["metrics"], right["metrics"])
             if self.comparison in (
                 "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
+                "label_smoothing",
             ):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
@@ -577,6 +649,16 @@ class PairedArchitectureReport:
                     "Targeted post-hoc development subset; not a full-cohort benchmark "
                     "or independent evidence for a global recipe"
                 )
+
+        if self.comparison == "label_smoothing":
+            report["comparison"] = "label_smoothing"
+            report["objective_caveat"] = (
+                "The smoothed training objective is not ordinary NLL; "
+                "evaluation remains hard-label NLL"
+            )
+            report["selection_caveat"] = (
+                "Development validation selects checkpoints; the reserved test remains separate"
+            )
 
         if self.comparison == "weight_decay":
             report["comparison"] = "weight_decay"
@@ -693,6 +775,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--comparison", choices=(
         "architecture", "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
+        "label_smoothing",
     ),
                         default="architecture")
     args = parser.parse_args()
