@@ -66,7 +66,9 @@ No model training or final-test observation reads occurred. Diagnostic features 
 
 Prepared: [window-local heart-rate deviation and availability](window-local-heart-rate.md) in notebook 29.
 Reuse the original five-fold Adam/P3 reference. Keep the thirty-epoch raw information boundary and all eligible targets.
-Training remains operator-controlled; no candidate scores exist yet.
+Completed: [seed-42 HR feature results](experiments/window-local-heart-rate-2026-11-17/README.md) improve mean fold macro-F1 by 0.01316.
+REM improves, but Wake F1, Deep recall, and transition scores decline.
+Next: repeat the unchanged candidate with seeds 43 and 44, reusing their original-P3 reference results.
 Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
 Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
 The final-test participants remain reserved.

@@ -1,6 +1,6 @@
 # Window-local heart-rate deviation ablation
 
-Status: prepared for local training by Timo. No candidate model scores exist yet.
+Status: Timo completed all five seed-42 folds locally. See the [measured results](experiments/window-local-heart-rate-2026-11-17/README.md).
 
 ## Question
 
@@ -14,7 +14,7 @@ Add two deterministic channels inside each supplied model window:
 1. Current completed epoch mean heart rate minus a strictly past mean
 2. A binary flag indicating sufficient past history in that same window
 
-The six original features remain the public raw-window input.
+The six original features remain the public model-window input.
 The transform expands them to eight channels before patch formation and projection.
 It summarizes information already present in the window. It adds no new sensor observations.
 
@@ -64,14 +64,14 @@ Available positions have flag one. The binary flag is not standardized.
 The fitted state records its training-only origin, available target count, original heart-rate scale, and deviation mean/scale.
 Checkpoint metadata records the transform definition and effective channel names.
 Selected and intermediate checkpoints restore the same transform and normalization without fitting on inference observations.
-The input API and stored raw scaler remain six-dimensional.
+The model input contract and stored original-feature scaler remain six-dimensional.
 
 ## Fixed comparison
 
 | Setting | Reused reference | Candidate |
 | --- | --- | --- |
 | Input representation | Six original channels | Six original channels plus deviation and availability |
-| Raw input API | 30 epochs × 6 features | Same |
+| Model input contract | 30 epochs × 6 features | Same |
 | Effective model channels | 6 | 8 |
 | Parameters | 2,756 | 2,852 |
 | Patches / width / heads / layers / feedforward | 3 epochs / 16 / 2 / 1 / 32 | Same |
@@ -131,7 +131,7 @@ Use the explicit `window_features` paired policy to reject changes in other cont
 
 A useful seed-42 gain requires replication before replacing the reference.
 The audit is post-hoc development evidence, and repeated use of these folds is adaptive exploration.
-No final-test or performance improvement claim is supported before training.
+The measured seed-42 gain requires replication. No independent final-test claim is supported.
 
 Export the report after the local run:
 
@@ -148,3 +148,9 @@ Keep source notebooks output-free. Store executed HTML and large model artifacts
 The [preparation snapshot](experiments/window-local-hr-preparation-2026-11-17/README.md) records five MPS forward checks and synthetic CPU/MPS causal checks.
 All 791 tests pass. The notebook exports from a fresh kernel without training.
 All 130 copied feature tables match the reference byte-for-byte. Candidate model scores remain pending.
+
+## Measured outcome
+
+Mean fold macro-F1 improves by 0.01316; pooled accuracy improves by 1.814 percentage points.
+REM precision, recall, and F1 improve. Wake F1 and Deep recall decline, and transition scores worsen.
+Repeat the unchanged candidate with seeds 43 and 44 before promotion. Reuse their existing original-P3 reference results.
