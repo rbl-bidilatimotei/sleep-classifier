@@ -12,6 +12,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_f
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.loss_settings import LossSettings
 from sleep_classifier.optimizer_settings import OptimizerSettings
+from sleep_classifier.window_feature_settings import WindowFeatureSettings
 
 SHARED_RECIPE_KEYS = (
     "seed", "epochs", "batch_size", "context_epochs", "learning_rate", "patience",
@@ -27,7 +28,7 @@ class PairedArchitectureReport:
         self, reference_summary: Path, candidate_summary: Path,
         comparison: Literal[
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay", "label_smoothing"
+            "weight_decay", "label_smoothing", "window_features"
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -39,7 +40,7 @@ class PairedArchitectureReport:
         """
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay", "label_smoothing",
+            "weight_decay", "label_smoothing", "window_features",
         ):
             raise ValueError("Unknown paired comparison policy")
 
@@ -103,7 +104,8 @@ class PairedArchitectureReport:
         candidate_folds = {fold["name"]: fold for fold in candidate["folds"]}
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
-        if (self.comparison in ("learning_rate", "scheduler", "weight_decay", "label_smoothing")
+        if (self.comparison in ("learning_rate", "scheduler", "weight_decay", "label_smoothing",
+                               "window_features")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -182,6 +184,15 @@ class PairedArchitectureReport:
         elif self.comparison == "label_smoothing":
             self._validate_label_smoothing_recipe(reference, candidate)
 
+        reference_window = WindowFeatureSettings(reference["config"].get("window_features"))
+        candidate_window = WindowFeatureSettings(candidate["config"].get("window_features"))
+        if self.comparison == "window_features":
+            self._validate_window_feature_recipe(reference, candidate)
+        elif reference_window.values != candidate_window.values:
+            raise ValueError("Window-feature changes require the explicit window_features policy")
+        self._validate_window_feature_record(reference, reference_window)
+        self._validate_window_feature_record(candidate, candidate_window)
+
         reference_loss = LossSettings(reference["config"].get("loss")).values
         candidate_loss = LossSettings(candidate["config"].get("loss")).values
         if self.comparison != "label_smoothing" and reference_loss != candidate_loss:
@@ -223,6 +234,83 @@ class PairedArchitectureReport:
         ):
             if reference["provenance"].get(key) != candidate["provenance"].get(key):
                 raise ValueError(f"Fold preparation provenance differs at {key}")
+
+
+    @staticmethod
+    def _validate_window_feature_record(
+        metrics: dict[str, Any], settings: WindowFeatureSettings,
+    ) -> None:
+        """Verify effective window-feature definitions and training-only normalization.
+
+        Args:
+            metrics (dict[str, Any]): Fold metrics with optional transform provenance.
+            settings (WindowFeatureSettings): Normalized raw-window feature configuration.
+        """
+        record = metrics.get("window_features")
+        if not settings.enabled:
+            if record is not None:
+                raise ValueError("Disabled window features must not record an effective transform")
+            if metrics.get("model_features", list(FEATURE_COLUMNS)) != list(FEATURE_COLUMNS):
+                raise ValueError("Disabled model channels must match the raw feature schema")
+            return
+        if (not isinstance(record, dict) or set(record) != {"settings", "scaling"}
+                or record["settings"] != settings.values
+                or metrics.get("model_features") != settings.model_features(list(FEATURE_COLUMNS))):
+            raise ValueError("Window-feature provenance or channels differ from the recipe")
+        state = record["scaling"]
+        WindowFeatureSettings.validate_state(state)
+        metadata = metrics.get("provenance", {}).get("participants", [])
+        training_counts = [item["eligible_epochs"] for item in metadata
+                           if item.get("partition") == "train"]
+        if training_counts and state["available_training_targets"] > sum(training_counts):
+            raise ValueError("Window-feature fit count exceeds the available training targets")
+
+
+    @classmethod
+    def _validate_window_feature_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Allow only added window-local heart-rate channels for a fixed patch recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified raw-six-channel reference metrics.
+            candidate (dict[str, Any]): Verified candidate with two derived model channels.
+        """
+        control = WindowFeatureSettings(reference["config"].get("window_features"))
+        treatment = WindowFeatureSettings(candidate["config"].get("window_features"))
+        if control.enabled or not treatment.enabled:
+            raise ValueError("Window-feature comparison requires disabled versus enabled features")
+        treatment.validate_context(candidate["config"]["context_epochs"])
+        excluded = {"window_features", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Window-feature comparison requires the same base recipe")
+        for metrics in (reference, candidate):
+            if (metrics["config"].get("model_type") != "patch_transformer"
+                    or metrics["config"].get("lr_scheduler")
+                    or cls._optimizer_signature(metrics["config"]) != OptimizerSettings(None).values
+                    or LossSettings(metrics["config"].get("loss")).values
+                    != LossSettings(None).values):
+                raise ValueError("Window features require unsmoothed constant-rate Adam/P3")
+        original = reference.get("model_config")
+        augmented = candidate.get("model_config")
+        if not isinstance(original, dict) or not isinstance(augmented, dict):
+            raise ValueError("Window-feature comparison requires model constructor metadata")
+        original = dict(original)
+        augmented = dict(augmented)
+        if ("window_features" in original
+                or augmented.pop("window_features", None) != treatment.values
+                or original != augmented or original.get("input_size") != len(FEATURE_COLUMNS)):
+            raise ValueError("Window-feature model changes must match the declared transform")
+        width = original.get("d_model")
+        patch = original.get("patch_size")
+        if (type(width) is not int or width <= 0 or type(patch) is not int or patch <= 0
+                or type(reference.get("parameter_count")) is not int
+                or reference["parameter_count"] <= 0
+                or candidate.get("parameter_count")
+                != reference["parameter_count"] + 2 * patch * width):
+            raise ValueError("Window-feature parameter change must match two added patch channels")
 
 
     @staticmethod
@@ -611,7 +699,7 @@ class PairedArchitectureReport:
             self._validate_recipes(left["metrics"], right["metrics"])
             if self.comparison in (
                 "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
-                "label_smoothing",
+                "label_smoothing", "window_features",
             ):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
@@ -649,6 +737,19 @@ class PairedArchitectureReport:
                     "Targeted post-hoc development subset; not a full-cohort benchmark "
                     "or independent evidence for a global recipe"
                 )
+
+        if self.comparison == "window_features":
+            report["comparison"] = "window_features"
+            report["capacity_caveat"] = (
+                "The two derived channels enlarge the patch projection; "
+                "this is a feature-recipe comparison"
+            )
+            report["context_caveat"] = (
+                "Derived histories remain inside each original raw context window"
+            )
+            report["selection_caveat"] = (
+                "Development validation selects checkpoints; the reserved test remains separate"
+            )
 
         if self.comparison == "label_smoothing":
             report["comparison"] = "label_smoothing"
@@ -775,7 +876,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--comparison", choices=(
         "architecture", "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
-        "label_smoothing",
+        "label_smoothing", "window_features",
     ),
                         default="architecture")
     args = parser.parse_args()

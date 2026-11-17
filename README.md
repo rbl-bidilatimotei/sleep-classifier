@@ -324,3 +324,12 @@ Use [notebook 28](notebooks/28_causal_feature_audit.ipynb) for the [causal featu
 It aligns four saved recipes, audits development-only causal diagnostics, and links a standalone offline dashboard.
 The [measured findings](docs/experiments/causal-feature-audit-2026-11-17/README.md) identify 3,086 persistent Deep/REM-to-Light targets and a motion-cadence caveat.
 No model training or final-test observation reads occur in this milestone.
+
+Use [notebook 29](notebooks/29_window_local_heart_rate.ipynb) for the [window-local heart-rate ablation](docs/window-local-heart-rate.md).
+It adds past-relative deviation and availability inside the existing thirty-epoch window.
+Reuse the five original Adam/P3 reference folds. Train five candidates locally through the explicit training gate.
+The local seed-42 run is complete. The final test stays reserved.
+
+The [completed HR feature comparison](docs/experiments/window-local-heart-rate-2026-11-17/README.md) improves mean fold macro-F1 by 0.01316 and pooled REM F1 by 0.05020.
+Four folds improve macro-F1, with the largest gain on fold 01. Wake F1 and transition scores decline.
+Repeat the unchanged candidate with seeds 43 and 44 before replacing the original reference.

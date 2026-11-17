@@ -147,3 +147,12 @@ The original unsmoothed Adam/P3 reference remains selected. The proposed next mi
 The [causal feature audit](causal-feature-audit.md) adds a reusable development-evidence loader and portable local dashboard.
 The first [measured snapshot](experiments/causal-feature-audit-2026-11-17/README.md) covers 26 participants and 22,708 targets without training or final-test reads.
 It separates artifact validation, causal diagnostics, descriptive statistics, and rendering. New features remain outside the training schema.
+
+The [window-local heart-rate experiment](window-local-heart-rate.md) is prepared in notebook 29.
+It derives deviation and availability within each supplied window, preserving the existing fifteen-minute information boundary.
+The raw API retains six features. Two internal channels add 96 projection parameters, with training-only normalization saved in checkpoints.
+All five no-gradient checks pass on MPS. Timo completed the five seed-42 candidate fits locally.
+
+The [completed HR feature comparison](experiments/window-local-heart-rate-2026-11-17/README.md) improves mean fold macro-F1 by 0.01316 and pooled REM F1 by 0.05020.
+Four folds improve macro-F1, with the largest gain on fold 01. Wake F1 and transition scores decline.
+Repeat the unchanged candidate with seeds 43 and 44 before replacing the original reference.

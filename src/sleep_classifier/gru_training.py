@@ -32,6 +32,7 @@ from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, Optimizer
 from sleep_classifier.optimizer_factory import OptimizerFactory
 from sleep_classifier.optimizer_settings import OptimizerSettings
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
+from sleep_classifier.window_heart_rate import WindowLocalHeartRate
 
 # Keep shared trainer logs independent of the legacy implementation module
 LOGGER = logging.getLogger("sleep_classifier.neural_training")
@@ -180,6 +181,7 @@ class GRUExperiment:
         self.schedule: PlateauSchedule | None = None
         self.diagnostics: EpochDiagnostics | None = None
         self.diagnostic_train_loader: DataLoader[dict[str, Any]] | None = None
+        self.window_feature_state: dict[str, Any] | None = None
 
 
     def run_check(self) -> dict[str, object]:
@@ -217,6 +219,11 @@ class GRUExperiment:
                 ),
             },
         }
+        if self.window_feature_state is not None:
+            result.update(self._window_feature_metadata())
+            result["effective_input_shape"] = [
+                *batch["features"].shape[:2], len(result["model_features"]),
+            ]
         LOGGER.info("Neural model check passed: %s", json.dumps(result, sort_keys=True))
 
         return result
@@ -642,6 +649,7 @@ class GRUExperiment:
         metrics["parameter_count"] = sum(parameter.numel() for parameter in model.parameters())
 
         metrics["features"] = list(FEATURE_COLUMNS)
+        metrics.update(self._window_feature_metadata())
         metrics["provenance"] = context["dataset"]["provenance"]
         metrics["device"] = str(device)
         metrics["optimizer"] = context.get("optimizer_provenance", {})
@@ -695,10 +703,14 @@ class GRUExperiment:
         validation_data = CausalSequenceDataset(
             validation, scaler, int(self.settings["context_epochs"])
         )
+        self._fit_window_features(train_data, scaler)
         self._seed(int(self.settings["seed"]))
         device = self.config.device()
         factory = ModelFactory(self.settings)
-        model = factory.build(len(FEATURE_COLUMNS), len(CLASS_LABELS)).to(device)
+        model = factory.build(
+            len(FEATURE_COLUMNS), len(CLASS_LABELS),
+            window_feature_state=self.window_feature_state,
+        ).to(device)
         LOGGER.info(
             "Loaded prepared rows: train_rows=%d validation_rows=%d train_sequences=%d "
             "validation_sequences=%d scaler_fit=train_only",
@@ -717,6 +729,41 @@ class GRUExperiment:
             "model": model,
             "model_type": factory.model_type,
             "device": device,
+        }
+
+
+    def _fit_window_features(
+        self, train_data: CausalSequenceDataset, scaler: StandardScaler,
+    ) -> None:
+        """Fit optional deviation scaling on available training targets only.
+
+        Args:
+            train_data (CausalSequenceDataset): Original training windows with scaled raw features.
+            scaler (StandardScaler): Original six-feature scaler fitted on training participants.
+        """
+        settings = ModelFactory(self.settings).window_features
+        self.window_feature_state = None
+        if settings.enabled:
+            index = FEATURE_COLUMNS.index("heart_rate_mean")
+            self.window_feature_state = WindowLocalHeartRate.fit(
+                train_data, float(scaler.scale_[index]), settings.values,
+            )
+            LOGGER.info("Window-local feature scaling fitted on training targets: %s",
+                        json.dumps(self.window_feature_state, sort_keys=True))
+
+
+    def _window_feature_metadata(self) -> dict[str, Any]:
+        """Describe optional effective channels and saved training-only normalization."""
+        if self.window_feature_state is None:
+            return {}
+        factory = ModelFactory(self.settings)
+        return {
+            "window_features": {
+                "settings": dict(factory.window_features.values),
+                "scaling": dict(self.window_feature_state),
+            },
+            "window_feature_state": dict(self.window_feature_state),
+            "model_features": factory.model_features(list(FEATURE_COLUMNS)),
         }
 
 
@@ -956,6 +1003,7 @@ class GRUExperiment:
             "scaler_mean": scaler.mean_.tolist(), "scaler_scale": scaler.scale_.tolist(),
             "context_epochs": int(self.settings["context_epochs"]),
             "training_config": self.settings,
+            **self._window_feature_metadata(),
         }
 
 

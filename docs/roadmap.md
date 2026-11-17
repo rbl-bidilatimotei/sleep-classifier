@@ -64,7 +64,11 @@ Completed: the [causal feature audit and offline evaluation view](causal-feature
 The [measured snapshot](experiments/causal-feature-audit-2026-11-17/README.md) identifies 3,086 persistent Deep/REM-to-Light errors and a sampling-cadence caveat.
 No model training or final-test observation reads occurred. Diagnostic features remain outside the training schema.
 
-Next: review participant timelines before selecting one causal heart-rate feature family for a controlled ablation.
+Prepared: [window-local heart-rate deviation and availability](window-local-heart-rate.md) in notebook 29.
+Reuse the original five-fold Adam/P3 reference. Keep the thirty-epoch raw information boundary and all eligible targets.
+Completed: [seed-42 HR feature results](experiments/window-local-heart-rate-2026-11-17/README.md) improve mean fold macro-F1 by 0.01316.
+REM improves, but Wake F1, Deep recall, and transition scores decline.
+Next: repeat the unchanged candidate with seeds 43 and 44, reusing their original-P3 reference results.
 Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
 Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
 The final-test participants remain reserved.
