@@ -1,0 +1,28 @@
+[
+  {
+    "device": "cpu",
+    "checks": {
+      "future_prefix_invariant": true,
+      "padding_invariant": true,
+      "unavailable_zero_after_scaling": true,
+      "binary_unscaled_availability": true,
+      "finite_output": true,
+      "effective_shape": true
+    },
+    "model_updates": 0,
+    "participant_observations_read": false
+  },
+  {
+    "device": "mps",
+    "checks": {
+      "future_prefix_invariant": true,
+      "padding_invariant": true,
+      "unavailable_zero_after_scaling": true,
+      "binary_unscaled_availability": true,
+      "finite_output": true,
+      "effective_shape": true
+    },
+    "model_updates": 0,
+    "participant_observations_read": false
+  }
+]

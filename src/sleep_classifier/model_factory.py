@@ -3,7 +3,9 @@ from typing import Any
 
 from torch import nn
 
+from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.gru_model import CausalGRUClassifier
+from sleep_classifier.window_feature_settings import WindowFeatureSettings
 
 
 class ModelFactory:
@@ -17,6 +19,9 @@ class ModelFactory:
         """
         self.settings = settings
         self.model_type = settings.get("model_type", "gru")
+        self.window_features = WindowFeatureSettings(settings.get("window_features"))
+        if self.window_features.enabled:
+            self.window_features.validate_context(settings.get("context_epochs", 10))
 
         if self.model_type not in ("gru", "transformer", "patch_transformer"):
             raise ValueError("model_type must be gru, transformer, or patch_transformer")
@@ -101,17 +106,58 @@ class ModelFactory:
         self._positive_integer("input_size", input_size)
         self._positive_integer("num_classes", num_classes)
 
-        return {"input_size": input_size, "num_classes": num_classes} | self.architecture
+        arguments = {"input_size": input_size, "num_classes": num_classes} | self.architecture
+        if self.window_features.enabled:
+            if input_size != len(FEATURE_COLUMNS):
+                raise ValueError("Window-local heart rate requires the original six-feature input")
+            arguments["window_features"] = dict(self.window_features.values)
+        return arguments
 
 
-    def build(self, input_size: int, num_classes: int) -> nn.Module:
-        """Construct a fresh model with the configured architecture.
+    def model_features(self, raw_features: list[str]) -> list[str]:
+        """Describe the effective backbone channels while preserving the external raw schema.
 
         Args:
-            input_size (int): Number of prepared features per epoch.
+            raw_features (list[str]): Ordered original prepared feature names.
+        """
+        return self.window_features.model_features(raw_features)
+
+
+    def build(
+        self, input_size: int, num_classes: int,
+        window_feature_state: dict[str, Any] | None = None,
+    ) -> nn.Module:
+        """Construct a classifier with optional fitted window-local augmentation.
+
+        Args:
+            input_size (int): Number of original prepared features per epoch.
             num_classes (int): Number of output sleep-stage classes.
+            window_feature_state (dict[str, Any] | None): Training-fitted transform normalization.
         """
         arguments = self.checkpoint_config(input_size, num_classes)
+        if not self.window_features.enabled:
+            if window_feature_state is not None:
+                raise ValueError("Window feature state requires an enabled window feature recipe")
+            return self._construct_backbone(arguments)
+
+        if window_feature_state is None:
+            raise ValueError("Window features require training-fitted normalization state")
+        from sleep_classifier.window_feature_model import WindowFeatureClassifier
+        from sleep_classifier.window_heart_rate import WindowLocalHeartRate
+
+        transform = WindowLocalHeartRate(self.window_features.values, window_feature_state)
+        arguments.pop("window_features")
+        arguments["input_size"] = len(self.model_features(list(FEATURE_COLUMNS)))
+        backbone = self._construct_backbone(arguments)
+        return WindowFeatureClassifier(transform, backbone)
+
+
+    def _construct_backbone(self, arguments: dict[str, Any]) -> nn.Module:
+        """Build the selected architecture with explicit effective input dimensions.
+
+        Args:
+            arguments (dict[str, Any]): Validated constructor settings for the backbone.
+        """
         if self.model_type == "gru":
             return CausalGRUClassifier(**arguments)
         if self.model_type == "patch_transformer":
@@ -135,6 +181,7 @@ class ModelFactory:
         arguments = dict(checkpoint["model_config"])
         input_size = arguments.pop("input_size")
         num_classes = arguments.pop("num_classes")
+        window_features = arguments.pop("window_features", None)
 
         if model_type == "gru":
             if set(arguments) != {"hidden_size"}:
@@ -158,7 +205,58 @@ class ModelFactory:
         else:
             raise ValueError("Unsupported checkpoint model_type")
 
-        model = cls(settings).build(input_size, num_classes)
+        if window_features is not None:
+            settings["window_features"] = window_features
+            settings["context_epochs"] = checkpoint["context_epochs"]
+        factory = cls(settings)
+        state = checkpoint.get("window_feature_state")
+        if factory.window_features.enabled:
+            cls._validate_stored_window_state(checkpoint, state)
+        model = factory.build(input_size, num_classes, window_feature_state=state)
         model.load_state_dict(checkpoint["state_dict"])
+        if factory.window_features.enabled:
+            cls._validate_loaded_window_state(model, state)
 
         return model.eval()
+
+
+    @staticmethod
+    def _validate_stored_window_state(
+        checkpoint: dict[str, Any], state: dict[str, Any] | None,
+    ) -> None:
+        """Require consistent saved raw and derived-feature normalization.
+
+        Args:
+            checkpoint (dict[str, Any]): Checkpoint metadata and model weights.
+            state (dict[str, Any] | None): Stored training-only delta normalization.
+        """
+        if state is None:
+            raise ValueError("Window-feature checkpoints require fitted normalization state")
+        WindowFeatureSettings.validate_state(state)
+        if "scaler_scale" in checkpoint:
+            scales = checkpoint["scaler_scale"]
+            index = FEATURE_COLUMNS.index("heart_rate_mean")
+            if (not isinstance(scales, list) or len(scales) != len(FEATURE_COLUMNS)
+                    or not math.isclose(float(scales[index]), float(state["heart_rate_scale"]),
+                                        rel_tol=1e-12, abs_tol=1e-12)):
+                raise ValueError("Stored heart-rate scales disagree")
+        expected = WindowFeatureSettings(
+            checkpoint["model_config"]["window_features"]
+        ).model_features(list(FEATURE_COLUMNS))
+        if "model_features" in checkpoint and checkpoint["model_features"] != expected:
+            raise ValueError("Stored effective model features differ from the transform recipe")
+
+
+    @staticmethod
+    def _validate_loaded_window_state(model: nn.Module, state: dict[str, Any]) -> None:
+        """Reject loaded buffers that contradict the declared fitted transform state.
+
+        Args:
+            model (nn.Module): Restored classifier with its window-local transform.
+            state (dict[str, Any]): Validated normalization metadata stored in the checkpoint.
+        """
+        for name in ("heart_rate_scale", "delta_mean", "delta_scale"):
+            actual = getattr(model.transform, name)
+            expected = actual.new_tensor(state[name])
+            if not actual.equal(expected):
+                raise ValueError("Stored window normalization buffers differ from their metadata")

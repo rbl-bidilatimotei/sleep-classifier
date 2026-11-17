@@ -1744,3 +1744,160 @@ def test_temporal_adapter_accepts_explicit_label_smoothing_policy(tmp_path: Path
     reference, candidate = _write_label_smoothing_pair(tmp_path)
     with pytest.raises(FileNotFoundError, match="manifest.json"):
         TemporalSliceReport.from_grouped(reference, candidate, comparison="label_smoothing")
+
+
+def _write_window_feature_pair(root: Path) -> tuple[Path, Path]:
+    """Write a fixed patch recipe with one declared window-local feature candidate.
+
+    Args:
+        root (Path): Temporary grouped artifact directory.
+    """
+    paths = _write_pair(root)
+    window = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"].update(
+                model_type="patch_transformer", context_epochs=30, patch_size=3,
+                transformer={"d_model": 16, "nhead": 2, "num_layers": 1,
+                             "feedforward_dim": 32, "dropout": 0.2, "max_context": 30},
+                diagnostics={"enabled": True},
+            )
+            metrics["model_config"] = {
+                "input_size": 6, "num_classes": 4, "d_model": 16, "nhead": 2,
+                "num_layers": 1, "feedforward_dim": 32, "dropout": 0.2,
+                "max_context": 30, "patch_size": 3,
+            }
+            metrics["parameter_count"] = 2756
+            metrics["provenance"]["participants"] = [
+                {"participant_id": person, "partition": "train", "eligible_epochs": 100}
+                for person in metrics["provenance"]["split"]["train"]
+            ]
+            if index == 1:
+                metrics["config"]["window_features"] = window
+                metrics["model_config"]["window_features"] = window
+                metrics["model_features"] = [*FEATURE_COLUMNS,
+                                             "heart_rate_delta_past", "heart_history_available"]
+                metrics["parameter_count"] = 2852
+                metrics["window_features"] = {
+                    "settings": window,
+                    "scaling": {"schema_version": 1, "heart_rate_scale": 5.0,
+                                "delta_mean": -0.1, "delta_scale": 1.2,
+                                "available_training_targets": 96,
+                                "scaling_fit": "training_targets_only"},
+                }
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_window_feature_report_requires_explicit_policy_and_preserves_population(
+    tmp_path: Path,
+) -> None:
+    """Accept only the declared two-channel change and label its capacity/context caveats.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    reference, candidate = _write_window_feature_pair(tmp_path)
+    with pytest.raises(ValueError, match="explicit window_features"):
+        PairedArchitectureReport(reference, candidate).build()
+    report = PairedArchitectureReport(reference, candidate, "window_features").build()
+    assert report["comparison"] == "window_features"
+    assert report["eligible_epochs"] == 8
+    assert "projection" in report["capacity_caveat"]
+    assert "original raw context" in report["context_caveat"]
+    assert not report["independent_outer_test"]
+
+
+@pytest.mark.parametrize("mutation", [
+    "width", "context", "rate", "dropout", "diagnostics", "optimizer", "loss", "scheduler",
+    "model_channels", "raw_channels", "projection_count", "model_definition", "missing_state",
+    "state_fit", "state_count", "state_scale", "state_nonfinite", "metadata_settings",
+])
+def test_window_feature_report_rejects_confounds_and_invalid_fit_state(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject unrelated recipe changes and evidence that could hide normalization leakage.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        mutation (str): Candidate recipe or normalization field to invalidate.
+    """
+    reference, candidate = _write_window_feature_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    path = Path(summary["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    if mutation == "width":
+        metrics["config"]["transformer"]["d_model"] = 32
+    elif mutation == "context":
+        metrics["config"]["context_epochs"] = 40
+    elif mutation == "rate":
+        metrics["config"]["learning_rate"] = 0.0003
+    elif mutation == "dropout":
+        metrics["config"]["transformer"]["dropout"] = 0.1
+    elif mutation == "diagnostics":
+        metrics["config"]["diagnostics"]["enabled"] = False
+    elif mutation == "optimizer":
+        metrics["config"]["optimizer"] = {"name": "adamw", "weight_decay": 0.01}
+    elif mutation == "loss":
+        metrics["config"]["loss"] = {"label_smoothing": 0.05}
+    elif mutation == "scheduler":
+        metrics["config"]["lr_scheduler"] = {"name": "plateau"}
+    elif mutation == "model_channels":
+        metrics["model_features"].pop()
+    elif mutation == "raw_channels":
+        metrics["features"].pop()
+    elif mutation == "projection_count":
+        metrics["parameter_count"] += 1
+    elif mutation == "model_definition":
+        metrics["model_config"]["max_context"] = 40
+    elif mutation == "missing_state":
+        metrics["window_features"] = None
+    elif mutation == "metadata_settings":
+        metrics["window_features"]["settings"] = {"name": "other"}
+    elif mutation == "state_fit":
+        metrics["window_features"]["scaling"]["scaling_fit"] = "validation"
+    elif mutation == "state_count":
+        metrics["window_features"]["scaling"]["available_training_targets"] = 101
+    elif mutation == "state_scale":
+        metrics["window_features"]["scaling"]["delta_scale"] = 0.0
+    else:
+        metrics["window_features"]["scaling"]["delta_mean"] = float("nan")
+    _rewrite_metrics(candidate, metrics)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "window_features").build()
+
+
+def test_window_feature_report_preserves_budget_checks(tmp_path: Path) -> None:
+    """Reject a changed grouped epoch cap despite a valid transform recipe.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    reference, candidate = _write_window_feature_pair(tmp_path)
+    saved = json.loads(candidate.read_text())
+    saved["plan"]["maximum_epochs"] = 8
+    candidate.write_text(json.dumps(saved))
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "window_features").build()
+
+
+def test_window_feature_report_rejects_changed_target_population(tmp_path: Path) -> None:
+    """Keep exact target identity checks active under the derived-channel policy.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    reference, candidate = _write_window_feature_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    directory = Path(summary["results"][0]["metrics_path"]).parent
+    prediction_path = directory / "validation_predictions.csv"
+    predictions = pd.read_csv(prediction_path)
+    predictions.loc[0, "target"] = 1
+    predictions.to_csv(prediction_path, index=False)
+    with pytest.raises(ValueError, match="populations or targets"):
+        PairedArchitectureReport(reference, candidate, "window_features").build()
