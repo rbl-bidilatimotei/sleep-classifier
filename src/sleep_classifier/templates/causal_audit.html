@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Causal feature audit · Sleep classifier</title>
+<style>
+:root{color-scheme:light;--ink:#183044;--muted:#526a7b;--line:#dce5eb;--paper:#fff;--blue:#176b9c}
+*{box-sizing:border-box}body{margin:0;background:#edf2f6;color:var(--ink);font:15px/1.5 system-ui,sans-serif}
+header{padding:30px max(24px,calc((100vw - 1380px)/2));background:#133448;color:white}
+header p{color:#d5e3ec;max-width:900px;margin:8px 0}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:30px;line-height:1.2;margin:8px 0}main{max-width:1428px;margin:auto;padding:24px}
+h2{font-size:19px;margin:0 0 12px}h3{font-size:15px;margin:0 0 4px}p{margin:8px 0}.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:12px;margin-bottom:18px}
+.card,.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card strong{display:block;font-size:26px;font-variant-numeric:tabular-nums}.card span{color:var(--muted);font-size:13px}
+.controls{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:16px}.controls label{display:flex;flex-direction:column;font-size:13px;font-weight:600;gap:5px}
+select,input{font:inherit;color:var(--ink)}select{background:white;border:1px solid #9db2c0;border-radius:5px;padding:9px;max-width:100%}
+input[type=range]{width:100%;accent-color:var(--blue)}.window-control{margin-top:18px}.panel{margin-bottom:18px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px}.swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px}.charts .panel{min-width:0}.chart svg{width:100%;height:auto;display:block}
+.chart-note{font-size:12px;color:var(--muted)}.notice{padding:12px 15px;border-left:4px solid #aa6a00;background:#fff7df;font-size:13px;margin:14px 0}
+.table-controls{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0}.table-controls label{font-size:13px;display:flex;gap:7px;align-items:center}
+.table-wrap{overflow:auto;max-height:440px}table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th{position:sticky;top:0;background:#f3f7fa;color:#355368}th:first-child,td:first-child{text-align:left}tr.persistent{background:#fff1e6}
+footer{font-size:12px;color:var(--muted);margin-top:18px}.empty{padding:35px;text-align:center;color:var(--muted)}
+@media(max-width:850px){.controls{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}main{padding:14px}header{padding:24px}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">Sleep classifier · Local evaluation workspace</div>
+<h1>Causal feature audit</h1>
+<p>Inspect aligned development predictions, persistent errors, and candidate feature information.</p>
+<p>No model training runs here. Final-test observations are excluded. This file works offline.</p></header>
+<main>
+<div class="cards" aria-label="Audit scope">
+<div class="card"><strong id="participant-count"></strong><span>development participants</span></div>
+<div class="card"><strong id="target-count"></strong><span>eligible targets</span></div>
+<div class="card"><strong id="persistent-count"></strong><span>persistent Deep/REM → Light</span></div>
+<div class="card"><strong id="recipe-count"></strong><span>related prediction recipes</span></div>
+</div>
+<section class="panel" aria-labelledby="inspection-title"><h2 id="inspection-title">Inspect one participant</h2>
+<div class="controls">
+<label>Participant<select id="participant"></select></label>
+<label>Prediction recipe<select id="recipe"><option value="all">All compared recipes</option></select></label>
+<label>Window length<select id="window-size"><option value="60">30 minutes · 60 targets</option><option value="120" selected>60 minutes · 120 targets</option><option value="240">120 minutes · 240 targets</option></select></label>
+<div><h3>Selected fold</h3><p id="fold-label" class="muted"></p></div>
+</div>
+<div class="window-control"><label for="window-start">Window start</label><input id="window-start" type="range" min="0" value="0" step="1"><div id="window-label" class="muted" aria-live="polite"></div></div>
+<div class="notice">Windows contain a fixed number of eligible targets. Missing epochs remain visible as time gaps, so elapsed duration can be longer. Filters below change the table only.</div>
+</section>
+<section class="panel"><h2>Stages across completed 30-second intervals</h2>
+<div id="stage-legend" class="legend"></div><div id="stage-chart" class="chart"></div>
+<p class="chart-note">Each colored block represents [t, t + 30 seconds). Blank space marks unobserved targets. Orange outlines mark persistent Deep/REM-to-Light errors across every recipe.</p></section>
+<div class="charts">
+<section class="panel"><h2>Heart-rate level and strictly past mean</h2><div id="heart-chart" class="chart"></div><p class="chart-note">The past mean excludes the current epoch. Missing startup history stays unavailable.</p></section>
+<section class="panel"><h2>Heart rate relative to available history</h2><div id="delta-chart" class="chart"></div><p class="chart-note">Current epoch mean minus its strictly past mean. Histories reset at segment boundaries.</p></section>
+<section class="panel"><h2>Motion variation and axis-vector change</h2><div id="motion-chart" class="chart"></div><p class="chart-note">Both use acceleration units. Axis-vector change is a sample difference, not jerk or a time derivative. Invalid-gap pairs are excluded. Compare sampling intervals before comparing participants.</p></section>
+<section class="panel"><h2>Motion magnitude level</h2><div id="magnitude-chart" class="chart"></div><p class="chart-note">Magnitude level can stay similar while axis directions change. This is an audit hypothesis, not evidence of a model improvement.</p></section>
+</div>
+<section class="panel"><h2>Target-level evidence</h2>
+<div class="table-controls"><label>True stage<select id="stage-filter"><option value="all">All stages</option></select></label>
+<label>Error slice<select id="error-filter"><option value="all">All targets</option><option value="persistent">Persistent Deep/REM → Light</option><option value="reference-error">Reference errors</option><option value="reference-correct">Reference correct</option></select></label></div>
+<p id="table-status" class="muted" aria-live="polite"></p><div class="table-wrap"><table><thead><tr><th>Start, min</th><th>True stage</th><th>Selected prediction</th><th>Predicted-stage probability</th><th>True-stage probability</th><th>HR mean</th><th>Past HR count</th><th>HR delta</th><th>Motion magnitude</th><th>Axis change</th><th>Valid pairs</th><th>Valid pair fraction</th><th>Median pair gap, s</th><th>Max pair gap, s</th><th>Persistent error</th></tr></thead><tbody id="target-table"></tbody></table></div>
+<p class="chart-note">Unavailable values appear as “—”, never zero. With all recipes shown, the table uses the original reference prediction.</p>
+</section>
+<footer>These are exploratory development views. Related recipes share participants and training data. Repeated agreement is not independent replication or final-test evidence. Visual separation does not establish feature value; confirm a selected feature family through a controlled ablation.</footer>
+</main>
+<script id="audit-data" type="application/json">__AUDIT_PAYLOAD__</script>
+<script>
+"use strict";
+const audit = JSON.parse(document.getElementById("audit-data").textContent);
+const stageNames = ["Wake", "Light", "Deep", "REM"];
+const stageColors = ["#d39b28", "#418bc0", "#3556a3", "#aa548a"];
+const recipeNames = {
+  prediction_reference: "Original reference",
+  prediction_patch_size_2: "Patch size 2",
+  prediction_adamw: "AdamW decay 0.01",
+  prediction_label_smoothing: "Label smoothing 0.05"
+};
+const controls = Object.fromEntries(["participant", "recipe", "window-size", "window-start", "stage-filter", "error-filter"].map(id => [id, document.getElementById(id)]));
+const byParticipant = new Map();
+for (const row of audit.rows) {
+  if (!byParticipant.has(row.participant_id)) byParticipant.set(row.participant_id, []);
+  byParticipant.get(row.participant_id).push(row);
+}
+
+/** Create a safe option using display text rather than HTML. */
+function addOption(select, value, label) {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  select.appendChild(option);
+}
+
+/** Format optional numeric evidence without replacing missingness with zero. */
+function numberText(value, decimals = 3) {
+  return value === null || value === undefined || !Number.isFinite(Number(value)) ? "—" : Number(value).toFixed(decimals);
+}
+
+/** Create one SVG node with safe attribute and text assignment. */
+function svgNode(name, attributes = {}, text = null) {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+  if (text !== null) element.textContent = text;
+  return element;
+}
+
+/** Initialize a responsive SVG canvas for one measured view. */
+function canvas(containerId, height, title) {
+  const container = document.getElementById(containerId);
+  container.replaceChildren();
+  const svg = svgNode("svg", {viewBox: `0 0 960 ${height}`, role: "img", "aria-label": title});
+  svg.appendChild(svgNode("title", {}, title));
+  container.appendChild(svg);
+  return svg;
+}
+
+/** Return the selected chronological rows without applying table filters. */
+function windowRows() {
+  const rows = byParticipant.get(controls.participant.value) || [];
+  const size = Number(controls["window-size"].value);
+  controls["window-start"].max = Math.max(0, rows.length - size);
+  const start = Math.min(Number(controls["window-start"].value), Number(controls["window-start"].max));
+  controls["window-start"].value = start;
+  return {person: rows, shown: rows.slice(start, start + size), start};
+}
+
+/** Use real timestamps so missing intervals keep their horizontal extent. */
+function timeScale(rows) {
+  const start = Number(rows[0].time);
+  const end = Number(rows.at(-1).time) + 30;
+  return {start, end, x: time => 145 + (Number(time) - start) / Math.max(30, end - start) * 795};
+}
+
+/** Label actual elapsed time relative to the participant's first eligible epoch. */
+function timeTicks(svg, scale, height, origin, fontSize = 13) {
+  for (let tick = 0; tick <= 4; tick++) {
+    const time = scale.start + (scale.end - scale.start) * tick / 4;
+    const x = scale.x(time);
+    svg.appendChild(svgNode("line", {x1:x, x2:x, y1:12, y2:height - 35, stroke:"#e0e7ed"}));
+    svg.appendChild(svgNode("text", {x, y:height - 15, "text-anchor":"middle", fill:"#526a7b", "font-size":fontSize}, numberText((time - origin) / 60, 1)));
+  }
+}
+
+/** Render target and prediction blocks without filling gaps or filtering time. */
+function drawStages(rows, origin) {
+  const selected = controls.recipe.value;
+  const recipes = selected === "all" ? audit.recipes : [selected];
+  const lanes = [{key:"target", label:"True stage"}, ...recipes.map(key => ({key, label:recipeNames[key] || key}))];
+  const height = 45 + lanes.length * 35;
+  const svg = canvas("stage-chart", height, "True stages and selected model predictions");
+  const scale = timeScale(rows);
+  timeTicks(svg, scale, height, origin);
+  lanes.forEach((lane, index) => {
+    const y = 12 + index * 35;
+    svg.appendChild(svgNode("text", {x:135, y:y + 18, "text-anchor":"end", "font-size":13, fill:"#183044"}, lane.label));
+    for (const row of rows) {
+      const rect = svgNode("rect", {x:scale.x(row.time), y, width:Math.max(0.7, scale.x(Number(row.time) + 30) - scale.x(row.time)), height:24, fill:stageColors[row[lane.key]], stroke:row.persistent_to_light ? "#c06415" : "white", "stroke-width":row.persistent_to_light ? 2 : 0.5});
+      rect.appendChild(svgNode("title", {}, `${lane.label}: ${stageNames[row[lane.key]]}; minute ${numberText((row.time - origin) / 60, 1)}`));
+      svg.appendChild(rect);
+    }
+  });
+}
+
+/** Split paths at missing values and segment boundaries instead of interpolating. */
+function featurePath(rows, key, x, y) {
+  let path = "";
+  let previous = null;
+  for (const row of rows) {
+    const value = row[key];
+    if (value === null || value === undefined || !Number.isFinite(Number(value))) {
+      previous = null;
+      continue;
+    }
+    const connected = previous && previous.segment_id === row.segment_id && Math.abs(row.time - previous.time - 30) < 0.000001;
+    path += `${connected ? "L" : "M"}${x(Number(row.time) + 30).toFixed(2)},${y(Number(value)).toFixed(2)} `;
+    previous = row;
+  }
+  return path;
+}
+
+/** Plot one unit family with optional series and explicit missingness. */
+function drawFeatures(containerId, rows, origin, series, title) {
+  const height = 260;
+  const svg = canvas(containerId, height, title);
+  const scale = timeScale(rows);
+  const values = rows.flatMap(row => series.map(item => row[item.key])).filter(value => value !== null && value !== undefined && Number.isFinite(Number(value))).map(Number);
+  timeTicks(svg, scale, height, origin, 18);
+  if (!values.length) {
+    svg.appendChild(svgNode("text", {x:500, y:125, "text-anchor":"middle", fill:"#526a7b", "font-size":16}, "No available feature values in this window"));
+    return;
+  }
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const padding = Math.max((maximum - minimum) * 0.12, Math.abs(maximum) * 0.02, 0.00001);
+  const y = value => 215 - (value - minimum + padding) / (maximum - minimum + 2 * padding) * 180;
+  for (let tick = 0; tick <= 3; tick++) {
+    const value = minimum + (maximum - minimum) * tick / 3;
+    svg.appendChild(svgNode("text", {x:135, y:y(value) + 4, "text-anchor":"end", fill:"#526a7b", "font-size":18}, numberText(value)));
+  }
+  series.forEach((item, index) => {
+    svg.appendChild(svgNode("path", {d:featurePath(rows, item.key, scale.x, y), stroke:item.color, "stroke-width":2.3, fill:"none"}));
+    svg.appendChild(svgNode("text", {x:155 + index * 315, y:16, fill:item.color, "font-size":17}, item.label));
+  });
+}
+
+/** Apply stage and error restrictions to table rows only. */
+function matchesTableFilter(row) {
+  const stage = controls["stage-filter"].value;
+  if (stage !== "all" && row.target !== Number(stage)) return false;
+  const error = controls["error-filter"].value;
+  if (error === "persistent") return Boolean(row.persistent_to_light);
+  if (error === "reference-error") return !row.reference_correct;
+  if (error === "reference-correct") return Boolean(row.reference_correct);
+  return true;
+}
+
+/** Render a bounded table with the same window and explicit feature supports. */
+function drawTable(rows, origin) {
+  const body = document.getElementById("target-table");
+  body.replaceChildren();
+  const matching = rows.filter(matchesTableFilter);
+  const recipe = controls.recipe.value === "all" ? "prediction_reference" : controls.recipe.value;
+  for (const row of matching) {
+    const tr = document.createElement("tr");
+    if (row.persistent_to_light) tr.className = "persistent";
+    const alias = recipe.replace("prediction_", "");
+    const values = [
+      numberText((row.time - origin) / 60, 1), stageNames[row.target], stageNames[row[recipe]],
+      numberText(row[`confidence_${alias}`]), numberText(row[`p_true_${alias}`]),
+      numberText(row.heart_rate_mean, 1), numberText(row.heart_rate_past_count, 0),
+      numberText(row.heart_rate_delta_past, 2), numberText(row.motion_magnitude_mean),
+      numberText(row.motion_vector_change_mean), numberText(row.motion_pair_count, 0),
+      numberText(row.motion_valid_pair_fraction, 2),
+      numberText(row.motion_pair_gap_median_seconds, 3),
+      numberText(row.motion_pair_gap_max_seconds, 3), row.persistent_to_light ? "Yes" : "No"
+    ];
+    for (const value of values) {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    }
+    body.appendChild(tr);
+  }
+  document.getElementById("table-status").textContent = `${matching.length} matching targets in this ${rows.length}-target window. Timeline and feature charts remain unfiltered.`;
+}
+
+/** Refresh the selected window and all linked views from embedded evidence. */
+function render() {
+  const selection = windowRows();
+  const rows = selection.shown;
+  if (!rows.length) return;
+  const origin = Number(selection.person[0].time);
+  document.getElementById("fold-label").textContent = rows[0].fold || "Development";
+  document.getElementById("window-label").textContent = `Targets ${selection.start + 1}–${selection.start + rows.length} of ${selection.person.length}; elapsed minutes ${numberText((rows[0].time - origin) / 60, 1)}–${numberText((Number(rows.at(-1).time) + 30 - origin) / 60, 1)}`;
+  drawStages(rows, origin);
+  drawFeatures("heart-chart", rows, origin, [{key:"heart_rate_mean", label:"Current epoch HR", color:"#176b9c"}, {key:"heart_rate_past_mean", label:"Strictly past HR mean", color:"#c36719"}], "Heart rate and strictly past mean");
+  drawFeatures("delta-chart", rows, origin, [{key:"heart_rate_delta_past", label:"Current minus past HR mean", color:"#6b4ca5"}], "Causal heart-rate difference");
+  drawFeatures("motion-chart", rows, origin, [{key:"motion_magnitude_std", label:"Magnitude standard deviation", color:"#176b9c"}, {key:"motion_vector_change_mean", label:"Mean axis-vector change", color:"#b04b6b"}], "Motion variation and axis-vector change");
+  drawFeatures("magnitude-chart", rows, origin, [{key:"motion_magnitude_mean", label:"Mean motion magnitude", color:"#176b9c"}], "Motion magnitude level");
+  drawTable(rows, origin);
+}
+
+for (const person of [...byParticipant.keys()].sort()) addOption(controls.participant, person, person);
+for (const recipe of audit.recipes) addOption(controls.recipe, recipe, recipeNames[recipe] || recipe);
+stageNames.forEach((name, index) => {
+  addOption(controls["stage-filter"], index, name);
+  const label = document.createElement("span");
+  const swatch = document.createElement("span");
+  swatch.className = "swatch";
+  swatch.style.backgroundColor = stageColors[index];
+  label.append(swatch, document.createTextNode(name));
+  document.getElementById("stage-legend").appendChild(label);
+});
+document.getElementById("participant-count").textContent = byParticipant.size;
+document.getElementById("target-count").textContent = audit.rows.length.toLocaleString();
+document.getElementById("persistent-count").textContent = audit.rows.filter(row => row.persistent_to_light).length.toLocaleString();
+document.getElementById("recipe-count").textContent = audit.recipes.length;
+for (const [name, element] of Object.entries(controls)) {
+  element.addEventListener(name === "window-start" ? "input" : "change", () => {
+    if (name === "participant") controls["window-start"].value = 0;
+    render();
+  });
+}
+render();
+</script>
+</body>
+</html>

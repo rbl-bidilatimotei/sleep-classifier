@@ -1,0 +1,16 @@
+reference_summary: ../artifacts/transformer-patch-grouped-validation/summary.json
+comparisons:
+  patch_size_2:
+    summary: ../artifacts/transformer-patch-size-2-grouped-validation/summary.json
+    comparison: architecture
+  adamw:
+    summary: ../artifacts/transformer-patch-adamw-grouped-validation/summary.json
+    comparison: weight_decay
+  label_smoothing:
+    summary: ../artifacts/transformer-patch-label-smoothing-grouped-validation/summary.json
+    comparison: label_smoothing
+raw_data_dir: ../data/raw/sleep-accel/1.0.0
+output_dir: ../artifacts/causal-feature-audit
+heart_history_epochs: 10
+min_heart_history_epochs: 4
+max_motion_pair_gap_seconds: 0.2

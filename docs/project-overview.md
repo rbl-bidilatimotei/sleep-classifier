@@ -143,3 +143,7 @@ It changes the target distribution in training while retaining ordinary hard-lab
 
 The [completed smoothing comparison](experiments/patch-label-smoothing-2026-11-16/README.md) improves accuracy and NLL but loses the primary macro-F1 score.
 The original unsmoothed Adam/P3 reference remains selected. The proposed next milestone is a bounded causal feature-information audit.
+
+The [causal feature audit](causal-feature-audit.md) adds a reusable development-evidence loader and portable local dashboard.
+The first [measured snapshot](experiments/causal-feature-audit-2026-11-17/README.md) covers 26 participants and 22,708 targets without training or final-test reads.
+It separates artifact validation, causal diagnostics, descriptive statistics, and rendering. New features remain outside the training schema.

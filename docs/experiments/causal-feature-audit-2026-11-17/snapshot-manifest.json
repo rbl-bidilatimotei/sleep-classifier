@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "config_sha256": "6cb708c6bbc41719739ffb959585b6177203643f7edfc233a010031963e7a193",
+  "outputs": {
+    "summary.json": "0762fcc7489c467be51f761deb4fe48b233f4e89c90ca70436123dea8ec529c8",
+    "rows.csv": "812debee71b242592f823dfc493b1bd86deb44f9c5138b318ccba9d3880da80e",
+    "persistent-errors.png": "73cc028ff739d75437e03424927673f370f7aba07e2073283e3594c58e9de688",
+    "feature-distributions.png": "e0cd354f9054693d4bbf4b3d6df9fb654f994ada96eef6015a7141dae186e792",
+    "dashboard.html": "83cdec1410f30bd349483501c72dc9c86185b03087a0fc6b6f50b6a2a376a613"
+  },
+  "implementation_hashes": {
+    "causal_feature_audit.py": "67f520f4ba0413045cc83526fc8ad4c973297fe123e92bbd9b6fd5a44cf8e511",
+    "audit_features.py": "942ea0dd322576088c87cdf2638fd55ec3546b780ecaf9dd5dfa8777028afe28",
+    "audit_motion_source.py": "6a32ed5af5b612aba2a14c95979562c26b13ce9d2374cfeec6375fd9e9953971",
+    "audit_evidence.py": "fce04b8046e0c5f1696509a0aec3a0c5a93b0b1a5dd4d5fbf6091e53a4c4811a",
+    "audit_visualization.py": "81f4c640562ac7cd034ade34bc1d3c43e61ee4210bb1fd79097c7feceaeff6fb",
+    "causal_audit.html": "d7e7a516ab97f1c0bc3bb345f6dea0a8b4ff74877e297a5d17ba41bfe810eb22"
+  }
+}
