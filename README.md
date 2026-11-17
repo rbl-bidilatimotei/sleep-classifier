@@ -319,3 +319,8 @@ It reuses the original Adam/P3 reference and trains five smoothing-0.05 candidat
 
 The [measured label-smoothing comparison](docs/experiments/patch-label-smoothing-2026-11-16/README.md) gains accuracy but loses mean fold macro-F1.
 Retain the original unsmoothed Adam/P3 recipe. The next proposal audits causal feature information before further tuning.
+
+Use [notebook 28](notebooks/28_causal_feature_audit.ipynb) for the [causal feature audit and local evaluation view](docs/causal-feature-audit.md).
+It aligns four saved recipes, audits development-only causal diagnostics, and links a standalone offline dashboard.
+The [measured findings](docs/experiments/causal-feature-audit-2026-11-17/README.md) identify 3,086 persistent Deep/REM-to-Light targets and a motion-cadence caveat.
+No model training or final-test observation reads occur in this milestone.

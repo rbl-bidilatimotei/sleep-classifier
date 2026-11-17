@@ -60,10 +60,14 @@ Completed: [training-only label smoothing 0.05](experiments/patch-label-smoothin
 Accuracy rises by 0.185 percentage points, mainly through Light. Deep and REM F1 decline; late probability overfitting remains.
 Retain the original unsmoothed Adam/P3 reference and stop the local optimizer/loss grid for now.
 
-Proposed next: a bounded causal feature-information audit of persistent Deep/REM-to-Light errors.
-Inspect discarded motion dynamics and strictly past-relative heart-rate trends on development participants.
-Choose one feature family for a controlled ablation only if the audit supports a clear hypothesis.
-This audit and the next training recipe are not implemented yet. The final-test participants remain reserved.
+Completed: the [causal feature audit and offline evaluation view](causal-feature-audit.md) align four saved recipes on 22,708 development targets.
+The [measured snapshot](experiments/causal-feature-audit-2026-11-17/README.md) identifies 3,086 persistent Deep/REM-to-Light errors and a sampling-cadence caveat.
+No model training or final-test observation reads occurred. Diagnostic features remain outside the training schema.
+
+Next: review participant timelines before selecting one causal heart-rate feature family for a controlled ablation.
+Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
+Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
+The final-test participants remain reserved.
 
 ## Model and evaluation milestones
 
@@ -79,7 +83,7 @@ These items are roadmap work, outside the next experiment milestone.
 
 | Milestone | Scope | Readiness condition |
 | --- | --- | --- |
-| Local evaluation workspace | Browse runs, participants, stages, confidence, timelines, and checkpoint evidence through the existing reader | The first instrumented run validates the evidence schema and useful views |
+| Local evaluation workspace | Initial offline participant/recipe/feature viewer delivered; extend run and epoch navigation plus evidence bookmarks | Reuse validated artifact contracts and keep training behind explicit commands |
 | Portable inference | Load a versioned checkpoint, scaler, feature schema, and causal history | Model recipe and prediction contract are defined |
 | FastAPI service | Validate timestamps, coverage, and session boundaries; return probabilities, labels, and model version | Offline and streaming predictions agree on the same completed epochs |
 | Docker | Build a locked CPU training/inference environment; mount data and artifacts externally | Script and inference interfaces are stable |

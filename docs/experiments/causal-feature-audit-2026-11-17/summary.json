@@ -1,0 +1,153 @@
+{
+  "created_utc": "2026-11-16T14:19:27.707394+00:00",
+  "participants": 26,
+  "targets": 22708,
+  "recipes": [
+    "reference",
+    "patch_size_2",
+    "adamw",
+    "label_smoothing"
+  ],
+  "persistent_counts": [
+    {
+      "stage": "Deep",
+      "target": 2,
+      "persistent_to_light": 1303,
+      "reference_to_light": 1438,
+      "support": 3119
+    },
+    {
+      "stage": "REM",
+      "target": 3,
+      "persistent_to_light": 1783,
+      "reference_to_light": 2406,
+      "support": 4860
+    }
+  ],
+  "candidate_availability": [
+    {
+      "feature": "heart_rate_mean",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "heart_rate_std",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "heart_rate_min",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "heart_rate_max",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "motion_magnitude_mean",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "motion_magnitude_std",
+      "available_targets": 22708,
+      "total_targets": 22708
+    },
+    {
+      "feature": "heart_rate_delta_past",
+      "available_targets": 22208,
+      "total_targets": 22708
+    },
+    {
+      "feature": "motion_vector_change_mean",
+      "available_targets": 22708,
+      "total_targets": 22708
+    }
+  ],
+  "feature_definitions": {
+    "heart_rate_delta_past": "Current mean minus strictly previous eligible-epoch mean",
+    "motion_vector_change_mean": "Mean axis-vector change over admissible within-epoch pairs",
+    "units": "Heart rate in source BPM; motion changes in source acceleration units",
+    "gap_policy": 0.2,
+    "history_epochs": 10,
+    "minimum_past_epochs": 4
+  },
+  "scope": "Post-hoc development diagnostics; correlated recipes and reused participants",
+  "model_training_performed": false,
+  "test_observations_read": false,
+  "candidate_features_integrated": false,
+  "reviewed_on": "2026-11-17",
+  "raw_motion_files_verified": 26,
+  "saved_artifact_hashes_recorded": 588,
+  "browser_layout_verified": false,
+  "browser_limit": "Agent browser policy blocks local-file URLs; no alternate browser route used",
+  "offline_javascript_contracts_passed": true,
+  "matched_error_minus_reference_correct": [
+    {
+      "target": 2,
+      "feature": "heart_rate_mean",
+      "matched_participants": 15,
+      "median_of_participant_differences": -2.095238095238102,
+      "positive_differences": 2,
+      "negative_differences": 13
+    },
+    {
+      "target": 2,
+      "feature": "heart_rate_delta_past",
+      "matched_participants": 15,
+      "median_of_participant_differences": -0.01666666666666572,
+      "positive_differences": 7,
+      "negative_differences": 8
+    },
+    {
+      "target": 2,
+      "feature": "motion_magnitude_std",
+      "matched_participants": 15,
+      "median_of_participant_differences": -8.961521814027681e-05,
+      "positive_differences": 5,
+      "negative_differences": 10
+    },
+    {
+      "target": 2,
+      "feature": "motion_vector_change_mean",
+      "matched_participants": 15,
+      "median_of_participant_differences": -0.0001984436288436876,
+      "positive_differences": 4,
+      "negative_differences": 11
+    },
+    {
+      "target": 3,
+      "feature": "heart_rate_mean",
+      "matched_participants": 25,
+      "median_of_participant_differences": -2.583333333333343,
+      "positive_differences": 2,
+      "negative_differences": 23
+    },
+    {
+      "target": 3,
+      "feature": "heart_rate_delta_past",
+      "matched_participants": 25,
+      "median_of_participant_differences": -0.9764285714285741,
+      "positive_differences": 2,
+      "negative_differences": 23
+    },
+    {
+      "target": 3,
+      "feature": "motion_magnitude_std",
+      "matched_participants": 25,
+      "median_of_participant_differences": -5.335488025683794e-05,
+      "positive_differences": 9,
+      "negative_differences": 16
+    },
+    {
+      "target": 3,
+      "feature": "motion_vector_change_mean",
+      "matched_participants": 25,
+      "median_of_participant_differences": -4.1989775433719494e-05,
+      "positive_differences": 10,
+      "negative_differences": 15
+    }
+  ]
+}

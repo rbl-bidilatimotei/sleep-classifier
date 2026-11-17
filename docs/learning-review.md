@@ -203,3 +203,12 @@ Selected hard-label NLL improves, but all five late training/validation gaps rem
 Smoothed stochastic training loss has a different definition and must not be treated as ordinary NLL.
 Retain the original reference. Next, audit persistent Deep/REM-to-Light errors and discarded causal motion/heart-rate information.
 See the [complete measured review](experiments/patch-label-smoothing-2026-11-16/README.md).
+
+## Measured causal feature audit
+
+Across four related recipes, 1,303 Deep and 1,783 REM targets are consistently classified as Light.
+The past-relative heart-rate diagnostic is available for 22,208 of 22,708 eligible epochs; startup missingness stays explicit.
+Motion changes are available throughout, but sampling intervals differ between participants and confound direct amplitude comparisons.
+The matched summaries and offline timelines support further inspection, not a claim of improved classification.
+Keep the reference and training schema unchanged. Review one heart-rate feature family before a controlled ablation; resolve cadence before motion changes.
+See the [measured snapshot](experiments/causal-feature-audit-2026-11-17/README.md).
