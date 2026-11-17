@@ -23,7 +23,7 @@ class PairedSeedReport:
         self.config_path = config_path.resolve()
         settings = yaml.safe_load(self.config_path.read_text())
         self.comparison = settings.get("comparison", "training_budget")
-        if self.comparison not in ("architecture", "training_budget", "context"):
+        if self.comparison not in ("architecture", "training_budget", "context", "window_features"):
             raise ValueError("Unknown paired seed comparison policy")
         pairs = settings["pairs"]
         if not isinstance(pairs, list) or not 2 <= len(pairs) <= 5:

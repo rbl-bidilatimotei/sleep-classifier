@@ -1,0 +1,297 @@
+{
+  "status": "preparation_only",
+  "new_model_optimization": false,
+  "final_test_observations_read": false,
+  "fold_checks": [
+    {
+      "seed": 43,
+      "fold": "fold-01",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17707,
+        "delta_mean": 0.0328947787321988,
+        "delta_scale": 3.74899704939008,
+        "heart_rate_scale": 9.171421252335701,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 43,
+      "fold": "fold-02",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 18242,
+        "delta_mean": 0.012613035541156972,
+        "delta_scale": 3.7221187922834065,
+        "heart_rate_scale": 9.12557526467332,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 43,
+      "fold": "fold-03",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17472,
+        "delta_mean": 0.012271315876492446,
+        "delta_scale": 3.7536298754646182,
+        "heart_rate_scale": 9.024792700085056,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 43,
+      "fold": "fold-04",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17899,
+        "delta_mean": 0.026460493277949623,
+        "delta_scale": 3.6950732137546476,
+        "heart_rate_scale": 9.817626570669278,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 43,
+      "fold": "fold-05",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17512,
+        "delta_mean": 0.03879012740006194,
+        "delta_scale": 3.569229825980465,
+        "heart_rate_scale": 9.670935481784493,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 44,
+      "fold": "fold-01",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17707,
+        "delta_mean": 0.0328947787321988,
+        "delta_scale": 3.74899704939008,
+        "heart_rate_scale": 9.171421252335701,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 44,
+      "fold": "fold-02",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 18242,
+        "delta_mean": 0.012613035541156972,
+        "delta_scale": 3.7221187922834065,
+        "heart_rate_scale": 9.12557526467332,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 44,
+      "fold": "fold-03",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17472,
+        "delta_mean": 0.012271315876492446,
+        "delta_scale": 3.7536298754646182,
+        "heart_rate_scale": 9.024792700085056,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 44,
+      "fold": "fold-04",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17899,
+        "delta_mean": 0.026460493277949623,
+        "delta_scale": 3.6950732137546476,
+        "heart_rate_scale": 9.817626570669278,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    },
+    {
+      "seed": 44,
+      "fold": "fold-05",
+      "device": "mps",
+      "model_type": "patch_transformer",
+      "parameter_count": 2852,
+      "input_shape": [
+        64,
+        30,
+        6
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        8
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "window_feature_state": {
+        "available_training_targets": 17512,
+        "delta_mean": 0.03879012740006194,
+        "delta_scale": 3.569229825980465,
+        "heart_rate_scale": 9.670935481784493,
+        "scaling_fit": "training_targets_only",
+        "schema_version": 1
+      }
+    }
+  ]
+}

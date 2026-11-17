@@ -1901,3 +1901,87 @@ def test_window_feature_report_rejects_changed_target_population(tmp_path: Path)
     predictions.to_csv(prediction_path, index=False)
     with pytest.raises(ValueError, match="populations or targets"):
         PairedArchitectureReport(reference, candidate, "window_features").build()
+
+
+def _write_window_feature_seed_study(root: Path) -> Path:
+    """Create two synthetic feature comparisons with matching recipes across seeds.
+
+    Args:
+        root (Path): Temporary directory for the seed-study fixture.
+    """
+    import yaml
+
+    pairs = []
+    for seed in (42, 43):
+        seed_root = root / str(seed)
+        seed_root.mkdir()
+        paths = _write_window_feature_pair(seed_root)
+        pair = {"seed": seed, "reuse_reference": True, "reuse_candidate": True}
+        for role, summary_path in zip(("reference", "candidate"), paths, strict=True):
+            summary = json.loads(summary_path.read_text())
+            summary["plan"]["training_seed"] = seed
+            for result in summary["results"]:
+                metrics_path = Path(result["metrics_path"])
+                metrics = json.loads(metrics_path.read_text())
+                metrics["config"]["seed"] = seed
+                metrics_path.write_text(json.dumps(metrics))
+                result["metrics_sha256"] = hashlib.sha256(metrics_path.read_bytes()).hexdigest()
+            summary_path.write_text(json.dumps(summary))
+            model_path = seed_root / f"{role}-model.yaml"
+            model_path.write_text(yaml.safe_dump(metrics["config"]))
+            grouped_path = seed_root / f"{role}.yaml"
+            grouped_path.write_text(yaml.safe_dump({
+                "base_model_config": str(model_path), "output_dir": str(summary_path.parent),
+                "folds": 2,
+            }))
+            pair[f"{role}_config"] = str(grouped_path)
+        pairs.append(pair)
+    config = root / "study.yaml"
+    config.write_text(yaml.safe_dump({"comparison": "window_features", "pairs": pairs,
+                                     "output_dir": str(root / "report")}))
+    return config
+
+
+
+def test_window_feature_seed_report_validates_complete_synthetic_pairs(tmp_path: Path) -> None:
+    """Aggregate feature effects through the real paired policy without model training.
+
+    Args:
+        tmp_path (Path): Temporary complete synthetic study directory.
+    """
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    study = PairedSeedReport(_write_window_feature_seed_study(tmp_path))
+    study.validate_reused_results()
+    report = study.build()
+    assert report["comparison"] == "window_features"
+    assert report["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    assert report["sample_std_seed_macro_f1_difference"] == 0
+    assert not report["independent_outer_test"]
+    assert all(row["report"]["comparison"] == "window_features" for row in report["seeds"])
+
+
+@pytest.mark.parametrize("mutation", ["recipe", "hash"])
+def test_window_feature_seed_report_rejects_recipe_drift_or_corruption(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Keep shared-seed recipe and artifact integrity checks active for HR features.
+
+    Args:
+        tmp_path (Path): Temporary synthetic study directory.
+        mutation (str): Recipe drift or metric-hash corruption to introduce.
+    """
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    study = PairedSeedReport(_write_window_feature_seed_study(tmp_path))
+    path = Path(study.cases[1]["candidate_summary"])
+    result = json.loads(path.read_text())["results"][0]
+    metrics_path = Path(result["metrics_path"])
+    if mutation == "hash":
+        metrics_path.write_text(metrics_path.read_text() + "\n")
+    else:
+        metrics = json.loads(metrics_path.read_text())
+        metrics["config"]["window_features"]["history_epochs"] = 9
+        _rewrite_metrics(path, metrics)
+    with pytest.raises(ValueError):
+        study.validate_reused_results()

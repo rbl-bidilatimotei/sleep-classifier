@@ -68,7 +68,9 @@ Prepared: [window-local heart-rate deviation and availability](window-local-hear
 Reuse the original five-fold Adam/P3 reference. Keep the thirty-epoch raw information boundary and all eligible targets.
 Completed: [seed-42 HR feature results](experiments/window-local-heart-rate-2026-11-17/README.md) improve mean fold macro-F1 by 0.01316.
 REM improves, but Wake F1, Deep recall, and transition scores decline.
-Next: repeat the unchanged candidate with seeds 43 and 44, reusing their original-P3 reference results.
+Prepared: [HR feature seed replication](window-local-hr-seeds.md) in notebook 30.
+Reuse all references and candidate seed 42. Timo runs the ten new candidate fits locally.
+Candidate scores for seeds 43 and 44 remain pending.
 Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
 Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
 The final-test participants remain reserved.
