@@ -1903,11 +1903,14 @@ def test_window_feature_report_rejects_changed_target_population(tmp_path: Path)
         PairedArchitectureReport(reference, candidate, "window_features").build()
 
 
-def _write_window_feature_seed_study(root: Path) -> Path:
+def _write_window_feature_seed_study(
+    root: Path, comparison: str = "window_features",
+) -> Path:
     """Create two synthetic feature comparisons with matching recipes across seeds.
 
     Args:
         root (Path): Temporary directory for the seed-study fixture.
+        comparison (str): Feature-enablement or single-channel ablation policy.
     """
     import yaml
 
@@ -1915,7 +1918,10 @@ def _write_window_feature_seed_study(root: Path) -> Path:
     for seed in (42, 43):
         seed_root = root / str(seed)
         seed_root.mkdir()
-        paths = _write_window_feature_pair(seed_root)
+        if comparison == "window_feature_ablation":
+            paths = _write_window_feature_ablation_pair(seed_root, "heart_history_available")
+        else:
+            paths = _write_window_feature_pair(seed_root)
         pair = {"seed": seed, "reuse_reference": True, "reuse_candidate": True}
         for role, summary_path in zip(("reference", "candidate"), paths, strict=True):
             summary = json.loads(summary_path.read_text())
@@ -1937,7 +1943,7 @@ def _write_window_feature_seed_study(root: Path) -> Path:
             pair[f"{role}_config"] = str(grouped_path)
         pairs.append(pair)
     config = root / "study.yaml"
-    config.write_text(yaml.safe_dump({"comparison": "window_features", "pairs": pairs,
+    config.write_text(yaml.safe_dump({"comparison": comparison, "pairs": pairs,
                                      "output_dir": str(root / "report")}))
     return config
 
@@ -2414,3 +2420,49 @@ def test_window_feature_ablation_cli_accepts_explicit_policy(
     main()
 
     assert json.loads(output.read_text())["comparison"] == "window_feature_ablation"
+
+
+
+def test_seed_report_validates_deviation_only_ablation_pairs(tmp_path: Path) -> None:
+    """Aggregate matched flag-ablation effects without constructing or training models.
+
+    Args:
+        tmp_path (Path): Temporary complete synthetic shared-seed artifacts.
+    """
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    study = PairedSeedReport(_write_window_feature_seed_study(tmp_path, "window_feature_ablation"))
+    study.validate_reused_results()
+    report = study.build()
+    assert report["comparison"] == "window_feature_ablation"
+    assert report["mean_seed_macro_f1_difference"] == pytest.approx(0.9)
+    assert report["sample_std_seed_macro_f1_difference"] == 0
+    assert all(row["report"]["masked_channels"] == ["heart_history_available"]
+               for row in report["seeds"])
+    assert not report["independent_outer_test"]
+
+
+
+def test_seed_report_rejects_different_ablation_masks_across_seeds(tmp_path: Path) -> None:
+    """Reject individually valid fold recipes that change the ablation between seeds.
+
+    Args:
+        tmp_path (Path): Temporary synthetic study whose second candidate mask changes.
+    """
+    from sleep_classifier.paired_seed_report import PairedSeedReport
+
+    study = PairedSeedReport(_write_window_feature_seed_study(tmp_path, "window_feature_ablation"))
+    summary_path = Path(study.cases[1]["candidate_summary"])
+    summary = json.loads(summary_path.read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        for settings in (metrics["config"]["window_features"],
+                         metrics["model_config"]["window_features"],
+                         metrics["window_features"]["settings"]):
+            settings["masked_channels"] = ["heart_rate_delta_past"]
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    summary_path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="across seeds"):
+        study.validate_reused_results()
