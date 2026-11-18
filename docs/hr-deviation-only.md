@@ -1,6 +1,6 @@
 # Isolate availability with a deviation-only control
 
-Status: prepared for local training by Timo. No deviation-only scores exist yet.
+Status: completed locally by Timo. See the [measured findings](experiments/hr-deviation-only-2026-11-18/README.md).
 
 ## Question
 
@@ -116,7 +116,7 @@ Export skips setup, preparation, training, and recursive export. Keep source out
 
 The [preparation snapshot](experiments/hr-deviation-only-preparation-2026-11-18/README.md) records five MPS preflights and synthetic CPU/MPS checks.
 All 919 tests, Ruff, whitespace checks, and fresh-kernel report export pass.
-No deviation-only training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+That preparation snapshot predates Timo’s completed run. Reuse the measured artifacts rather than retraining them.
 
 ## Training identity safeguard
 
@@ -124,3 +124,9 @@ See the [blocked-command diagnosis](notebook-training-identity.md) before retryi
 Notebook 31 targets the completed availability-only experiment; notebook 32 targets the fresh deviation-only experiment.
 Commands now derive their config from the validated experiment, log its identity, and check readiness before starting the CLI.
 Reload notebook 32, restart its kernel, and run its setup cells from the top before enabling training.
+
+## Measured outcome
+
+Removing availability reduces mean fold macro-F1 by 0.00577, with four declining folds.
+REM and Deep recall rise, but precision falls; their F1 scores decline. Light loses 326 correct predictions.
+Retain both channels for now. Repeat the same ablation with seeds 43 and 44 before interpreting the smaller, mixed flag effect.

@@ -353,3 +353,7 @@ Next, test deviation alone by zeroing availability while retaining the same mode
 The [deviation-only control](docs/hr-deviation-only.md) is prepared in [notebook 32](notebooks/32_hr_deviation_only.ipynb).
 It zeros availability, retains deviation, and reuses the full-HR seed-42 reference.
 Only five fresh candidate fits are needed; the remaining recipe stays fixed.
+
+The [completed deviation-only control](docs/experiments/hr-deviation-only-2026-11-18/README.md) loses mean fold macro-F1 by 0.00577.
+Higher REM/Deep recall comes with lower precision; Light loses correct predictions.
+Retain both HR channels and replicate the same smaller, mixed effect with seeds 43 and 44.
