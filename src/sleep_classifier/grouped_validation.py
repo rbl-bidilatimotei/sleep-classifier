@@ -325,21 +325,39 @@ class GroupedValidationExperiment:
 
         return manifest
 
+    def validate_training_start(self) -> dict[str, Any]:
+        """Validate prepared inputs and fresh outputs without starting optimization.
+
+        Returns:
+            dict[str, Any]: Verified preparation manifest for the intended experiment.
+
+        Raises:
+            FileExistsError: If any fold results or a grouped summary already exist.
+            ValueError: If prepared inputs differ from their recorded manifest.
+        """
+        manifest = self._validate_manifest()
+        outputs = [self.output_dir / fold["name"] / "results"
+                   for fold in manifest["plan"]["folds"]]
+        outputs.append(self.output_dir / "summary.json")
+        existing = [str(path.relative_to(self.output_dir)) for path in outputs if path.exists()]
+        if existing:
+            raise FileExistsError(
+                f"Training was not started for config {self.config_path}. "
+                f"Existing results in {self.output_dir}: {', '.join(existing)}. "
+                "Verify the intended notebook and grouped config. Keep these results; "
+                "use a separate experiment config only for an intentional rerun."
+            )
+        return manifest
+
+
     def run(self) -> Path:
         """Train fresh models for prepared folds and save development validation scores.
 
         Returns:
             Path: Path to the saved summary file.
         """
-        manifest = self._validate_manifest()
+        manifest = self.validate_training_start()
         plan = manifest["plan"]
-        if any((self.output_dir / fold["name"] / "results").exists() for fold in plan["folds"]):
-            raise FileExistsError(
-                "Fold results already exist; use a fresh grouped output directory"
-            )
-        if (self.output_dir / "summary.json").exists():
-            raise FileExistsError("Grouped summary already exists; use a fresh output directory")
-
         summary = {"status": "running", "plan": plan, "results": []}
         self._save_summary(summary)
 

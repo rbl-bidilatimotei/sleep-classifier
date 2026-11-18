@@ -63,3 +63,9 @@ Tag training and report-export cells with skip-execution so HTML generation cann
 Before each new or changed notebook code cell, explain what it does and why it is needed.
 Use a short preceding Markdown cell or concise code comments. Explain execution gates and interpretation limits where relevant.
 Capture optional per-epoch evidence through reusable modules; diagnostics must preserve the training recipe and random stream.
+
+For new or changed notebooks, derive CLI config/output paths from the validated experiment object.
+Log the resolved config, output directory, and feature mask before training.
+Call the shared training-readiness guard before launching the CLI.
+Test actual training cells with a recording shell and a different active experiment.
+Preserve existing results; use explicit experiment configs for intentional reruns.

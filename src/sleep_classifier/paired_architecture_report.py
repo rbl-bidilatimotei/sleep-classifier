@@ -334,18 +334,21 @@ class PairedArchitectureReport:
     def _validate_window_feature_ablation_recipe(
         cls, reference: dict[str, Any], candidate: dict[str, Any],
     ) -> None:
-        """Allow only zeroing the deviation channel in the full eight-channel recipe.
+        """Allow zeroing one approved derived channel in the full eight-channel recipe.
 
         Args:
             reference (dict[str, Any]): Verified full heart-rate window-feature metrics.
-            candidate (dict[str, Any]): Verified availability-only control metrics.
+            candidate (dict[str, Any]): Verified single-channel ablation metrics.
         """
         full = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
-        masked = full | {"masked_channels": ["heart_rate_delta_past"]}
+        channels = WindowFeatureSettings(candidate["config"].get("window_features")).masked_channels
+        if channels not in (["heart_rate_delta_past"], ["heart_history_available"]):
+            raise ValueError("Window-feature ablation requires exactly one approved masked channel")
+        masked = full | {"masked_channels": channels}
         for metrics, expected in ((reference, full), (candidate, masked)):
             settings = WindowFeatureSettings(metrics["config"].get("window_features"))
             if settings.values != expected:
-                raise ValueError("Window-feature ablation requires full versus deviation-masked HR")
+                raise ValueError("Window-feature ablation requires full versus single-masked HR")
             settings.validate_context(metrics["config"]["context_epochs"])
             cls._validate_window_feature_record(metrics, settings)
 
@@ -770,12 +773,18 @@ class PairedArchitectureReport:
         participants = []
         reference_frames = []
         candidate_frames = []
+        ablation_mask: list[str] | None = None
 
         for fold in reference["plan"]["folds"]:
             name = fold["name"]
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
+            if self.comparison == "window_feature_ablation":
+                channels = right["metrics"]["config"]["window_features"]["masked_channels"]
+                if ablation_mask is not None and channels != ablation_mask:
+                    raise ValueError("Window-feature ablation masked channels differ across folds")
+                ablation_mask = list(channels)
             if self.comparison in (
                 "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
                 "label_smoothing", "window_features", "window_feature_ablation",
@@ -832,18 +841,9 @@ class PairedArchitectureReport:
 
         if self.comparison == "window_feature_ablation":
             report["comparison"] = "window_feature_ablation"
+            report.update(self._window_feature_ablation_metadata(ablation_mask))
             report["validation_scope"] = reference["plan"].get(
                 "validation_scope", "all development folds",
-            )
-            report["capacity_caveat"] = (
-                "Both models retain the same eight channels and parameter count; "
-                "only the normalized deviation channel is zeroed. "
-                "Its projection weights are inactive; equal nominal counts do not imply "
-                "equal functional capacity"
-            )
-            report["context_caveat"] = (
-                "Both transforms use identical fitted scaling and the same raw context; "
-                "the history-availability channel remains active"
             )
             report["selection_caveat"] = (
                 "Development validation selects checkpoints; the reserved test remains separate"
@@ -889,6 +889,37 @@ class PairedArchitectureReport:
                 )
 
         return report
+
+
+    @staticmethod
+    def _window_feature_ablation_metadata(masked_channels: list[str] | None) -> dict[str, Any]:
+        """Describe the verified channel mask and its remaining functional capacity.
+
+        Args:
+            masked_channels (list[str] | None): Common mask verified across all folds.
+        """
+        if masked_channels == ["heart_rate_delta_past"]:
+            masked = "normalized deviation"
+            active = "history-availability"
+        elif masked_channels == ["heart_history_available"]:
+            masked = "history-availability"
+            active = "normalized deviation"
+        else:
+            raise ValueError("Window-feature ablation requires one verified channel mask")
+
+        return {
+            "masked_channels": list(masked_channels),
+            "capacity_caveat": (
+                "Both models retain the same eight channels and parameter count; "
+                f"only the {masked} channel is zeroed. "
+                "Its projection weights are inactive; equal nominal counts do not imply "
+                "equal functional capacity"
+            ),
+            "context_caveat": (
+                "Both transforms use identical fitted scaling and the same raw context; "
+                f"the {active} channel remains active"
+            ),
+        }
 
 
     def _compare_fold(

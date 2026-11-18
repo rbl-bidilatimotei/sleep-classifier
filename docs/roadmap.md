@@ -121,3 +121,10 @@ See its [fixed protocol](transformer-experiment.md) before training.
 
 Completed: [availability-only control](experiments/hr-availability-control-2026-11-18/README.md) loses macro-F1 and accuracy on all five folds.
 Retain HR deviation. Next, test the flag’s contribution with a fixed-shape deviation-only control.
+
+Prepared: [deviation-only control](hr-deviation-only.md) in notebook 32.
+Test the flag’s conditional contribution while retaining the same model layout and full-HR reference.
+Timo runs five fresh fits locally; no scores exist yet.
+
+Completed: [deviation-only control](experiments/hr-deviation-only-2026-11-18/README.md) loses mean fold macro-F1 by 0.00577.
+Keep availability for now. Next, replicate this unchanged mask with seeds 43 and 44, reusing the full-HR references.
