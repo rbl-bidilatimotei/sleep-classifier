@@ -128,3 +128,10 @@ Timo runs five fresh fits locally; no scores exist yet.
 
 Completed: [deviation-only control](experiments/hr-deviation-only-2026-11-18/README.md) loses mean fold macro-F1 by 0.00577.
 Keep availability for now. Next, replicate this unchanged mask with seeds 43 and 44, reusing the full-HR references.
+
+Prepared: [deviation-only seed replication](hr-deviation-only-seeds.md) in notebook 33.
+Test whether the smaller, mixed flag effect repeats before changing the working full-HR reference.
+Timo trains the ten new candidates locally. The reserved final test stays untouched.
+
+Completed: [flag replication](experiments/hr-deviation-only-seeds-2026-11-18/README.md) shows no consistent benefit from removal.
+Keep both HR channels. Next, compare twenty versus ten past HR epochs within the same thirty-epoch input window.

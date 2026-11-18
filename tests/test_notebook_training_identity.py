@@ -93,3 +93,53 @@ def test_training_cell_uses_the_validated_experiment_config(
     invoked_config = Path(arguments[arguments.index("--config") + 1]).resolve()
     assert invoked_config == experiment.config_path
     experiment.validate_training_start.assert_called_once_with()
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool,
+) -> None:
+    """Use each resolved experiment target and stop blocked runs before any CLI command.
+
+    Args:
+        tmp_path (Path): Isolated notebook working directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped working-directory replacement.
+        blocked (bool): Whether the first readiness check rejects existing results.
+    """
+    monkeypatch.chdir(tmp_path)
+    runs = [{"seed": seed, "config": str(tmp_path / f"alias-{seed}.yaml")}
+            for seed in (43, 44)]
+    experiments = [SimpleNamespace(
+        config_path=tmp_path / f"resolved-{seed}.yaml", output_dir=tmp_path / str(seed),
+        model_settings={"window_features": {"masked_channels": ["heart_history_available"]}},
+        validate_training_start=Mock(),
+    ) for seed in (43, 44)]
+    if blocked:
+        experiments[0].validate_training_start.side_effect = FileExistsError(
+            "Retain existing results",
+        )
+    factory = Mock(side_effect=experiments)
+    namespace = {
+        "ROOT": tmp_path, "RUN_TRAINING": True, "Path": Path, "logger": Mock(),
+        "study": SimpleNamespace(validate_reused_results=Mock(), new_runs=Mock(return_value=runs)),
+        "GroupedValidationExperiment": factory,
+    }
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/33_hr_deviation_only_seeds.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_TRAINING:" in "".join(cell["source"]))
+    transformed = TransformerManager().transform_cell(source)
+    if blocked:
+        with pytest.raises(FileExistsError, match="Retain existing results"):
+            exec(transformed, namespace)
+        assert shell.commands == []
+        experiments[1].validate_training_start.assert_not_called()
+    else:
+        exec(transformed, namespace)
+        assert len(shell.commands) == 2
+        for command, experiment in zip(shell.commands, experiments, strict=True):
+            arguments = shlex.split(command)
+            assert Path(arguments[arguments.index("--config") + 1]) == experiment.config_path
+            experiment.validate_training_start.assert_called_once_with()
+    namespace["study"].validate_reused_results.assert_called_once_with()
