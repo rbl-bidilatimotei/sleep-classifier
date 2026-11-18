@@ -1,6 +1,6 @@
 # Replicate the availability-flag ablation across seeds
 
-Status: prepared for local training by Timo. New deviation-only seeds 43 and 44 have no scores yet.
+Status: completed locally by Timo. See the [measured replication](experiments/hr-deviation-only-seeds-2026-11-18/README.md).
 
 ## Question
 
@@ -129,4 +129,10 @@ Export skips setup, preparation, training, and recursive export. Keep source out
 
 The [preparation snapshot](experiments/hr-deviation-only-seeds-preparation-2026-11-18/README.md) records ten actual MPS checks and matching fitted states.
 All 937 tests, Ruff, whitespace checks, and fresh-kernel HTML export pass.
-No new participant training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+That preparation snapshot predates Timo’s completed run. Reuse the measured artifacts rather than retraining them.
+
+## Measured outcome
+
+Removing availability has a mean seed effect of −0.00231 macro-F1, with mixed seed effects.
+Keep the flag as a pragmatic default and stop this ablation series.
+Next, test a twenty-epoch strictly past HR reference while retaining thirty raw input epochs and all other controls.

@@ -1,0 +1,273 @@
+{
+  "context_epochs": 30,
+  "short_history_epochs": 4,
+  "posthoc": true,
+  "independent_outer_test": false,
+  "definitions": {
+    "history": "Contiguous eligible epochs within each segment, capped at context",
+    "stage_transition": "True stage changes within the same contiguous segment",
+    "interpretation": "History bins are disjoint; transitions overlap; inspect support"
+  },
+  "slices": [
+    {
+      "name": "history_1_4",
+      "targets": 500,
+      "reference": {
+        "accuracy": 0.532,
+        "macro_f1": 0.4401454521655126,
+        "classes": {
+          "wake": {
+            "precision": 0.7278911564625851,
+            "recall": 0.6815286624203821,
+            "f1": 0.7039473684210527,
+            "support": 157
+          },
+          "light": {
+            "precision": 0.5110132158590308,
+            "recall": 0.58,
+            "f1": 0.5433255269320844,
+            "support": 200
+          },
+          "deep": {
+            "precision": 0.1875,
+            "recall": 0.15789473684210525,
+            "f1": 0.17142857142857143,
+            "support": 19
+          },
+          "REM": {
+            "precision": 0.36363636363636365,
+            "recall": 0.3225806451612903,
+            "f1": 0.3418803418803419,
+            "support": 124
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.524,
+        "macro_f1": 0.4345957678975233,
+        "classes": {
+          "wake": {
+            "precision": 0.654320987654321,
+            "recall": 0.6751592356687898,
+            "f1": 0.664576802507837,
+            "support": 157
+          },
+          "light": {
+            "precision": 0.5150214592274678,
+            "recall": 0.6,
+            "f1": 0.5542725173210161,
+            "support": 200
+          },
+          "deep": {
+            "precision": 0.2222222222222222,
+            "recall": 0.21052631578947367,
+            "f1": 0.21621621621621623,
+            "support": 19
+          },
+          "REM": {
+            "precision": 0.367816091954023,
+            "recall": 0.25806451612903225,
+            "f1": 0.3033175355450237,
+            "support": 124
+          }
+        }
+      },
+      "macro_f1_difference": -0.005549684267989297
+    },
+    {
+      "name": "history_5_29",
+      "targets": 2074,
+      "reference": {
+        "accuracy": 0.6509161041465766,
+        "macro_f1": 0.5292881609329402,
+        "classes": {
+          "wake": {
+            "precision": 0.6187175043327556,
+            "recall": 0.644404332129964,
+            "f1": 0.6312997347480106,
+            "support": 554
+          },
+          "light": {
+            "precision": 0.6891025641025641,
+            "recall": 0.7678571428571429,
+            "f1": 0.7263513513513513,
+            "support": 1120
+          },
+          "deep": {
+            "precision": 0.48717948717948717,
+            "recall": 0.25333333333333335,
+            "f1": 0.3333333333333333,
+            "support": 75
+          },
+          "REM": {
+            "precision": 0.5428571428571428,
+            "recall": 0.3507692307692308,
+            "f1": 0.4261682242990654,
+            "support": 325
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.6248794599807136,
+        "macro_f1": 0.5147143728835535,
+        "classes": {
+          "wake": {
+            "precision": 0.6103202846975089,
+            "recall": 0.6191335740072202,
+            "f1": 0.6146953405017921,
+            "support": 554
+          },
+          "light": {
+            "precision": 0.6772875816993464,
+            "recall": 0.7401785714285715,
+            "f1": 0.7073378839590444,
+            "support": 1120
+          },
+          "deep": {
+            "precision": 0.47058823529411764,
+            "recall": 0.32,
+            "f1": 0.38095238095238093,
+            "support": 75
+          },
+          "REM": {
+            "precision": 0.4219409282700422,
+            "recall": 0.3076923076923077,
+            "f1": 0.35587188612099646,
+            "support": 325
+          }
+        }
+      },
+      "macro_f1_difference": -0.014573788049386693
+    },
+    {
+      "name": "history_30",
+      "targets": 20134,
+      "reference": {
+        "accuracy": 0.6637031886361379,
+        "macro_f1": 0.5606066918715578,
+        "classes": {
+          "wake": {
+            "precision": 0.558282208588957,
+            "recall": 0.30511316010058676,
+            "f1": 0.394579945799458,
+            "support": 1193
+          },
+          "light": {
+            "precision": 0.6937485894831866,
+            "recall": 0.8015645371577576,
+            "f1": 0.7437696588434551,
+            "support": 11505
+          },
+          "deep": {
+            "precision": 0.6242974492001729,
+            "recall": 0.47735537190082644,
+            "f1": 0.5410266017234919,
+            "support": 3025
+          },
+          "REM": {
+            "precision": 0.6019091847265222,
+            "recall": 0.5289050102017683,
+            "f1": 0.5630505611198262,
+            "support": 4411
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.6554584285288566,
+        "macro_f1": 0.5604990472655451,
+        "classes": {
+          "wake": {
+            "precision": 0.5748502994011976,
+            "recall": 0.32187761944677284,
+            "f1": 0.4126813541106932,
+            "support": 1193
+          },
+          "light": {
+            "precision": 0.6971638409250722,
+            "recall": 0.7755758365927857,
+            "f1": 0.7342824226464779,
+            "support": 11505
+          },
+          "deep": {
+            "precision": 0.5763508222396241,
+            "recall": 0.4866115702479339,
+            "f1": 0.5276931349704248,
+            "support": 3025
+          },
+          "REM": {
+            "precision": 0.587892049598833,
+            "recall": 0.5481750170029471,
+            "f1": 0.5673392773345847,
+            "support": 4411
+          }
+        }
+      },
+      "macro_f1_difference": -0.0001076446060126468
+    },
+    {
+      "name": "stage_transition",
+      "targets": 1398,
+      "reference": {
+        "accuracy": 0.46065808297567956,
+        "macro_f1": 0.3907297304711674,
+        "classes": {
+          "wake": {
+            "precision": 0.5594713656387665,
+            "recall": 0.3281653746770026,
+            "f1": 0.41368078175895767,
+            "support": 387
+          },
+          "light": {
+            "precision": 0.4823529411764706,
+            "recall": 0.6416275430359938,
+            "f1": 0.5507051712558765,
+            "support": 639
+          },
+          "deep": {
+            "precision": 0.4915254237288136,
+            "recall": 0.19078947368421054,
+            "f1": 0.27488151658767773,
+            "support": 152
+          },
+          "REM": {
+            "precision": 0.29770992366412213,
+            "recall": 0.35454545454545455,
+            "f1": 0.3236514522821577,
+            "support": 220
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.4592274678111588,
+        "macro_f1": 0.39451915824760025,
+        "classes": {
+          "wake": {
+            "precision": 0.5643153526970954,
+            "recall": 0.35142118863049093,
+            "f1": 0.43312101910828027,
+            "support": 387
+          },
+          "light": {
+            "precision": 0.49503722084367247,
+            "recall": 0.6244131455399061,
+            "f1": 0.5522491349480969,
+            "support": 639
+          },
+          "deep": {
+            "precision": 0.4714285714285714,
+            "recall": 0.21710526315789475,
+            "f1": 0.2972972972972973,
+            "support": 152
+          },
+          "REM": {
+            "precision": 0.26334519572953735,
+            "recall": 0.33636363636363636,
+            "f1": 0.2954091816367265,
+            "support": 220
+          }
+        }
+      },
+      "macro_f1_difference": 0.0037894277764328743
+    }
+  ]
+}
