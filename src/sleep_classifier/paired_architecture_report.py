@@ -28,7 +28,7 @@ class PairedArchitectureReport:
         self, reference_summary: Path, candidate_summary: Path,
         comparison: Literal[
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay", "label_smoothing", "window_features"
+            "weight_decay", "label_smoothing", "window_features", "window_feature_ablation"
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -40,7 +40,7 @@ class PairedArchitectureReport:
         """
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
-            "weight_decay", "label_smoothing", "window_features",
+            "weight_decay", "label_smoothing", "window_features", "window_feature_ablation",
         ):
             raise ValueError("Unknown paired comparison policy")
 
@@ -105,7 +105,7 @@ class PairedArchitectureReport:
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
         if (self.comparison in ("learning_rate", "scheduler", "weight_decay", "label_smoothing",
-                               "window_features")
+                               "window_features", "window_feature_ablation")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -188,6 +188,8 @@ class PairedArchitectureReport:
         candidate_window = WindowFeatureSettings(candidate["config"].get("window_features"))
         if self.comparison == "window_features":
             self._validate_window_feature_recipe(reference, candidate)
+        elif self.comparison == "window_feature_ablation":
+            self._validate_window_feature_ablation_recipe(reference, candidate)
         elif reference_window.values != candidate_window.values:
             raise ValueError("Window-feature changes require the explicit window_features policy")
         self._validate_window_feature_record(reference, reference_window)
@@ -280,19 +282,15 @@ class PairedArchitectureReport:
         treatment = WindowFeatureSettings(candidate["config"].get("window_features"))
         if control.enabled or not treatment.enabled:
             raise ValueError("Window-feature comparison requires disabled versus enabled features")
+        if treatment.values.get("masked_channels"):
+            raise ValueError("Masked channels require the explicit window_feature_ablation policy")
         treatment.validate_context(candidate["config"]["context_epochs"])
         excluded = {"window_features", "prepare_config", "output_dir"}
         left = {key: value for key, value in reference["config"].items() if key not in excluded}
         right = {key: value for key, value in candidate["config"].items() if key not in excluded}
         if left != right:
             raise ValueError("Window-feature comparison requires the same base recipe")
-        for metrics in (reference, candidate):
-            if (metrics["config"].get("model_type") != "patch_transformer"
-                    or metrics["config"].get("lr_scheduler")
-                    or cls._optimizer_signature(metrics["config"]) != OptimizerSettings(None).values
-                    or LossSettings(metrics["config"].get("loss")).values
-                    != LossSettings(None).values):
-                raise ValueError("Window features require unsmoothed constant-rate Adam/P3")
+        cls._validate_window_feature_controls(reference, candidate)
         original = reference.get("model_config")
         augmented = candidate.get("model_config")
         if not isinstance(original, dict) or not isinstance(augmented, dict):
@@ -311,6 +309,87 @@ class PairedArchitectureReport:
                 or candidate.get("parameter_count")
                 != reference["parameter_count"] + 2 * patch * width):
             raise ValueError("Window-feature parameter change must match two added patch channels")
+
+
+    @classmethod
+    def _validate_window_feature_controls(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Require the original unsmoothed constant-rate patch training recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified reference fold metrics.
+            candidate (dict[str, Any]): Verified candidate fold metrics.
+        """
+        for metrics in (reference, candidate):
+            if (metrics["config"].get("model_type") != "patch_transformer"
+                    or metrics["config"].get("lr_scheduler")
+                    or cls._optimizer_signature(metrics["config"]) != OptimizerSettings(None).values
+                    or LossSettings(metrics["config"].get("loss")).values
+                    != LossSettings(None).values):
+                raise ValueError("Window features require unsmoothed constant-rate Adam/P3")
+
+
+    @classmethod
+    def _validate_window_feature_ablation_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Allow only zeroing the deviation channel in the full eight-channel recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified full heart-rate window-feature metrics.
+            candidate (dict[str, Any]): Verified availability-only control metrics.
+        """
+        full = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
+        masked = full | {"masked_channels": ["heart_rate_delta_past"]}
+        for metrics, expected in ((reference, full), (candidate, masked)):
+            settings = WindowFeatureSettings(metrics["config"].get("window_features"))
+            if settings.values != expected:
+                raise ValueError("Window-feature ablation requires full versus deviation-masked HR")
+            settings.validate_context(metrics["config"]["context_epochs"])
+            cls._validate_window_feature_record(metrics, settings)
+
+        excluded = {"window_features", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Window-feature ablation requires the same base recipe")
+        cls._validate_window_feature_controls(reference, candidate)
+        cls._validate_window_feature_ablation_models(reference, candidate, full, masked)
+        if reference["window_features"]["scaling"] != candidate["window_features"]["scaling"]:
+            raise ValueError("Window-feature ablation requires identical fitted scaling state")
+
+
+    @staticmethod
+    def _validate_window_feature_ablation_models(
+        reference: dict[str, Any], candidate: dict[str, Any],
+        full: dict[str, Any], masked: dict[str, Any],
+    ) -> None:
+        """Verify unchanged constructors, raw inputs, channels, and parameter counts.
+
+        Args:
+            reference (dict[str, Any]): Verified full-channel fold metrics.
+            candidate (dict[str, Any]): Verified masked-channel fold metrics.
+            full (dict[str, Any]): Required reference transform settings.
+            masked (dict[str, Any]): Required candidate transform settings.
+        """
+        constructors = []
+        for metrics, expected in ((reference, full), (candidate, masked)):
+            constructor = metrics.get("model_config")
+            if not isinstance(constructor, dict):
+                raise ValueError("Window-feature ablation requires model constructor metadata")
+            constructor = dict(constructor)
+            if (constructor.pop("window_features", None) != expected
+                    or constructor.get("input_size") != len(FEATURE_COLUMNS)):
+                raise ValueError("Window-feature ablation constructors must match the transform")
+            constructors.append(constructor)
+            if type(metrics.get("parameter_count")) is not int or metrics["parameter_count"] <= 0:
+                raise ValueError("Window-feature ablation requires positive parameter counts")
+        if (constructors[0] != constructors[1]
+                or reference["parameter_count"] != candidate["parameter_count"]):
+            raise ValueError(
+                "Window-feature ablation must retain the same model layout and parameter count"
+            )
 
 
     @staticmethod
@@ -699,7 +778,7 @@ class PairedArchitectureReport:
             self._validate_recipes(left["metrics"], right["metrics"])
             if self.comparison in (
                 "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
-                "label_smoothing", "window_features",
+                "label_smoothing", "window_features", "window_feature_ablation",
             ):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
@@ -750,6 +829,30 @@ class PairedArchitectureReport:
             report["selection_caveat"] = (
                 "Development validation selects checkpoints; the reserved test remains separate"
             )
+
+        if self.comparison == "window_feature_ablation":
+            report["comparison"] = "window_feature_ablation"
+            report["validation_scope"] = reference["plan"].get(
+                "validation_scope", "all development folds",
+            )
+            report["capacity_caveat"] = (
+                "Both models retain the same eight channels and parameter count; "
+                "only the normalized deviation channel is zeroed. "
+                "Its projection weights are inactive; equal nominal counts do not imply "
+                "equal functional capacity"
+            )
+            report["context_caveat"] = (
+                "Both transforms use identical fitted scaling and the same raw context; "
+                "the history-availability channel remains active"
+            )
+            report["selection_caveat"] = (
+                "Development validation selects checkpoints; the reserved test remains separate"
+            )
+            if report["validation_scope"] == "selected development folds":
+                report["interpretation"] = (
+                    "Targeted post-hoc development subset; not a full-cohort benchmark "
+                    "or independent evidence for a global recipe"
+                )
 
         if self.comparison == "label_smoothing":
             report["comparison"] = "label_smoothing"
@@ -876,7 +979,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--comparison", choices=(
         "architecture", "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
-        "label_smoothing", "window_features",
+        "label_smoothing", "window_features", "window_feature_ablation",
     ),
                         default="architecture")
     args = parser.parse_args()

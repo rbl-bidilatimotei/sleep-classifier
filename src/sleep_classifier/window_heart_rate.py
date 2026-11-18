@@ -131,6 +131,13 @@ class WindowLocalHeartRate(nn.Module):
             features.dtype
         )
         standardized = standardized.masked_fill(~available, 0)
+        channels = {
+            "heart_rate_delta_past": standardized,
+            "heart_history_available": available.to(features.dtype),
+        }
+        for name in self.settings.get("masked_channels", []):
+            channels[name] = channels[name].masked_fill(torch.ones_like(available), 0)
         return torch.cat([
-            base, standardized.unsqueeze(2), available.to(features.dtype).unsqueeze(2),
+            base, channels["heart_rate_delta_past"].unsqueeze(2),
+            channels["heart_history_available"].unsqueeze(2),
         ], dim=2)

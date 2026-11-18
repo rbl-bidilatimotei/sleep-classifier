@@ -57,6 +57,152 @@ def test_window_settings_keep_default_path_disabled_and_feature_order() -> None:
     assert raw == list(FEATURE_COLUMNS)
 
 
+def test_legacy_settings_preserve_exact_metadata_state_and_random_stream() -> None:
+    """Keep legacy constructors, buffers, normalization, and random state unchanged."""
+    settings = _settings()
+    configured = WindowFeatureSettings(settings)
+    assert configured.values == settings
+    assert set(configured.values) == {"name", "history_epochs", "min_history_epochs"}
+    assert configured.masked_channels == WindowFeatureSettings(None).masked_channels == []
+    before = torch.get_rng_state().clone()
+    augment = WindowLocalHeartRate(settings, _state())
+    assert torch.equal(torch.get_rng_state(), before)
+    assert augment.settings == settings
+    assert augment.normalization_state == _state()
+    assert list(augment.parameters()) == []
+    assert set(augment.state_dict()) == {"heart_rate_scale", "delta_mean", "delta_scale"}
+    for name in augment.state_dict():
+        assert torch.equal(augment.state_dict()[name], torch.tensor(_state()[name]))
+
+
+@pytest.mark.parametrize("masked_channels", [
+    ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_mask_settings_copy_lists_and_keep_effective_channel_names(
+    masked_channels: list[str],
+) -> None:
+    """Validate each supported mask without sharing mutable lists or removing channels.
+
+    Args:
+        masked_channels (list[str]): Supported derived channels to zero.
+    """
+    supplied = list(masked_channels)
+    configured = WindowFeatureSettings(_settings() | {"masked_channels": supplied})
+    supplied.clear()
+    copied = configured.masked_channels
+    copied.clear()
+    assert configured.masked_channels == masked_channels
+    assert configured.values == _settings() | {"masked_channels": masked_channels}
+    assert configured.model_features(list(FEATURE_COLUMNS)) == [
+        *FEATURE_COLUMNS, "heart_rate_delta_past", "heart_history_available",
+    ]
+
+
+@pytest.mark.parametrize("masked_channels", [
+    None, [], (), ("heart_rate_delta_past",), "heart_rate_delta_past", 1, True,
+    ["unknown"], ["heart_rate_mean"], ["heart_rate_delta_past", "heart_rate_delta_past"],
+    [1], [["heart_rate_delta_past"]], {"heart_rate_delta_past": True},
+])
+def test_invalid_mask_settings_are_rejected(masked_channels: Any) -> None:
+    """Reject empty, duplicate, unsupported, or nonlist masks before model construction.
+
+    Args:
+        masked_channels (Any): Invalid proposed channel selection.
+    """
+    with pytest.raises(ValueError, match="masked_channels"):
+        WindowFeatureSettings(_settings() | {"masked_channels": masked_channels})
+
+
+@pytest.mark.parametrize("masked_channels", [
+    ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_selected_channels_are_exactly_zero_after_scaling(
+    masked_channels: list[str],
+) -> None:
+    """Zero only selected derived channels while retaining raw inputs and fitted metadata.
+
+    Args:
+        masked_channels (list[str]): Valid derived channels to zero after normalization.
+    """
+    inputs = _window([0.0, 1.0, 2.0, 5.0, 9.0]).unsqueeze(0)
+    lengths = torch.tensor([5])
+    settings = _settings(history=3, minimum=2)
+    full = WindowLocalHeartRate(settings, _state())(inputs, lengths)
+    masked = WindowLocalHeartRate(settings | {"masked_channels": masked_channels}, _state())
+    actual = masked(inputs, lengths)
+    assert actual.shape == (1, 5, 8)
+    assert torch.equal(actual[:, :, :6], full[:, :, :6])
+    for index, name in enumerate(("heart_rate_delta_past", "heart_history_available"), start=6):
+        expected = (
+            torch.zeros_like(full[:, :, index]) if name in masked_channels else full[:, :, index]
+        )
+        assert torch.equal(actual[:, :, index], expected)
+    assert masked.normalization_state == _state()
+
+
+def test_delta_mask_blocks_only_derived_delta_gradients() -> None:
+    """Block deviation gradients while preserving raw-channel gradients through concatenation."""
+    settings = _settings(history=3, minimum=2)
+    full = WindowLocalHeartRate(settings, _state())
+    masked = WindowLocalHeartRate(
+        settings | {"masked_channels": ["heart_rate_delta_past"]}, _state(),
+    )
+    full_input = _window([0.0, 1.0, 2.0, 5.0, 9.0]).unsqueeze(0).requires_grad_()
+    masked_input = full_input.detach().clone().requires_grad_()
+    full(full_input, torch.tensor([5]))[:, :, 6].sum().backward()
+    output = masked(masked_input, torch.tensor([5]))
+    output[:, :, 6].sum().backward(retain_graph=True)
+    assert full_input.grad is not None and torch.count_nonzero(full_input.grad) > 0
+    assert torch.equal(masked_input.grad, torch.zeros_like(masked_input))
+    output[:, :, :6].sum().backward()
+    assert torch.equal(masked_input.grad, torch.ones_like(masked_input))
+
+
+@pytest.mark.parametrize("masked_channels", [
+    ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_masks_preserve_padding_and_future_invariance(masked_channels: list[str]) -> None:
+    """Keep padded output zero and earlier features independent of later observations.
+
+    Args:
+        masked_channels (list[str]): Derived channel mask used for both windows.
+    """
+    augment = WindowLocalHeartRate(_settings() | {"masked_channels": masked_channels}, _state())
+    inputs = torch.stack([_window([float(x) for x in range(30)])] * 2)
+    inputs[1, 7:, :] = float("nan")
+    lengths = torch.tensor([30, 7])
+    actual = augment(inputs, lengths)
+    changed = inputs.clone()
+    changed[0, 20:, :] = 10000
+    changed[1, 7:, :] = 1e20
+    after = augment(changed, lengths)
+    assert torch.isfinite(actual).all()
+    assert torch.equal(actual[1, 7:], torch.zeros(23, 8))
+    assert torch.equal(actual[0, :20], after[0, :20])
+    assert torch.equal(actual[1], after[1])
+
+
+@pytest.mark.parametrize("masked_channels", [
+    ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_masking_preserves_training_normalization_fit(masked_channels: list[str]) -> None:
+    """Fit the same available training deviations even when their model channels are masked.
+
+    Args:
+        masked_channels (list[str]): Derived channels selected for the later forward mask.
+    """
+    samples = [{"features": _window([0.0, 1.0, 3.0])},
+               {"features": _window([0.0, 1.0, 3.0, 4.0])}]
+    settings = _settings(history=3, minimum=2)
+    expected = WindowLocalHeartRate.fit(samples, 2.0, settings)
+    actual = WindowLocalHeartRate.fit(samples, 2.0, settings | {"masked_channels": masked_channels})
+    assert actual == expected
+
+
 def test_manual_feature_formula_and_startup_missingness() -> None:
     """Exclude the current epoch from history and impute only unavailable standardized deltas."""
     augment = WindowLocalHeartRate(_settings(history=3, minimum=2), _state())

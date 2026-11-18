@@ -80,6 +80,7 @@ def test_augmented_factory_keeps_raw_input_and_restores_predictions() -> None:
     assert isinstance(model, WindowFeatureClassifier)
     assert sum(parameter.numel() for parameter in model.parameters()) == 2852
     assert factory.checkpoint_config(6, 4)["input_size"] == 6
+    assert factory.checkpoint_config(6, 4)["window_features"] == WINDOW_SETTINGS
     assert len(factory.model_features(list(FEATURE_COLUMNS))) == 8
     features = torch.randn(4, 30, 6)
     lengths = torch.tensor([30, 10, 4, 1])
@@ -88,6 +89,31 @@ def test_augmented_factory_keeps_raw_input_and_restores_predictions() -> None:
         model(features, lengths), restored(features, lengths), rtol=0, atol=0,
     )
     assert all(parameter.device.type == "cpu" for parameter in restored.parameters())
+
+
+def test_availability_control_preserves_initial_weights_and_random_stream() -> None:
+    """Keep full and availability-only model initialization identical under the same seed."""
+    full_factory = ModelFactory(_settings() | {"window_features": WINDOW_SETTINGS})
+    masked_settings = WINDOW_SETTINGS | {"masked_channels": ["heart_rate_delta_past"]}
+    masked_factory = ModelFactory(_settings() | {"window_features": masked_settings})
+    torch.manual_seed(42)
+    full = full_factory.build(6, 4, _state())
+    full_rng = torch.get_rng_state().clone()
+    torch.manual_seed(42)
+    masked = masked_factory.build(6, 4, _state())
+    assert torch.equal(torch.get_rng_state(), full_rng)
+    assert full.state_dict().keys() == masked.state_dict().keys()
+    assert all(torch.equal(value, masked.state_dict()[name])
+               for name, value in full.state_dict().items())
+    assert list(dict(full.named_parameters())) == list(dict(masked.named_parameters()))
+    assert list(dict(full.named_buffers())) == list(dict(masked.named_buffers()))
+    assert sum(parameter.numel() for parameter in masked.parameters()) == 2852
+    assert masked_factory.checkpoint_config(6, 4)["input_size"] == 6
+    assert masked_factory.checkpoint_config(6, 4)["window_features"] == masked_settings
+    assert masked_factory.model_features(list(FEATURE_COLUMNS)) == full_factory.model_features(
+        list(FEATURE_COLUMNS)
+    )
+    assert masked.transform.normalization_state == full.transform.normalization_state
 
 
 @pytest.mark.parametrize("mutation", ["missing", "scale", "features"])
@@ -215,19 +241,41 @@ def _unexpected_fit(
     raise AssertionError("Inference attempted to fit window normalization")
 
 
-def test_checkpoint_inference_never_refits_window_scaling(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Construct replay entirely from stored scalers and transform state.
+@pytest.mark.parametrize("masked_channels", [
+    None, ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_checkpoint_inference_never_refits_window_scaling(
+    monkeypatch: pytest.MonkeyPatch, masked_channels: list[str] | None,
+) -> None:
+    """Restore channel masks and predictions entirely from stored state without fitting.
 
     Args:
         monkeypatch (pytest.MonkeyPatch): Scoped prohibition on transform fitting.
+        masked_channels (list[str] | None): Optional valid channel mask to persist.
     """
-    factory = ModelFactory(_settings() | {"window_features": WINDOW_SETTINGS})
-    checkpoint = _checkpoint(factory.build(6, 4, _state()), factory)
+    window_settings = dict(WINDOW_SETTINGS)
+    if masked_channels is not None:
+        window_settings["masked_channels"] = masked_channels
+    factory = ModelFactory(_settings() | {"window_features": window_settings})
+    original = factory.build(6, 4, _state()).eval()
+    checkpoint = _checkpoint(original, factory)
     monkeypatch.setattr(WindowLocalHeartRate, "fit", staticmethod(_unexpected_fit))
     model = ModelFactory.from_checkpoint(checkpoint)
+    assert checkpoint["model_config"]["window_features"] == window_settings
+    assert model.transform.settings == window_settings
+    assert model.transform.normalization_state == _state()
+    inputs = torch.randn(2, 30, 6)
+    lengths = torch.tensor([30, 3])
     with torch.no_grad():
-        output = model(torch.randn(1, 30, 6), torch.tensor([30]))
-    assert output.shape == (1, 4)
+        output = model(inputs, lengths)
+        torch.testing.assert_close(output, original(inputs, lengths), rtol=0, atol=0)
+        augmented = model.transform(inputs, lengths)
+    assert output.shape == (2, 4)
+    assert augmented.shape == (2, 30, 8)
+    for index, name in enumerate(("heart_rate_delta_past", "heart_history_available"), start=6):
+        if name in (masked_channels or []):
+            assert torch.equal(augmented[:, :, index], torch.zeros_like(augmented[:, :, index]))
 
 
 @pytest.mark.parametrize("model_type", ["gru", "transformer"])

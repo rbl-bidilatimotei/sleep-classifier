@@ -72,7 +72,9 @@ Prepared: [HR feature seed replication](window-local-hr-seeds.md) in notebook 30
 Reuse all references and candidate seed 42. Timo runs the ten new candidate fits locally.
 Completed: [HR seed replication](experiments/window-local-hr-seeds-2026-11-18/README.md) gains mean fold macro-F1 at all three seeds.
 The mean paired seed effect is +0.01834; Wake F1 declines at every seed.
-Next: test availability alone by zeroing the deviation channel while retaining the same model shape.
+Prepared: [availability-only control](hr-availability-control.md) in notebook 31.
+Reuse the full-HR seed-42 result. Timo trains five masked candidates, capped at 200 total epochs.
+The deviation channel becomes zero; availability, model shape, initialization layout, and other controls stay fixed.
 Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
 Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
 The final-test participants remain reserved.
@@ -116,3 +118,6 @@ Its [protocol](grouped-validation.md) and the [learning review](learning-review.
 
 The causal Transformer comparison is completed in [notebook 12](../notebooks/12_transformer_comparison.ipynb).
 See its [fixed protocol](transformer-experiment.md) before training.
+
+Completed: [availability-only control](experiments/hr-availability-control-2026-11-18/README.md) loses macro-F1 and accuracy on all five folds.
+Retain HR deviation. Next, test the flag’s contribution with a fixed-shape deviation-only control.
