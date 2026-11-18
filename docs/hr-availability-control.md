@@ -1,6 +1,6 @@
 # Isolate HR deviation with an availability-only control
 
-Status: prepared for local training by Timo. No control scores exist yet.
+Status: completed locally by Timo. See the [measured findings](experiments/hr-availability-control-2026-11-18/README.md).
 
 ## Question
 
@@ -116,4 +116,10 @@ Export skips setup, preparation, training, and recursive export. Keep source out
 
 The [preparation snapshot](experiments/hr-availability-preparation-2026-11-18/README.md) records five MPS checks and synthetic CPU/MPS initialization checks.
 All 876 tests, Ruff, whitespace checks, and fresh-kernel report export pass.
-No control training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+That preparation snapshot predates Timo’s completed run. Reuse the measured artifacts rather than retraining them.
+
+## Measured outcome
+
+Zeroing deviation reduces mean fold macro-F1 by 0.01929, with losses on every fold.
+REM F1 declines, while Wake F1 and transition macro-F1 improve.
+Retain the full HR recipe. Next, test the symmetric deviation-only control by zeroing the availability flag.

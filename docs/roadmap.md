@@ -118,3 +118,6 @@ Its [protocol](grouped-validation.md) and the [learning review](learning-review.
 
 The causal Transformer comparison is completed in [notebook 12](../notebooks/12_transformer_comparison.ipynb).
 See its [fixed protocol](transformer-experiment.md) before training.
+
+Completed: [availability-only control](experiments/hr-availability-control-2026-11-18/README.md) loses macro-F1 and accuracy on all five folds.
+Retain HR deviation. Next, test the flag’s contribution with a fixed-shape deviation-only control.

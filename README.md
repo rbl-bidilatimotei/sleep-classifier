@@ -345,3 +345,7 @@ Use the combined HR recipe as the working development reference. Next, test an a
 The [availability-only control](docs/hr-availability-control.md) is prepared in [notebook 31](notebooks/31_hr_availability_control.ipynb).
 It reuses the full-HR seed-42 result and zeros the deviation channel while preserving eight channels and 2,852 nominal parameters.
 Timo trains five fresh controls locally; the remaining recipe stays fixed.
+
+The [completed availability-only control](docs/experiments/hr-availability-control-2026-11-18/README.md) loses mean fold macro-F1 by 0.01929.
+This supports retaining explicit HR deviation, with Wake and transition trade-offs.
+Next, test deviation alone by zeroing availability while retaining the same model shape.
