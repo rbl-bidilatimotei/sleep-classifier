@@ -117,3 +117,10 @@ Export skips setup, preparation, training, and recursive export. Keep source out
 The [preparation snapshot](experiments/hr-deviation-only-preparation-2026-11-18/README.md) records five MPS preflights and synthetic CPU/MPS checks.
 All 919 tests, Ruff, whitespace checks, and fresh-kernel report export pass.
 No deviation-only training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+
+## Training identity safeguard
+
+See the [blocked-command diagnosis](notebook-training-identity.md) before retrying the reported run.
+Notebook 31 targets the completed availability-only experiment; notebook 32 targets the fresh deviation-only experiment.
+Commands now derive their config from the validated experiment, log its identity, and check readiness before starting the CLI.
+Reload notebook 32, restart its kernel, and run its setup cells from the top before enabling training.

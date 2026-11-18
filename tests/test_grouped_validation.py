@@ -419,3 +419,53 @@ def test_changed_selected_folds_are_rejected_after_preparation(
     with pytest.raises(ValueError, match="changed"):
         GroupedValidationExperiment(path).run()
     model.assert_not_called()
+
+
+@pytest.mark.parametrize("existing", ["fold", "summary"])
+def test_existing_training_results_identify_the_blocked_experiment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, existing: str,
+) -> None:
+    """Identify completed outputs and retain them before any training can start.
+
+    Args:
+        tmp_path (Path): Synthetic prepared experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped prohibition on fold execution.
+        existing (str): Existing result artifact to retain.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    manifest = json.loads(experiment.prepare().read_text())
+    artifact = (experiment.output_dir / manifest["plan"]["folds"][0]["name"] / "results/sentinel"
+                if existing == "fold" else experiment.output_dir / "summary.json")
+    artifact.parent.mkdir(parents=True, exist_ok=True)
+    artifact.write_text("preserve measured results")
+    forbidden = Mock(side_effect=AssertionError("Training must not start"))
+    monkeypatch.setattr(experiment, "_run_fold", forbidden)
+    with pytest.raises(FileExistsError) as failure:
+        experiment.run()
+    message = str(failure.value)
+    assert str(experiment.config_path) in message
+    assert str(experiment.output_dir) in message
+    assert "Verify the intended notebook" in message
+    assert artifact.read_text() == "preserve measured results"
+    forbidden.assert_not_called()
+
+
+
+def test_training_readiness_checks_prepared_inputs_without_creating_results(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose an optimization-free readiness check for notebook training cells.
+
+    Args:
+        tmp_path (Path): Synthetic fresh experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped prohibition on fold execution.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    manifest_path = experiment.prepare()
+    expected = json.loads(manifest_path.read_text())
+    forbidden = Mock(side_effect=AssertionError("Training must not start"))
+    monkeypatch.setattr(experiment, "_run_fold", forbidden)
+    assert experiment.validate_training_start() == expected
+    assert not (experiment.output_dir / "summary.json").exists()
+    assert not list(experiment.output_dir.glob("fold-*/results"))
+    forbidden.assert_not_called()
