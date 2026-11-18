@@ -135,3 +135,7 @@ Timo trains the ten new candidates locally. The reserved final test stays untouc
 
 Completed: [flag replication](experiments/hr-deviation-only-seeds-2026-11-18/README.md) shows no consistent benefit from removal.
 Keep both HR channels. Next, compare twenty versus ten past HR epochs within the same thirty-epoch input window.
+
+Prepared: [twenty-epoch HR reference](hr-history-horizon.md) in notebook 34.
+Keep both channels, the same thirty raw epochs, and 2,852 parameters. Only the reference horizon and resulting deviation normalization change.
+Five candidate fits remain operator-controlled; the full-HR reference is reused.

@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: hr-history-20.yaml
+output_dir: ../artifacts/hr-history-20-grouped-validation
+folds: 5
+split_seed: 42

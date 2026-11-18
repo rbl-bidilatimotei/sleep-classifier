@@ -2466,3 +2466,337 @@ def test_seed_report_rejects_different_ablation_masks_across_seeds(tmp_path: Pat
     summary_path.write_text(json.dumps(summary))
     with pytest.raises(ValueError, match="across seeds"):
         study.validate_reused_results()
+
+
+def _write_window_history_pair(root: Path) -> tuple[Path, Path]:
+    """Write full-channel histories with distinct valid training-fitted delta statistics.
+
+    Args:
+        root (Path): Temporary grouped artifact directory.
+    """
+    paths = _write_window_feature_ablation_pair(root)
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        settings = {"name": "heart_rate_deviation", "history_epochs": 10 if index == 0 else 20,
+                    "min_history_epochs": 4}
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"]["window_features"] = settings
+            metrics["model_config"]["window_features"] = settings
+            metrics["window_features"]["settings"] = settings
+            if index == 1:
+                metrics["window_features"]["scaling"].update(delta_mean=0.2, delta_scale=1.4)
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_window_history_records_fixed_context_and_allows_refitted_deltas(tmp_path: Path) -> None:
+    """Compare 10 versus 20 previous epochs with unchanged population and model capacity.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    report = PairedArchitectureReport(*paths, "window_history").build()
+
+    assert report["comparison"] == "window_history"
+    assert report["window_history"] == {
+        "reference_history_epochs": 10, "candidate_history_epochs": 20,
+        "reference_min_history_epochs": 4, "candidate_min_history_epochs": 4,
+        "context_epochs": 30,
+    }
+    assert report["eligible_epochs"] == 8
+    assert report["validation_participants"] == 2
+    assert report["validation_scope"] == "all development folds"
+    assert "same eight active channels and parameter count" in report["capacity_caveat"]
+    assert "same 30-epoch raw context" in report["context_caveat"]
+    assert "normalization" in report["context_caveat"]
+    assert "may differ" in report["context_caveat"]
+    assert "reserved test remains separate" in report["selection_caveat"]
+    assert report["independent_outer_test"] is False
+
+
+@pytest.mark.parametrize("comparison", [
+    "architecture", "window_features", "window_feature_ablation",
+])
+def test_window_history_requires_its_explicit_policy(tmp_path: Path, comparison: str) -> None:
+    """Reject a history-definition comparison routed through an earlier feature policy.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        comparison (str): Earlier policy that must reject the history change.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, comparison).build()
+
+
+@pytest.mark.parametrize("side", [0, 1])
+@pytest.mark.parametrize("mutation", [
+    "disabled", "name", "minimum", "mask", "context", "history_context", "model_setting",
+    "constructor", "missing_constructor", "input", "channels", "count", "zero_count",
+    "bool_count", "heart_scale", "target_count", "rate", "diagnostics", "schema",
+    "fit_origin", "nonfinite", "zero_scale", "oversized_count", "provenance",
+])
+def test_window_history_rejects_confounds_and_invalid_state(
+    tmp_path: Path, side: int, mutation: str,
+) -> None:
+    """Validate both history recipes, equal layouts, and original training-fit evidence.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        side (int): Reference or candidate artifact to invalidate.
+        mutation (str): Recipe, constructor, or fitted-state confound to introduce.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    path = Path(json.loads(paths[side].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    settings = metrics["config"]["window_features"]
+    state = metrics["window_features"]["scaling"]
+    if mutation == "disabled":
+        metrics["config"].pop("window_features")
+    elif mutation == "name":
+        settings["name"] = "other"
+    elif mutation == "minimum":
+        settings["min_history_epochs"] = 3
+    elif mutation == "mask":
+        settings["masked_channels"] = ["heart_rate_delta_past"]
+    elif mutation == "context":
+        metrics["config"]["context_epochs"] = 40
+    elif mutation == "history_context":
+        settings["history_epochs"] = 30
+    elif mutation == "model_setting":
+        metrics["model_config"]["window_features"]["history_epochs"] += 1
+    elif mutation == "constructor":
+        metrics["model_config"]["d_model"] = 32
+    elif mutation == "missing_constructor":
+        metrics["model_config"] = None
+    elif mutation == "input":
+        metrics["model_config"]["input_size"] = 8
+    elif mutation == "channels":
+        metrics["model_features"][-2:] = ["heart_history_available", "heart_rate_delta_past"]
+    elif mutation == "count":
+        metrics["parameter_count"] += 1
+    elif mutation == "zero_count":
+        metrics["parameter_count"] = 0
+    elif mutation == "bool_count":
+        metrics["parameter_count"] = True
+    elif mutation == "heart_scale":
+        state["heart_rate_scale"] = 6.0
+    elif mutation == "target_count":
+        state["available_training_targets"] = 95
+    elif mutation == "rate":
+        metrics["config"]["learning_rate"] = 0.0003
+    elif mutation == "diagnostics":
+        metrics["config"]["diagnostics"]["enabled"] = False
+    elif mutation == "schema":
+        state["extra"] = 1
+    elif mutation == "fit_origin":
+        state["scaling_fit"] = "validation"
+    elif mutation == "nonfinite":
+        state["delta_mean"] = float("nan")
+    elif mutation == "zero_scale":
+        state["delta_scale"] = 0.0
+    elif mutation == "oversized_count":
+        state["available_training_targets"] = 101
+    else:
+        metrics["provenance"]["source_inventory"] = {"version": 2}
+    if mutation in {"name", "minimum", "mask", "history_context"}:
+        metrics["model_config"]["window_features"] = dict(settings)
+        metrics["window_features"]["settings"] = dict(settings)
+    _rewrite_metrics(paths[side], metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_history").build()
+
+
+@pytest.mark.parametrize("candidate_history", [5, 10])
+def test_window_history_rejects_reverse_or_unchanged_horizons(
+    tmp_path: Path, candidate_history: int,
+) -> None:
+    """Require a strict horizon increase with all three transform records consistent.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        candidate_history (int): Unsupported shorter or unchanged horizon.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    path = Path(json.loads(paths[1].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    for settings in (metrics["config"]["window_features"],
+                     metrics["model_config"]["window_features"],
+                     metrics["window_features"]["settings"]):
+        settings["history_epochs"] = candidate_history
+    _rewrite_metrics(paths[1], metrics)
+
+    with pytest.raises(ValueError, match="only an increased history_epochs"):
+        PairedArchitectureReport(*paths, "window_history").build()
+
+
+@pytest.mark.parametrize("control", ["optimizer", "lr_scheduler", "loss", "optimizer_agent"])
+def test_window_history_rejects_shared_training_control_changes(
+    tmp_path: Path, control: str,
+) -> None:
+    """Keep both sides on constant-rate Adam without smoothing or optimizer agents.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        control (str): Disallowed shared training setting.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    overrides = {"optimizer": {"name": "adamw", "weight_decay": 0.01},
+                 "lr_scheduler": {"name": "plateau"}, "loss": {"label_smoothing": 0.05},
+                 "optimizer_agent": {"name": "gradient"}}
+    for summary_path in paths:
+        path = Path(json.loads(summary_path.read_text())["results"][0]["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"][control] = overrides[control]
+        _rewrite_metrics(summary_path, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_history").build()
+
+
+@pytest.mark.parametrize("side", [0, 1])
+@pytest.mark.parametrize("setting", ["history_epochs", "min_history_epochs"])
+def test_window_history_rejects_definitions_that_vary_across_folds(
+    tmp_path: Path, side: int, setting: str,
+) -> None:
+    """Reject horizon or minimum drift even when each fold forms a valid history pair.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        side (int): Reference or candidate horizon to change.
+        setting (str): Horizon or shared minimum to vary in the second fold.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    changed_sides = [side] if setting == "history_epochs" else [0, 1]
+    for index in changed_sides:
+        summary = json.loads(paths[index].read_text())
+        result = summary["results"][1]
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        for settings in (metrics["config"]["window_features"],
+                         metrics["model_config"]["window_features"],
+                         metrics["window_features"]["settings"]):
+            settings[setting] += 1
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        paths[index].write_text(json.dumps(summary))
+
+    with pytest.raises(ValueError, match="definitions differ across folds"):
+        PairedArchitectureReport(*paths, "window_history").build()
+
+
+@pytest.mark.parametrize("mutation", ["budget", "scope", "population", "hash"])
+def test_window_history_retains_grouped_artifact_guards(tmp_path: Path, mutation: str) -> None:
+    """Preserve budget, scope, target population, and checksum validation for history reports.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        mutation (str): Shared artifact guard to exercise.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    summary = json.loads(paths[1].read_text())
+    if mutation == "budget":
+        for path in paths:
+            recorded = json.loads(path.read_text())
+            recorded["plan"]["maximum_epochs"] = 8
+            path.write_text(json.dumps(recorded))
+    elif mutation == "scope":
+        summary["plan"]["validation_scope"] = "selected development folds"
+        paths[1].write_text(json.dumps(summary))
+    else:
+        path = Path(summary["results"][0]["metrics_path"])
+        if mutation == "hash":
+            path.write_text(path.read_text() + "\n")
+        else:
+            predictions_path = path.parent / "validation_predictions.csv"
+            predictions = pd.read_csv(predictions_path)
+            predictions.loc[0, "target"] = 1
+            predictions.to_csv(predictions_path, index=False)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_history").build()
+
+
+def test_window_history_labels_selected_development_scope(tmp_path: Path) -> None:
+    """Label post-hoc history exploration as development-only descriptive evidence.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    for path in paths:
+        summary = json.loads(path.read_text())
+        summary["plan"]["validation_scope"] = "selected development folds"
+        path.write_text(json.dumps(summary))
+
+    report = PairedArchitectureReport(*paths, "window_history").build()
+    assert report["validation_scope"] == "selected development folds"
+    assert "Targeted post-hoc development subset" in report["interpretation"]
+
+
+def test_temporal_adapter_forwards_window_history_policy(tmp_path: Path) -> None:
+    """Forward the history policy before requiring prepared temporal metadata.
+
+    Args:
+        tmp_path (Path): Temporary paired artifacts without a preparation manifest.
+    """
+    from sleep_classifier.temporal_slice_report import TemporalSliceReport
+
+    paths = _write_window_history_pair(tmp_path)
+    with pytest.raises(FileNotFoundError, match="manifest.json"):
+        TemporalSliceReport.from_grouped(*paths, comparison="window_history")
+
+
+def test_window_history_cli_accepts_explicit_policy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose the history policy through the report-only command-line entry point.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment and report directory.
+        monkeypatch (pytest.MonkeyPatch): Isolated command-line argument overrides.
+    """
+    from sleep_classifier.paired_architecture_report import main
+
+    reference, candidate = _write_window_history_pair(tmp_path)
+    output = tmp_path / "history-comparison.json"
+    monkeypatch.setattr("sys.argv", [
+        "paired_architecture_report", "--reference", str(reference), "--candidate", str(candidate),
+        "--comparison", "window_history", "--output", str(output),
+    ])
+    main()
+
+    assert json.loads(output.read_text())["comparison"] == "window_history"
+
+
+@pytest.mark.parametrize("candidate_history", [15, 29])
+def test_window_history_policy_accepts_other_strict_increases(
+    tmp_path: Path, candidate_history: int,
+) -> None:
+    """Keep the policy generic while bounding each history by the unchanged raw context.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        candidate_history (int): Valid increased history below the 30-epoch raw context.
+    """
+    paths = _write_window_history_pair(tmp_path)
+    summary = json.loads(paths[1].read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        for settings in (metrics["config"]["window_features"],
+                         metrics["model_config"]["window_features"],
+                         metrics["window_features"]["settings"]):
+            settings["history_epochs"] = candidate_history
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    paths[1].write_text(json.dumps(summary))
+
+    report = PairedArchitectureReport(*paths, "window_history").build()
+    assert report["window_history"]["candidate_history_epochs"] == candidate_history
