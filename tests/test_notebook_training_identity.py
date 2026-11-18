@@ -61,7 +61,11 @@ def test_training_cell_uses_the_validated_experiment_config(
         notebook_name (str): Notebook whose actual training cell is exercised.
     """
     monkeypatch.chdir(tmp_path)
-    config = tmp_path / "configs/hr-deviation-only-grouped.yaml"
+    active_config = ("hr-deviation-only-grouped.yaml" if notebook_name.startswith("31_")
+                     else "hr-availability-control-grouped.yaml")
+    masked_channel = ("heart_history_available" if notebook_name.startswith("31_")
+                      else "heart_rate_delta_past")
+    config = tmp_path / "configs" / active_config
     config.parent.mkdir()
     config.write_text("output_dir: ../candidate\n")
     summary = tmp_path / "reference.json"
@@ -69,7 +73,7 @@ def test_training_cell_uses_the_validated_experiment_config(
     summary.write_text(json.dumps({"plan": plan}))
     experiment = SimpleNamespace(
         config_path=config.resolve(), output_dir=tmp_path / "candidate",
-        model_settings={"window_features": {"masked_channels": ["heart_history_available"]}},
+        model_settings={"window_features": {"masked_channels": [masked_channel]}},
         validate_training_start=Mock(),
     )
     namespace = {
