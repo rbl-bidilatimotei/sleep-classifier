@@ -70,7 +70,9 @@ Completed: [seed-42 HR feature results](experiments/window-local-heart-rate-2026
 REM improves, but Wake F1, Deep recall, and transition scores decline.
 Prepared: [HR feature seed replication](window-local-hr-seeds.md) in notebook 30.
 Reuse all references and candidate seed 42. Timo runs the ten new candidate fits locally.
-Candidate scores for seeds 43 and 44 remain pending.
+Completed: [HR seed replication](experiments/window-local-hr-seeds-2026-11-18/README.md) gains mean fold macro-F1 at all three seeds.
+The mean paired seed effect is +0.01834; Wake F1 declines at every seed.
+Next: test availability alone by zeroing the deviation channel while retaining the same model shape.
 Resolve sampling semantics before adding motion-change features. Preserve eligibility and fit transforms on training participants only.
 Extend the local viewer through separate run/epoch navigation and evidence-bookmark milestones.
 The final-test participants remain reserved.

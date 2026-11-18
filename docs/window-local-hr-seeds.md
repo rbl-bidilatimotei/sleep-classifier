@@ -1,6 +1,6 @@
 # Replicate the window-local HR feature recipe across seeds
 
-Status: prepared for local training by Timo. Seeds 43 and 44 have no candidate scores yet.
+Status: completed locally by Timo. See the [measured replication](experiments/window-local-hr-seeds-2026-11-18/README.md).
 
 ## Question
 
@@ -128,3 +128,9 @@ The executed report stays under ignored artifacts/notebooks. Source notebooks, c
 The [preparation snapshot](experiments/window-local-hr-seeds-preparation-2026-11-17/README.md) records ten MPS checks and unchanged feature-table hashes.
 All 799 tests, Ruff, whitespace checks, and fresh-kernel HTML export pass.
 No new candidate training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+
+## Measured outcome
+
+All three seeds improve mean fold macro-F1; the mean paired seed effect is +0.01834.
+REM precision, recall, and F1 improve at each seed. Wake F1 declines at each seed.
+The combined HR recipe becomes the working development reference. Next, isolate deviation with an availability-only control at fixed model shape.

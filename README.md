@@ -337,3 +337,7 @@ Repeat the unchanged candidate with seeds 43 and 44 before replacing the origina
 The [HR feature seed replication](docs/window-local-hr-seeds.md) is prepared in [notebook 30](notebooks/30_window_local_hr_seeds.ipynb).
 It reuses all three original-P3 references and the completed seed-42 HR candidate.
 Only candidate seeds 43 and 44 require training: ten fresh fits, with the remaining recipe fixed.
+
+The [completed HR seed replication](docs/experiments/window-local-hr-seeds-2026-11-18/README.md) improves mean fold macro-F1 at all three seeds.
+The mean seed effect is +0.01834. REM improves consistently; Wake F1 declines consistently.
+Use the combined HR recipe as the working development reference. Next, test an availability-only control at fixed model shape.
