@@ -1987,11 +1987,14 @@ def test_window_feature_seed_report_rejects_recipe_drift_or_corruption(
         study.validate_reused_results()
 
 
-def _write_window_feature_ablation_pair(root: Path) -> tuple[Path, Path]:
-    """Write matched full-HR and deviation-masked eight-channel grouped fixtures.
+def _write_window_feature_ablation_pair(
+    root: Path, masked_channel: str = "heart_rate_delta_past",
+) -> tuple[Path, Path]:
+    """Write matched full-HR and single-masked eight-channel grouped fixtures.
 
     Args:
         root (Path): Temporary grouped artifact directory.
+        masked_channel (str): Derived channel to mask in every candidate fold.
     """
     paths = _write_window_feature_pair(root)
     full = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
@@ -2001,7 +2004,7 @@ def _write_window_feature_ablation_pair(root: Path) -> tuple[Path, Path]:
     for index, summary_path in enumerate(paths):
         summary = json.loads(summary_path.read_text())
         summary["plan"]["validation_scope"] = "all development folds"
-        settings = full if index == 0 else full | {"masked_channels": ["heart_rate_delta_past"]}
+        settings = full if index == 0 else full | {"masked_channels": [masked_channel]}
         for result in summary["results"]:
             path = Path(result["metrics_path"])
             metrics = json.loads(path.read_text())
@@ -2017,26 +2020,38 @@ def _write_window_feature_ablation_pair(root: Path) -> tuple[Path, Path]:
     return paths
 
 
-def test_window_feature_ablation_preserves_capacity_population_and_scope(tmp_path: Path) -> None:
-    """Report the explicit availability control with matched model capacity and fit state.
+@pytest.mark.parametrize("channel,masked,active", [
+    ("heart_rate_delta_past", "normalized deviation", "history-availability"),
+    ("heart_history_available", "history-availability", "normalized deviation"),
+])
+def test_window_feature_ablation_preserves_capacity_population_and_scope(
+    tmp_path: Path, channel: str, masked: str, active: str,
+) -> None:
+    """Report either ablation with matched model capacity and unchanged source artifacts.
 
     Args:
         tmp_path (Path): Temporary paired study directory.
+        channel (str): Candidate derived channel to mask.
+        masked (str): Human-readable masked channel name.
+        active (str): Human-readable remaining channel name.
     """
-    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path, channel)
+    original = {path: path.read_bytes() for path in tmp_path.rglob("*") if path.is_file()}
     report = PairedArchitectureReport(reference, candidate, "window_feature_ablation").build()
 
     assert report["comparison"] == "window_feature_ablation"
+    assert report["masked_channels"] == [channel]
     assert report["eligible_epochs"] == 8
     assert report["validation_participants"] == 2
     assert report["validation_scope"] == "all development folds"
     assert "same eight channels and parameter count" in report["capacity_caveat"]
-    assert "only the normalized deviation channel is zeroed" in report["capacity_caveat"]
+    assert f"only the {masked} channel is zeroed" in report["capacity_caveat"]
     assert "identical fitted scaling" in report["context_caveat"]
-    assert "history-availability channel remains active" in report["context_caveat"]
+    assert f"{active} channel remains active" in report["context_caveat"]
     assert "reserved test remains separate" in report["selection_caveat"]
     assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
     assert not report["independent_outer_test"]
+    assert original == {path: path.read_bytes() for path in original}
 
 
 @pytest.mark.parametrize("comparison", ["architecture", "window_features"])
@@ -2090,19 +2105,22 @@ def test_masked_model_architecture_self_comparison_stays_supported(tmp_path: Pat
 
 @pytest.mark.parametrize("mutation", [
     "rate", "context", "dropout", "diagnostics", "history", "minimum_history", "mask",
-    "missing_mask", "availability_mask", "constructor", "constructor_mask", "raw_input",
+    "missing_mask", "empty_mask", "both_masks", "inconsistent_mask", "constructor",
+    "constructor_mask", "raw_input",
     "model_channels", "parameter_count", "zero_parameters", "bool_parameters", "scaling",
 ])
+@pytest.mark.parametrize("channel", ["heart_rate_delta_past", "heart_history_available"])
 def test_window_feature_ablation_rejects_confounded_recipes_and_models(
-    tmp_path: Path, mutation: str,
+    tmp_path: Path, mutation: str, channel: str,
 ) -> None:
-    """Reject every extra change to the declared deviation-only ablation.
+    """Reject extra changes or inconsistent metadata in the single-channel ablation.
 
     Args:
         tmp_path (Path): Temporary paired study directory.
         mutation (str): Candidate recipe or model field to invalidate.
+        channel (str): Derived channel selected for the otherwise valid candidate.
     """
-    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path, channel)
     path = Path(json.loads(candidate.read_text())["results"][0]["metrics_path"])
     metrics = json.loads(path.read_text())
     if mutation == "rate":
@@ -2121,8 +2139,17 @@ def test_window_feature_ablation_rejects_confounded_recipes_and_models(
         metrics["config"]["window_features"]["masked_channels"] = ["other"]
     elif mutation == "missing_mask":
         metrics["config"]["window_features"].pop("masked_channels")
-    elif mutation == "availability_mask":
-        metrics["config"]["window_features"]["masked_channels"] = ["heart_history_available"]
+    elif mutation == "empty_mask":
+        metrics["config"]["window_features"]["masked_channels"] = []
+    elif mutation == "both_masks":
+        metrics["config"]["window_features"]["masked_channels"] = [
+            "heart_rate_delta_past", "heart_history_available",
+        ]
+    elif mutation == "inconsistent_mask":
+        metrics["config"]["window_features"]["masked_channels"] = [
+            "heart_history_available" if channel == "heart_rate_delta_past"
+            else "heart_rate_delta_past",
+        ]
     elif mutation == "constructor":
         metrics["model_config"]["d_model"] = 32
     elif mutation == "constructor_mask":
@@ -2143,6 +2170,105 @@ def test_window_feature_ablation_rejects_confounded_recipes_and_models(
 
     with pytest.raises(ValueError):
         PairedArchitectureReport(reference, candidate, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("channel", ["heart_rate_delta_past", "heart_history_available"])
+@pytest.mark.parametrize("side", [0, 1])
+@pytest.mark.parametrize("record", ["config", "model_config", "window_features"])
+def test_window_feature_ablation_requires_symmetric_mask_metadata(
+    tmp_path: Path, channel: str, side: int, record: str,
+) -> None:
+    """Require each recipe, constructor, and transform to declare the same mask.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        channel (str): Approved candidate derived channel to mask.
+        side (int): Reference or candidate metadata to invalidate.
+        record (str): Recipe, constructor, or effective transform record to change.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path, channel)
+    path = Path(json.loads(paths[side].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    settings = metrics[record]["settings" if record == "window_features" else "window_features"]
+    if side == 0:
+        settings["masked_channels"] = [channel]
+    else:
+        settings.pop("masked_channels")
+    _rewrite_metrics(paths[side], metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("channels", [
+    ["heart_rate_delta_past"], ["heart_history_available"],
+    ["heart_rate_delta_past", "heart_history_available"],
+])
+def test_window_feature_ablation_rejects_consistently_masked_reference(
+    tmp_path: Path, channels: list[str],
+) -> None:
+    """Keep the reference fully active even when all reference mask records agree.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        channels (list[str]): Disallowed reference mask to record consistently.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path)
+    path = Path(json.loads(paths[0].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    for record in (metrics["config"]["window_features"], metrics["model_config"]["window_features"],
+                   metrics["window_features"]["settings"]):
+        record["masked_channels"] = channels
+    _rewrite_metrics(paths[0], metrics)
+
+    with pytest.raises(ValueError, match="full versus single-masked"):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
+
+
+def test_window_feature_ablation_rejects_consistent_both_channel_candidate(tmp_path: Path) -> None:
+    """Reject a two-channel mask even when its recipe and effective metadata agree.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path)
+    path = Path(json.loads(paths[1].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    for record in (metrics["config"]["window_features"], metrics["model_config"]["window_features"],
+                   metrics["window_features"]["settings"]):
+        record["masked_channels"] = ["heart_rate_delta_past", "heart_history_available"]
+    _rewrite_metrics(paths[1], metrics)
+
+    with pytest.raises(ValueError, match="exactly one approved"):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("first_channel", ["heart_rate_delta_past", "heart_history_available"])
+def test_window_feature_ablation_rejects_different_masks_across_folds(
+    tmp_path: Path, first_channel: str,
+) -> None:
+    """Reject a grouped report that combines two otherwise valid ablation recipes.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        first_channel (str): Approved candidate mask used in the first fold.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path, first_channel)
+    summary = json.loads(paths[1].read_text())
+    result = summary["results"][1]
+    path = Path(result["metrics_path"])
+    metrics = json.loads(path.read_text())
+    channel = ("heart_history_available" if first_channel == "heart_rate_delta_past"
+               else "heart_rate_delta_past")
+    for record in (metrics["config"]["window_features"], metrics["model_config"]["window_features"],
+                   metrics["window_features"]["settings"]):
+        record["masked_channels"] = [channel]
+    path.write_text(json.dumps(metrics))
+    result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    paths[1].write_text(json.dumps(summary))
+
+    with pytest.raises(ValueError, match="masked channels differ across folds"):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
 
 
 @pytest.mark.parametrize("side", [0, 1])
