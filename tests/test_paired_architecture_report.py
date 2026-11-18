@@ -1985,3 +1985,306 @@ def test_window_feature_seed_report_rejects_recipe_drift_or_corruption(
         _rewrite_metrics(path, metrics)
     with pytest.raises(ValueError):
         study.validate_reused_results()
+
+
+def _write_window_feature_ablation_pair(root: Path) -> tuple[Path, Path]:
+    """Write matched full-HR and deviation-masked eight-channel grouped fixtures.
+
+    Args:
+        root (Path): Temporary grouped artifact directory.
+    """
+    paths = _write_window_feature_pair(root)
+    full = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
+    state = {"schema_version": 1, "heart_rate_scale": 5.0, "delta_mean": -0.1,
+             "delta_scale": 1.2, "available_training_targets": 96,
+             "scaling_fit": "training_targets_only"}
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        summary["plan"]["validation_scope"] = "all development folds"
+        settings = full if index == 0 else full | {"masked_channels": ["heart_rate_delta_past"]}
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"]["window_features"] = settings
+            metrics["model_config"]["window_features"] = settings
+            metrics["model_features"] = [*FEATURE_COLUMNS, "heart_rate_delta_past",
+                                         "heart_history_available"]
+            metrics["parameter_count"] = 2852
+            metrics["window_features"] = {"settings": settings, "scaling": state}
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+def test_window_feature_ablation_preserves_capacity_population_and_scope(tmp_path: Path) -> None:
+    """Report the explicit availability control with matched model capacity and fit state.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    report = PairedArchitectureReport(reference, candidate, "window_feature_ablation").build()
+
+    assert report["comparison"] == "window_feature_ablation"
+    assert report["eligible_epochs"] == 8
+    assert report["validation_participants"] == 2
+    assert report["validation_scope"] == "all development folds"
+    assert "same eight channels and parameter count" in report["capacity_caveat"]
+    assert "only the normalized deviation channel is zeroed" in report["capacity_caveat"]
+    assert "identical fitted scaling" in report["context_caveat"]
+    assert "history-availability channel remains active" in report["context_caveat"]
+    assert "reserved test remains separate" in report["selection_caveat"]
+    assert report["paired"]["mean_macro_f1_difference"] == pytest.approx(0.9)
+    assert not report["independent_outer_test"]
+
+
+@pytest.mark.parametrize("comparison", ["architecture", "window_features"])
+def test_window_feature_ablation_requires_its_explicit_policy(
+    tmp_path: Path, comparison: str,
+) -> None:
+    """Prevent mixing a masked control into architecture or feature-enablement experiments.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        comparison (str): Earlier policy that must reject the ablation.
+    """
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, comparison).build()
+
+
+def test_window_feature_enabling_policy_rejects_masked_candidate(tmp_path: Path) -> None:
+    """Keep disabled-versus-enabled comparisons distinct from the new masked control.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    reference, candidate = _write_window_feature_pair(tmp_path)
+    metrics_path = Path(json.loads(candidate.read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(metrics_path.read_text())
+    settings = metrics["config"]["window_features"] | {
+        "masked_channels": ["heart_rate_delta_past"],
+    }
+    metrics["config"]["window_features"] = settings
+    metrics["model_config"]["window_features"] = settings
+    metrics["window_features"]["settings"] = settings
+    _rewrite_metrics(candidate, metrics)
+
+    with pytest.raises(ValueError, match="explicit window_feature_ablation"):
+        PairedArchitectureReport(reference, candidate, "window_features").build()
+
+
+def test_masked_model_architecture_self_comparison_stays_supported(tmp_path: Path) -> None:
+    """Allow unchanged masked features when comparing the same saved architecture recipe.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    _, candidate = _write_window_feature_ablation_pair(tmp_path)
+    report = PairedArchitectureReport(candidate, candidate).build()
+
+    assert report["eligible_epochs"] == 8
+    assert report["paired"]["mean_macro_f1_difference"] == 0
+
+
+@pytest.mark.parametrize("mutation", [
+    "rate", "context", "dropout", "diagnostics", "history", "minimum_history", "mask",
+    "missing_mask", "availability_mask", "constructor", "constructor_mask", "raw_input",
+    "model_channels", "parameter_count", "zero_parameters", "bool_parameters", "scaling",
+])
+def test_window_feature_ablation_rejects_confounded_recipes_and_models(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Reject every extra change to the declared deviation-only ablation.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        mutation (str): Candidate recipe or model field to invalidate.
+    """
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    path = Path(json.loads(candidate.read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    if mutation == "rate":
+        metrics["config"]["learning_rate"] = 0.0003
+    elif mutation == "context":
+        metrics["config"]["context_epochs"] = 40
+    elif mutation == "dropout":
+        metrics["config"]["transformer"]["dropout"] = 0.1
+    elif mutation == "diagnostics":
+        metrics["config"]["diagnostics"]["enabled"] = False
+    elif mutation == "history":
+        metrics["config"]["window_features"]["history_epochs"] = 9
+    elif mutation == "minimum_history":
+        metrics["config"]["window_features"]["min_history_epochs"] = 3
+    elif mutation == "mask":
+        metrics["config"]["window_features"]["masked_channels"] = ["other"]
+    elif mutation == "missing_mask":
+        metrics["config"]["window_features"].pop("masked_channels")
+    elif mutation == "availability_mask":
+        metrics["config"]["window_features"]["masked_channels"] = ["heart_history_available"]
+    elif mutation == "constructor":
+        metrics["model_config"]["d_model"] = 32
+    elif mutation == "constructor_mask":
+        metrics["model_config"]["window_features"].pop("masked_channels")
+    elif mutation == "raw_input":
+        metrics["model_config"]["input_size"] = 8
+    elif mutation == "model_channels":
+        metrics["model_features"][-2:] = ["heart_history_available", "heart_rate_delta_past"]
+    elif mutation == "parameter_count":
+        metrics["parameter_count"] += 1
+    elif mutation == "zero_parameters":
+        metrics["parameter_count"] = 0
+    elif mutation == "bool_parameters":
+        metrics["parameter_count"] = True
+    else:
+        metrics["window_features"]["scaling"]["delta_mean"] = 0.5
+    _rewrite_metrics(candidate, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("side", [0, 1])
+@pytest.mark.parametrize("mutation", ["schema", "fit", "nonfinite", "count", "scale"])
+def test_window_feature_ablation_validates_both_fitted_state_schemas(
+    tmp_path: Path, side: int, mutation: str,
+) -> None:
+    """Require each side to retain valid training-only normalization metadata.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        side (int): Reference or candidate artifact to invalidate.
+        mutation (str): Invalid fit-state evidence to introduce.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path)
+    path = Path(json.loads(paths[side].read_text())["results"][0]["metrics_path"])
+    metrics = json.loads(path.read_text())
+    state = metrics["window_features"]["scaling"]
+    if mutation == "schema":
+        state["extra"] = 1
+    elif mutation == "fit":
+        state["scaling_fit"] = "validation"
+    elif mutation == "nonfinite":
+        state["delta_mean"] = float("nan")
+    elif mutation == "count":
+        state["available_training_targets"] = 101
+    else:
+        state["delta_scale"] = 0.0
+    _rewrite_metrics(paths[side], metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("control", ["optimizer", "scheduler", "loss", "optimizer_agent"])
+def test_window_feature_ablation_rejects_changed_shared_training_controls(
+    tmp_path: Path, control: str,
+) -> None:
+    """Reject shared departures from the original Adam and unsmoothed training controls.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        control (str): Matching disallowed setting to add to both recipes.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path)
+    overrides = {"optimizer": {"name": "adamw", "weight_decay": 0.01},
+                 "scheduler": {"name": "plateau"}, "loss": {"label_smoothing": 0.05},
+                 "optimizer_agent": {"name": "gradient"}}
+    key = "lr_scheduler" if control == "scheduler" else control
+    for summary in paths:
+        path = Path(json.loads(summary.read_text())["results"][0]["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"][key] = overrides[control]
+        _rewrite_metrics(summary, metrics)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "window_feature_ablation").build()
+
+
+@pytest.mark.parametrize("mutation", ["budget", "scope", "population", "hash"])
+def test_window_feature_ablation_retains_grouped_artifact_guards(
+    tmp_path: Path, mutation: str,
+) -> None:
+    """Preserve grouped budget, validation scope, target identity, and checksum validation.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+        mutation (str): Shared guard to exercise under the ablation policy.
+    """
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    summary = json.loads(candidate.read_text())
+    if mutation == "budget":
+        for path in (reference, candidate):
+            recorded = json.loads(path.read_text())
+            recorded["plan"]["maximum_epochs"] = 8
+            path.write_text(json.dumps(recorded))
+    elif mutation == "scope":
+        summary["plan"]["validation_scope"] = "selected development folds"
+        candidate.write_text(json.dumps(summary))
+    else:
+        path = Path(summary["results"][0]["metrics_path"])
+        if mutation == "hash":
+            path.write_text(path.read_text() + "\n")
+        else:
+            predictions_path = path.parent / "validation_predictions.csv"
+            predictions = pd.read_csv(predictions_path)
+            predictions.loc[0, "target"] = 1
+            predictions.to_csv(predictions_path, index=False)
+
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(reference, candidate, "window_feature_ablation").build()
+
+
+def test_window_feature_ablation_labels_selected_development_scope(tmp_path: Path) -> None:
+    """Keep a selected-fold control descriptive and separate from independent evidence.
+
+    Args:
+        tmp_path (Path): Temporary paired study directory.
+    """
+    paths = _write_window_feature_ablation_pair(tmp_path)
+    for path in paths:
+        summary = json.loads(path.read_text())
+        summary["plan"]["validation_scope"] = "selected development folds"
+        path.write_text(json.dumps(summary))
+
+    report = PairedArchitectureReport(*paths, "window_feature_ablation").build()
+    assert report["validation_scope"] == "selected development folds"
+    assert "Targeted post-hoc development subset" in report["interpretation"]
+
+
+def test_temporal_adapter_forwards_window_feature_ablation_policy(tmp_path: Path) -> None:
+    """Forward the explicit control policy before loading prepared temporal metadata.
+
+    Args:
+        tmp_path (Path): Temporary paired artifacts without a preparation manifest.
+    """
+    from sleep_classifier.temporal_slice_report import TemporalSliceReport
+
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    with pytest.raises(FileNotFoundError, match="manifest.json"):
+        TemporalSliceReport.from_grouped(
+            reference, candidate, comparison="window_feature_ablation",
+        )
+
+
+def test_window_feature_ablation_cli_accepts_explicit_policy(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose the availability-control policy through the report-only CLI.
+
+    Args:
+        tmp_path (Path): Temporary grouped experiment and report directory.
+        monkeypatch (pytest.MonkeyPatch): Isolated command-line argument overrides.
+    """
+    from sleep_classifier.paired_architecture_report import main
+
+    reference, candidate = _write_window_feature_ablation_pair(tmp_path)
+    output = tmp_path / "comparison.json"
+    monkeypatch.setattr("sys.argv", [
+        "paired_architecture_report", "--reference", str(reference), "--candidate", str(candidate),
+        "--comparison", "window_feature_ablation", "--output", str(output),
+    ])
+    main()
+
+    assert json.loads(output.read_text())["comparison"] == "window_feature_ablation"

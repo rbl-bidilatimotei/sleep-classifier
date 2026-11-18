@@ -15,9 +15,9 @@ class WindowFeatureSettings:
         self.values: dict[str, Any] | None = None
         if not self.enabled:
             return
-        if not isinstance(values, dict) or set(values) != {
-            "name", "history_epochs", "min_history_epochs",
-        }:
+        required = {"name", "history_epochs", "min_history_epochs"}
+        if (not isinstance(values, dict) or not required <= set(values)
+                or set(values) - required - {"masked_channels"}):
             raise ValueError("window_features must contain the documented settings")
         if values["name"] != "heart_rate_deviation":
             raise ValueError("window_features name must be heart_rate_deviation")
@@ -27,7 +27,26 @@ class WindowFeatureSettings:
             raise ValueError("window_features history_epochs must be a positive integer")
         if type(minimum) is not int or not 1 <= minimum <= history:
             raise ValueError("window_features min_history_epochs must be in [1, history_epochs]")
+        if "masked_channels" in values:
+            masked = values["masked_channels"]
+            approved = {"heart_rate_delta_past", "heart_history_available"}
+            if (not isinstance(masked, list) or not masked
+                    or any(not isinstance(name, str) or name not in approved for name in masked)
+                    or len(set(masked)) != len(masked)):
+                raise ValueError(
+                    "window_features masked_channels must list unique derived channels"
+                )
         self.values = dict(values)
+        if "masked_channels" in self.values:
+            self.values["masked_channels"] = list(self.values["masked_channels"])
+
+
+    @property
+    def masked_channels(self) -> list[str]:
+        """Return a copy of the selected zero-masked derived channels."""
+        if self.values is None:
+            return []
+        return list(self.values.get("masked_channels", []))
 
 
     def validate_context(self, context_epochs: int) -> None:

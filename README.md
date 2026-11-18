@@ -341,3 +341,7 @@ Only candidate seeds 43 and 44 require training: ten fresh fits, with the remain
 The [completed HR seed replication](docs/experiments/window-local-hr-seeds-2026-11-18/README.md) improves mean fold macro-F1 at all three seeds.
 The mean seed effect is +0.01834. REM improves consistently; Wake F1 declines consistently.
 Use the combined HR recipe as the working development reference. Next, test an availability-only control at fixed model shape.
+
+The [availability-only control](docs/hr-availability-control.md) is prepared in [notebook 31](notebooks/31_hr_availability_control.ipynb).
+It reuses the full-HR seed-42 result and zeros the deviation channel while preserving eight channels and 2,852 nominal parameters.
+Timo trains five fresh controls locally; the remaining recipe stays fixed.

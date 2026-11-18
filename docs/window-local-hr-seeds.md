@@ -127,7 +127,7 @@ The executed report stays under ignored artifacts/notebooks. Source notebooks, c
 
 The [preparation snapshot](experiments/window-local-hr-seeds-preparation-2026-11-17/README.md) records ten MPS checks and unchanged feature-table hashes.
 All 799 tests, Ruff, whitespace checks, and fresh-kernel HTML export pass.
-No new candidate training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+That preparation snapshot predates Timo’s completed run. Reuse the completed artifacts rather than retraining them.
 
 ## Measured outcome
 
