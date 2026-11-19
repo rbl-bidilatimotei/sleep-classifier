@@ -102,7 +102,8 @@ uv run --locked --group baseline --group notebook python -u -m sleep_classifier.
 ```
 
 The notebook uses the validated experiment's config path and logs its identity before launching that command.
-It rejects an existing snapshot before the CLI starts. Preserve measured evidence rather than clearing directories.
+The notebook verifies and reuses an existing snapshot before the CLI starts. Invalid snapshots stop execution.
+The CLI still rejects existing output directories. Preserve measured evidence rather than clearing directories.
 Fresh clones require the development features, completed grouped artifacts, and checksum-verified raw motion files.
 
 Export the cached report:
