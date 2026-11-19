@@ -58,10 +58,11 @@ footer{font-size:12px;color:var(--muted);margin-top:18px}.empty{padding:35px;tex
 <section class="panel"><h2>Motion variation and axis-vector change</h2><div id="motion-chart" class="chart"></div><p class="chart-note">Both use acceleration units. Axis-vector change is a sample difference, not jerk or a time derivative. Invalid-gap pairs are excluded. Compare sampling intervals before comparing participants.</p></section>
 <section class="panel"><h2>Motion magnitude level</h2><div id="magnitude-chart" class="chart"></div><p class="chart-note">Magnitude level can stay similar while axis directions change. This is an audit hypothesis, not evidence of a model improvement.</p></section>
 </div>
+<div id="extra-charts" class="charts"></div>
 <section class="panel"><h2>Target-level evidence</h2>
 <div class="table-controls"><label>True stage<select id="stage-filter"><option value="all">All stages</option></select></label>
 <label>Error slice<select id="error-filter"><option value="all">All targets</option><option value="persistent">Persistent Deep/REM → Light</option><option value="reference-error">Reference errors</option><option value="reference-correct">Reference correct</option></select></label></div>
-<p id="table-status" class="muted" aria-live="polite"></p><div class="table-wrap"><table><thead><tr><th>Start, min</th><th>True stage</th><th>Selected prediction</th><th>Predicted-stage probability</th><th>True-stage probability</th><th>HR mean</th><th>Past HR count</th><th>HR delta</th><th>Motion magnitude</th><th>Axis change</th><th>Valid pairs</th><th>Valid pair fraction</th><th>Median pair gap, s</th><th>Max pair gap, s</th><th>Persistent error</th></tr></thead><tbody id="target-table"></tbody></table></div>
+<p id="table-status" class="muted" aria-live="polite"></p><div class="table-wrap"><table><thead><tr id="target-table-header"><th>Start, min</th><th>True stage</th><th>Selected prediction</th><th>Predicted-stage probability</th><th>True-stage probability</th><th>HR mean</th><th>Past HR count</th><th>HR delta</th><th>Motion magnitude</th><th>Axis change</th><th>Valid pairs</th><th>Valid pair fraction</th><th>Median pair gap, s</th><th>Max pair gap, s</th><th>Persistent error</th></tr></thead><tbody id="target-table"></tbody></table></div>
 <p class="chart-note">Unavailable values appear as “—”, never zero. With all recipes shown, the table uses the original reference prediction.</p>
 </section>
 <footer>These are exploratory development views. Related recipes share participants and training data. Repeated agreement is not independent replication or final-test evidence. Visual separation does not establish feature value; confirm a selected feature family through a controlled ablation.</footer>
@@ -79,6 +80,8 @@ const recipeNames = {
   prediction_label_smoothing: "Label smoothing 0.05"
 };
 const controls = Object.fromEntries(["participant", "recipe", "window-size", "window-start", "stage-filter", "error-filter"].map(id => [id, document.getElementById(id)]));
+const extraCharts = audit.summary.extra_charts || [];
+const extraTableColumns = audit.summary.extra_table_columns || [];
 const byParticipant = new Map();
 for (const row of audit.rows) {
   if (!byParticipant.has(row.participant_id)) byParticipant.set(row.participant_id, []);
@@ -205,6 +208,31 @@ function drawFeatures(containerId, rows, origin, series, title) {
   });
 }
 
+/** Create optional views from validated catalogs using safe DOM assignments. */
+function initializeExtraViews() {
+  const container = document.getElementById("extra-charts");
+  extraCharts.forEach((chart, index) => {
+    const panel = document.createElement("section");
+    panel.className = "panel";
+    const heading = document.createElement("h2");
+    heading.textContent = chart.title;
+    const view = document.createElement("div");
+    view.id = `extra-audit-chart-${index}`;
+    view.className = "chart";
+    const note = document.createElement("p");
+    note.className = "chart-note";
+    note.textContent = "Recorded diagnostic evidence. Missing values, time gaps, and segment boundaries remain visible. Visual separation does not establish model improvement.";
+    panel.append(heading, view, note);
+    container.appendChild(panel);
+  });
+  const header = document.getElementById("target-table-header");
+  for (const column of extraTableColumns) {
+    const cell = document.createElement("th");
+    cell.textContent = column.label;
+    header.appendChild(cell);
+  }
+}
+
 /** Apply stage and error restrictions to table rows only. */
 function matchesTableFilter(row) {
   const stage = controls["stage-filter"].value;
@@ -236,6 +264,7 @@ function drawTable(rows, origin) {
       numberText(row.motion_pair_gap_median_seconds, 3),
       numberText(row.motion_pair_gap_max_seconds, 3), row.persistent_to_light ? "Yes" : "No"
     ];
+    values.push(...extraTableColumns.map(column => numberText(row[column.key], column.digits)));
     for (const value of values) {
       const td = document.createElement("td");
       td.textContent = value;
@@ -259,6 +288,9 @@ function render() {
   drawFeatures("delta-chart", rows, origin, [{key:"heart_rate_delta_past", label:"Current minus past HR mean", color:"#6b4ca5"}], "Causal heart-rate difference");
   drawFeatures("motion-chart", rows, origin, [{key:"motion_magnitude_std", label:"Magnitude standard deviation", color:"#176b9c"}, {key:"motion_vector_change_mean", label:"Mean axis-vector change", color:"#b04b6b"}], "Motion variation and axis-vector change");
   drawFeatures("magnitude-chart", rows, origin, [{key:"motion_magnitude_mean", label:"Mean motion magnitude", color:"#176b9c"}], "Motion magnitude level");
+  extraCharts.forEach((chart, index) => {
+    drawFeatures(`extra-audit-chart-${index}`, rows, origin, chart.series, chart.title);
+  });
   drawTable(rows, origin);
 }
 
@@ -283,6 +315,7 @@ for (const [name, element] of Object.entries(controls)) {
     render();
   });
 }
+initializeExtraViews();
 render();
 </script>
 </body>

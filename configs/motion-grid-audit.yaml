@@ -1,0 +1,14 @@
+reference_summary: ../artifacts/transformer-window-local-hr-grouped-validation/summary.json
+comparisons:
+  history_20:
+    summary: ../artifacts/hr-history-20-grouped-validation/summary.json
+    comparison: window_history
+raw_data_dir: ../data/raw/sleep-accel/1.0.0
+output_dir: ../artifacts/motion-grid-audit
+heart_history_epochs: 10
+min_heart_history_epochs: 4
+max_motion_pair_gap_seconds: 0.2
+motion_grid:
+  step_seconds: 1.0
+  max_sample_age_seconds: 0.2
+  support_fractions: [0.5, 0.8, 0.95]

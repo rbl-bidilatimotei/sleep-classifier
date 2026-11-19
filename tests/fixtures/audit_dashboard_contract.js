@@ -15,6 +15,9 @@ class Element {
     this.textContent = "";
   }
 
+  /** Register generated chart containers without parsing HTML. */
+  set id(value) { this.identifier = value; elements.set(value, this); }
+
   /** Append a child and emulate a select's first-option default. */
   appendChild(child) {
     this.children.push(child);
@@ -59,11 +62,51 @@ for (const [name, value] of Object.entries({recipe:"all", "window-size":"120",
 }
 const context = vm.createContext({document, console});
 vm.runInContext(script, context, {timeout: 5000});
-const person = JSON.parse(payload).rows[0].participant_id;
+const data = JSON.parse(payload);
+const person = data.rows[0].participant_id;
 const personRows = JSON.parse(payload).rows.filter(row => row.participant_id === person);
 const rows = personRows.slice(0, 120);
 assert.equal(document.getElementById("target-table").children.length, rows.length);
 const initialStageNodes = document.getElementById("stage-chart").children[0].children.length;
+const tableColumns = data.summary.extra_table_columns || [];
+assert.equal(document.getElementById("target-table-header").children.length, tableColumns.length);
+for (const [index, row] of rows.entries()) {
+  const cells = document.getElementById("target-table").children[index].children;
+  assert.equal(cells.length, 15 + tableColumns.length);
+  for (const [columnIndex, column] of tableColumns.entries()) {
+    const value = row[column.key];
+    const expected = value === null || value === undefined ? "—" : Number(value).toFixed(column.digits);
+    assert.equal(cells[15 + columnIndex].textContent, expected);
+  }
+}
+for (const [index, chart] of (data.summary.extra_charts || []).entries()) {
+  const panel = document.getElementById("extra-charts").children[index];
+  assert.equal(panel.children[0].textContent, chart.title);
+  const svg = document.getElementById(`extra-audit-chart-${index}`).children[0];
+  assert.equal(svg.attributes["aria-label"], chart.title);
+  const paths = svg.children.filter(child => child.tag === "path");
+  const available = rows.some(row => chart.series.some(series => row[series.key] !== null && row[series.key] !== undefined));
+  assert.equal(paths.length, available ? chart.series.length : 0);
+  for (const [seriesIndex, series] of chart.series.entries()) {
+    if (!available) continue;
+    let starts = 0;
+    let lines = 0;
+    let previous = null;
+    for (const row of rows) {
+      if (row[series.key] === null || row[series.key] === undefined) {
+        previous = null;
+        continue;
+      }
+      if (previous && previous.segment_id === row.segment_id && row.time - previous.time === 30) lines++;
+      else starts++;
+      previous = row;
+    }
+    assert.equal((paths[seriesIndex].attributes.d.match(/M/g) || []).length, starts);
+    assert.equal((paths[seriesIndex].attributes.d.match(/L/g) || []).length, lines);
+    assert.equal(paths[seriesIndex].attributes.stroke, series.color);
+  }
+}
+
 
 document.getElementById("stage-filter").value = "2";
 document.getElementById("stage-filter").handlers.change();

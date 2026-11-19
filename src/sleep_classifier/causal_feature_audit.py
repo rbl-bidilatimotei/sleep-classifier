@@ -2,6 +2,7 @@ import argparse
 import hashlib
 import json
 import logging
+import math
 import re
 import shutil
 from datetime import UTC, datetime
@@ -10,6 +11,7 @@ from tempfile import TemporaryDirectory
 from time import perf_counter
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -19,6 +21,7 @@ from sleep_classifier.audit_motion_source import VerifiedMotionSource
 from sleep_classifier.audit_visualization import AuditVisualization
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.logging_utils import configure_logging
+from sleep_classifier.motion_grid import FixedLagMotionFeatures
 
 LOGGER = logging.getLogger(__name__)
 AUDIT_FEATURES = (*FEATURE_COLUMNS, "heart_rate_delta_past", "motion_vector_change_mean")
@@ -39,8 +42,9 @@ class AuditSettings:
             "reference_summary", "comparisons", "raw_data_dir", "output_dir",
             "heart_history_epochs", "min_heart_history_epochs", "max_motion_pair_gap_seconds",
         }
-        if not isinstance(values, dict) or set(values) != expected:
-            raise ValueError("Audit configuration must contain exactly the documented settings")
+        if (not isinstance(values, dict) or not expected.issubset(values)
+                or set(values) - expected - {"motion_grid"}):
+            raise ValueError("Audit configuration must contain only the documented settings")
         self.values = values
         self.reference_summary = self._path(values["reference_summary"])
         self.raw_data_dir = self._path(values["raw_data_dir"])
@@ -62,7 +66,35 @@ class AuditSettings:
             min_history_epochs=values["min_heart_history_epochs"],
             max_motion_pair_gap_seconds=values["max_motion_pair_gap_seconds"],
         )
+        self.motion_grid: FixedLagMotionFeatures | None = None
+        self.support_fractions: tuple[float, ...] = ()
+        if "motion_grid" in values:
+            self._configure_motion_grid(values["motion_grid"])
         self._validate_output()
+
+
+    def _configure_motion_grid(self, values: Any) -> None:
+        """Validate the optional fixed-grid definition and label-free support cutoffs.
+
+        Args:
+            values (Any): Optional YAML mapping with the three documented grid settings.
+        """
+        if (not isinstance(values, dict)
+                or set(values) != {"step_seconds", "max_sample_age_seconds", "support_fractions"}):
+            raise ValueError("motion_grid must contain exactly the documented settings")
+        fractions = values["support_fractions"]
+        if (not isinstance(fractions, list) or not fractions
+                or any(isinstance(value, bool) or not isinstance(value, (int, float))
+                       or not math.isfinite(value) or not 0 <= value <= 1 for value in fractions)
+                or fractions != sorted(set(fractions))):
+            raise ValueError(
+                "support_fractions must be nonempty, sorted, unique, finite, and in [0, 1]"
+            )
+        self.support_fractions = tuple(float(value) for value in fractions)
+        self.motion_grid = FixedLagMotionFeatures(
+            step_seconds=values["step_seconds"],
+            max_sample_age_seconds=values["max_sample_age_seconds"],
+        )
 
 
     def _path(self, value: Any) -> Path:
@@ -99,6 +131,7 @@ class CausalFeatureAudit:
         """
         self.settings = AuditSettings(config_path)
         self.output_dir = self.settings.output_dir
+        self.participant_cadence_support: list[dict[str, Any]] = []
 
 
     @staticmethod
@@ -165,13 +198,21 @@ class CausalFeatureAudit:
             source (VerifiedMotionSource): Reader enforcing the development allowlist.
         """
         frames = []
+        self.participant_cadence_support = []
         participants = sorted(rows.participant_id.unique())
         for index, participant in enumerate(participants, start=1):
             started = perf_counter()
             selected = rows.loc[rows.participant_id == participant].copy()
             motion = source.load(participant)
             values = self.settings.features.motion_summaries(motion, selected)
-            frames.append(selected.merge(values, on="time", how="left", validate="one_to_one"))
+            selected = selected.merge(values, on="time", how="left", validate="one_to_one")
+            if self.settings.motion_grid is not None:
+                grid = self.settings.motion_grid.motion_summaries(motion, selected)
+                selected = selected.merge(grid, on="time", how="left", validate="one_to_one")
+                self.participant_cadence_support.append(
+                    self._participant_motion_support(participant, motion, selected)
+                )
+            frames.append(selected)
             LOGGER.info("Audited motion %d/%d participant=%s samples=%d targets=%d seconds=%.1f",
                         index, len(participants), participant, len(motion), len(selected),
                         perf_counter() - started)
@@ -196,10 +237,13 @@ class CausalFeatureAudit:
                                                & (rows.prediction_reference == 1)).sum()),
                    "support": int((rows.target == target).sum())}
                   for target, stage in ((2, "Deep"), (3, "REM"))]
+        features = AUDIT_FEATURES
+        if self.settings.motion_grid is not None:
+            features = (*features, "motion_grid_change_mean")
         availability = [{"feature": feature, "available_targets": int(rows[feature].notna().sum()),
                          "total_targets": len(rows)}
-                        for feature in AUDIT_FEATURES]
-        return {
+                        for feature in features]
+        summary = {
             **self.plan(), "schema_version": 1, "created_utc": datetime.now(UTC).isoformat(),
             "participants": len(evidence["participant_ids"]),
             "targets": len(rows), "persistent_counts": counts,
@@ -216,23 +260,31 @@ class CausalFeatureAudit:
                 "history_epochs": self.settings.values["heart_history_epochs"],
                 "minimum_past_epochs": self.settings.values["min_heart_history_epochs"],
             },
-            "training_fold_stage_summary": self._training_stage_summary(rows, evidence["plan"]),
-            "matched_error_summary": self._matched_error_summary(rows),
+            "training_fold_stage_summary": self._training_stage_summary(
+                rows, evidence["plan"], features,
+            ),
+            "matched_error_summary": self._matched_error_summary(rows, features),
         }
+        if self.settings.motion_grid is not None:
+            self._add_grid_summary(summary, rows)
+        return summary
 
 
     @staticmethod
-    def _training_stage_summary(rows: pd.DataFrame, plan: dict[str, Any]) -> list[dict[str, Any]]:
+    def _training_stage_summary(
+        rows: pd.DataFrame, plan: dict[str, Any], features: tuple[str, ...] = AUDIT_FEATURES,
+    ) -> list[dict[str, Any]]:
         """Summarize participant-stage medians using each fold's training participants only.
 
         Args:
             rows (pd.DataFrame): Raw development diagnostic features, without fitted scaling.
             plan (dict[str, Any]): Frozen grouped development folds.
+            features (tuple[str, ...]): Diagnostic columns to describe without fitting transforms.
         """
         summaries = []
         for fold in plan["folds"]:
             training = rows.loc[rows.participant_id.isin(fold["train"])]
-            for feature in AUDIT_FEATURES:
+            for feature in features:
                 for target, group in training.groupby("target"):
                     values = group.groupby("participant_id")[feature].median().dropna()
                     summaries.append({
@@ -247,17 +299,20 @@ class CausalFeatureAudit:
 
 
     @staticmethod
-    def _matched_error_summary(rows: pd.DataFrame) -> list[dict[str, Any]]:
+    def _matched_error_summary(
+        rows: pd.DataFrame, features: tuple[str, ...] = AUDIT_FEATURES,
+    ) -> list[dict[str, Any]]:
         """Compare persistent and reference-correct targets within the same participant and stage.
 
         Args:
             rows (pd.DataFrame): Post-hoc development predictions and diagnostic features.
+            features (tuple[str, ...]): Diagnostic columns to compare within participant and stage.
         """
         summaries = []
         for (participant, target), group in rows.loc[rows.target.isin([2, 3])].groupby(
             ["participant_id", "target"]
         ):
-            for feature in AUDIT_FEATURES:
+            for feature in features:
                 errors = group.loc[group.persistent_to_light, feature].dropna()
                 correct = group.loc[group.reference_correct, feature].dropna()
                 summaries.append({
@@ -271,6 +326,210 @@ class CausalFeatureAudit:
         return summaries
 
 
+    @staticmethod
+    def _finite_stat(values: pd.Series, statistic: str = "median") -> float | None:
+        """Return a finite descriptive value or JSON null for unsupported observations.
+
+        Args:
+            values (pd.Series): Numeric observations with possible missing values.
+            statistic (str): Series aggregation name.
+        """
+        available = values.loc[np.isfinite(values.to_numpy(dtype=float))]
+        return float(available.agg(statistic)) if len(available) else None
+
+
+    @classmethod
+    def _participant_motion_support(
+        cls, participant: str, motion: pd.DataFrame, rows: pd.DataFrame,
+    ) -> dict[str, Any]:
+        """Describe raw acquisition cadence and grid support without changing observations.
+
+        Args:
+            participant (str): Development participant identifier.
+            motion (pd.DataFrame): Original source-ordered motion observations.
+            rows (pd.DataFrame): All matched target rows with grid diagnostics.
+        """
+        gaps = motion.time.diff().dropna()
+        positive = gaps.loc[gaps > 0]
+        record: dict[str, Any] = {
+            "participant_id": participant, "raw_samples": len(motion), "targets": len(rows),
+            "raw_zero_gaps": int(gaps.eq(0).sum()),
+            "raw_negative_gaps": int(gaps.lt(0).sum()),
+            "raw_positive_gap_median_seconds": cls._finite_stat(positive),
+            "raw_positive_gap_min_seconds": cls._finite_stat(positive, "min"),
+            "raw_positive_gap_max_seconds": cls._finite_stat(positive, "max"),
+            "grid_available_targets": int(rows.motion_grid_change_mean.notna().sum()),
+        }
+        for column in ("motion_grid_point_fraction", "motion_grid_pair_fraction",
+                       "motion_grid_age_max_seconds", "motion_grid_actual_lag_median_seconds",
+                       "motion_grid_actual_lag_min_seconds", "motion_grid_actual_lag_max_seconds"):
+            record[f"{column}_median"] = cls._finite_stat(rows[column])
+        return record
+
+
+    def _support_sensitivity(self, rows: pd.DataFrame) -> list[dict[str, Any]]:
+        """Count label-free support cutoffs over every target without filtering audit rows.
+
+        Args:
+            rows (pd.DataFrame): Full target population with grid support fractions.
+        """
+        summaries = []
+        for fraction in self.settings.support_fractions:
+            points = rows.motion_grid_point_fraction.ge(fraction)
+            pairs = rows.motion_grid_pair_fraction.ge(fraction)
+            supported = points & pairs & rows.motion_grid_change_mean.notna()
+            summaries.append({
+                "minimum_fraction": fraction, "total_targets": len(rows),
+                "point_supported_targets": int(points.sum()),
+                "pair_supported_targets": int(pairs.sum()),
+                "available_supported_targets": int(supported.sum()),
+                "unsupported_targets": int((~supported).sum()),
+                "participants_with_available_targets": int(
+                    rows.loc[supported, "participant_id"].nunique()
+                ),
+                "motion_grid_change_median": self._finite_stat(
+                    rows.loc[supported, "motion_grid_change_mean"]
+                ),
+            })
+        return summaries
+
+
+    @staticmethod
+    def _stage_feature_availability(rows: pd.DataFrame) -> list[dict[str, Any]]:
+        """Keep missing features in each stage's target denominator.
+
+        Args:
+            rows (pd.DataFrame): Full target population with optional grid diagnostics.
+        """
+        summaries = []
+        for target, stage in enumerate(("Wake", "Light", "Deep", "REM")):
+            group = rows.loc[rows.target == target]
+            for feature in (*AUDIT_FEATURES, "motion_grid_change_mean"):
+                available = int(group[feature].notna().sum())
+                summaries.append({
+                    "target": target, "stage": stage, "feature": feature,
+                    "total_targets": len(group), "available_targets": available,
+                    "missing_targets": len(group) - available,
+                    "available_fraction": available / len(group) if len(group) else None,
+                })
+        return summaries
+
+
+    @classmethod
+    def _reference_error_summary(cls, rows: pd.DataFrame) -> list[dict[str, Any]]:
+        """Compare reference misses to Light with correct targets within participant and stage.
+
+        Args:
+            rows (pd.DataFrame): Post-hoc predictions with all supported and missing targets.
+        """
+        summaries = []
+        features = ("motion_grid_change_mean", "motion_vector_change_mean", "motion_magnitude_std")
+        for (participant, target), group in rows.loc[rows.target.isin([0, 2, 3])].groupby(
+            ["participant_id", "target"]
+        ):
+            missed = group.prediction_reference.eq(1)
+            correct = group.prediction_reference.eq(target)
+            for feature in features:
+                errors = group.loc[missed, feature]
+                successes = group.loc[correct, feature]
+                error_median = cls._finite_stat(errors)
+                correct_median = cls._finite_stat(successes)
+                summaries.append({
+                    "participant_id": participant, "target": int(target), "feature": feature,
+                    "reference_to_light_targets": int(missed.sum()),
+                    "reference_correct_targets": int(correct.sum()),
+                    "reference_to_light_available": int(errors.notna().sum()),
+                    "reference_correct_available": int(successes.notna().sum()),
+                    "reference_to_light_median": error_median,
+                    "reference_correct_median": correct_median,
+                    "median_difference": error_median - correct_median
+                    if error_median is not None and correct_median is not None else None,
+                })
+        return summaries
+
+
+    def _add_grid_summary(self, summary: dict[str, Any], rows: pd.DataFrame) -> None:
+        """Attach optional grid definitions and post-hoc diagnostics to the legacy report.
+
+        Args:
+            summary (dict[str, Any]): Existing report whose legacy fields retain their meaning.
+            rows (pd.DataFrame): Full matched development target population.
+        """
+        grid = self.settings.motion_grid
+        if grid is None:
+            raise ValueError("Grid summaries require motion_grid settings")
+        summary.update({
+            "motion_grid": {
+                "step_seconds": grid.step_seconds,
+                "max_sample_age_seconds": grid.max_sample_age_seconds,
+                "points_per_epoch": grid.points_per_epoch,
+                "pairs_per_epoch": grid.pairs_per_epoch,
+                "support_fractions": list(self.settings.support_fractions),
+            },
+            "diagnostic_columns": ["heart_rate_mean", "heart_rate_delta_past",
+                                   "motion_magnitude_std", "motion_vector_change_mean",
+                                   "motion_grid_change_mean"],
+            "support_sensitivity": self._support_sensitivity(rows),
+            "participant_cadence_support": self.participant_cadence_support,
+            "stage_feature_availability": self._stage_feature_availability(rows),
+            "reference_error_summary": self._reference_error_summary(rows),
+        })
+        summary["feature_definitions"].update({
+            "motion_grid_change_mean": (
+                "Mean axis-vector change between supported neighboring fixed-grid points; "
+                "source acceleration units, not jerk or a validated physiological measure"
+            ),
+            "motion_grid_point_fraction": "Supported grid points divided by nominal grid points",
+            "motion_grid_pair_fraction": (
+                "Supported neighboring pairs divided by nominal grid pairs"
+            ),
+            "motion_grid_age_max_seconds": "Maximum source age among supported grid points",
+            "motion_grid_actual_lag_max_seconds": (
+                "Maximum actual source lag in supported grid pairs"
+            ),
+            "motion_grid_definition": (
+                f"Interior ticks every {grid.step_seconds:g} seconds; source age at most "
+                f"{grid.max_sample_age_seconds:g} seconds; {grid.points_per_epoch} nominal "
+                f"points and {grid.pairs_per_epoch} neighboring pairs per 30-second epoch"
+            ),
+            "motion_grid_policy": (
+                "Within-epoch backward sample hold only; no future samples or cross-epoch pairs. "
+                "Fixed nominal lag does not establish acquisition-cadence independence. "
+                "Missing pair support remains missing rather than zero motion. "
+                "Support cutoffs are label-free post-hoc descriptions, not training selection."
+            ),
+        })
+        summary.update(self._grid_view_metadata())
+
+
+    @staticmethod
+    def _grid_view_metadata() -> dict[str, Any]:
+        """Describe chart units and row columns for an optional portable grid view."""
+        return {
+            "extra_charts": [
+                {"title": "Fixed-grid vector change (source acceleration units)", "series": [
+                    {"key": "motion_grid_change_mean", "label": "Fixed-grid vector change",
+                     "color": "#167D8D"},
+                ]},
+                {"title": "Fixed-grid support fractions", "series": [
+                    {"key": "motion_grid_point_fraction", "label": "Supported grid points",
+                     "color": "#386CB0"},
+                    {"key": "motion_grid_pair_fraction", "label": "Supported grid pairs",
+                     "color": "#7F3C8D"},
+                ]},
+            ],
+            "extra_table_columns": [
+                {"key": "motion_grid_change_mean", "label": "Grid change", "digits": 4},
+                {"key": "motion_grid_point_fraction", "label": "Grid point support", "digits": 3},
+                {"key": "motion_grid_pair_fraction", "label": "Grid pair support", "digits": 3},
+                {"key": "motion_grid_age_max_seconds", "label": "Grid maximum age (s)",
+                 "digits": 3},
+                {"key": "motion_grid_actual_lag_max_seconds", "label": "Maximum actual lag (s)",
+                 "digits": 3},
+            ],
+        }
+
+
     def _write_snapshot(self, rows: pd.DataFrame, summary: dict[str, Any]) -> None:
         """Publish data, figures, and a self-contained dashboard after successful analysis.
 
@@ -280,6 +539,8 @@ class CausalFeatureAudit:
         """
         import matplotlib.pyplot as plt
 
+        if self.output_dir.exists():
+            raise FileExistsError("Audit output exists; load it or choose a fresh directory")
         self.output_dir.parent.mkdir(parents=True, exist_ok=True)
         with TemporaryDirectory(prefix=".causal-audit-", dir=self.output_dir.parent) as temporary:
             directory = Path(temporary)
@@ -298,7 +559,9 @@ class CausalFeatureAudit:
                 "implementation_hashes": {
                     path.name: self._digest(path)
                     for path in [Path(__file__), *Path(__file__).parent.glob("audit_*.py"),
-                                 Path(__file__).parent / "templates/causal_audit.html"]
+                                 Path(__file__).parent / "templates/causal_audit.html",
+                                 *([Path(__file__).parent / "motion_grid.py"]
+                                   if self.settings.motion_grid is not None else [])]
                 },
             }
             (directory / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
