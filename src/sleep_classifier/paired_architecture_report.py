@@ -1,6 +1,7 @@
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 from statistics import mean, stdev
 from typing import Any, Literal
@@ -29,7 +30,7 @@ class PairedArchitectureReport:
         comparison: Literal[
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
             "weight_decay", "label_smoothing", "window_features", "window_feature_ablation",
-            "window_history",
+            "window_history", "motion_features",
         ] = "architecture",
     ) -> None:
         """Store the two grouped experiment summaries.
@@ -42,7 +43,7 @@ class PairedArchitectureReport:
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
             "weight_decay", "label_smoothing", "window_features", "window_feature_ablation",
-            "window_history",
+            "window_history", "motion_features",
         ):
             raise ValueError("Unknown paired comparison policy")
 
@@ -107,7 +108,8 @@ class PairedArchitectureReport:
         if reference_folds != candidate_folds:
             raise ValueError("Grouped participant folds differ")
         if (self.comparison in ("learning_rate", "scheduler", "weight_decay", "label_smoothing",
-                               "window_features", "window_feature_ablation", "window_history")
+                               "window_features", "window_feature_ablation", "window_history",
+                               "motion_features")
                 and reference.get("validation_scope") != candidate.get("validation_scope")):
             raise ValueError("Grouped validation scope differs")
 
@@ -127,8 +129,11 @@ class PairedArchitectureReport:
             raise ValueError("Fold metrics changed after summary creation")
 
         metrics = self._read_json(path)
-        if tuple(metrics.get("features", [])) != FEATURE_COLUMNS:
-            raise ValueError("Fold features differ from the six-feature schema")
+        expected = FEATURE_COLUMNS
+        if self.comparison == "motion_features" and metrics["config"].get("motion_features"):
+            expected = (*FEATURE_COLUMNS, "motion_grid_change_mean")
+        if tuple(metrics.get("features", [])) != expected:
+            raise ValueError("Fold features differ from the declared raw feature schema")
         for key in ("accuracy", "macro_f1", "best_epoch", "participants"):
             if result[key] != metrics[key]:
                 raise ValueError(f"Fold summary differs from verified metrics at {key}")
@@ -186,6 +191,13 @@ class PairedArchitectureReport:
         elif self.comparison == "label_smoothing":
             self._validate_label_smoothing_recipe(reference, candidate)
 
+        if self.comparison == "motion_features":
+            self._validate_motion_feature_recipe(reference, candidate)
+        elif any(metrics["config"].get("motion_features") is not None
+                 or metrics.get("motion_features") is not None
+                 for metrics in (reference, candidate)):
+            raise ValueError("Motion-feature changes require the explicit motion_features policy")
+
         reference_window = WindowFeatureSettings(reference["config"].get("window_features"))
         candidate_window = WindowFeatureSettings(candidate["config"].get("window_features"))
         if self.comparison == "window_features":
@@ -242,6 +254,115 @@ class PairedArchitectureReport:
                 raise ValueError(f"Fold preparation provenance differs at {key}")
 
 
+    @classmethod
+    def _validate_motion_feature_recipe(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Permit one fixed-lag channel while preserving the full-HR patch recipe.
+
+        Args:
+            reference (dict[str, Any]): Verified full-HR ten-epoch metrics.
+            candidate (dict[str, Any]): Verified metrics with one additional motion channel.
+        """
+        definition = {"name": "fixed_lag_motion", "step_seconds": 1.0,
+                      "max_sample_age_seconds": 0.2}
+        settings = candidate["config"].get("motion_features")
+        if (reference["config"].get("motion_features") is not None
+                or reference.get("motion_features") is not None
+                or not isinstance(settings, dict) or set(settings) != {"name", "audit_config"}
+                or settings["name"] != "fixed_lag_motion"
+                or not isinstance(settings["audit_config"], str) or not settings["audit_config"]):
+            raise ValueError("Motion comparison requires disabled versus fixed_lag_motion inputs")
+        excluded = {"motion_features", "prepare_config", "output_dir"}
+        left = {key: value for key, value in reference["config"].items() if key not in excluded}
+        right = {key: value for key, value in candidate["config"].items() if key not in excluded}
+        if left != right:
+            raise ValueError("Motion-feature comparison requires the same base recipe")
+        full_hr = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
+        if left.get("window_features") != full_hr:
+            raise ValueError("Motion-feature comparison requires the unmasked ten-epoch HR recipe")
+        cls._validate_window_feature_controls(reference, candidate)
+        if reference["window_features"]["scaling"] != candidate["window_features"]["scaling"]:
+            raise ValueError("Motion-feature comparison requires identical fitted HR state")
+        cls._validate_motion_feature_models(reference, candidate, definition)
+        cls._validate_motion_feature_record(candidate, definition)
+
+
+    @staticmethod
+    def _validate_motion_feature_models(
+        reference: dict[str, Any], candidate: dict[str, Any], definition: dict[str, Any],
+    ) -> None:
+        """Allow only the input projection expansion required by the motion channel.
+
+        Args:
+            reference (dict[str, Any]): Original model constructor and parameter count.
+            candidate (dict[str, Any]): Augmented model constructor and parameter count.
+            definition (dict[str, Any]): Required causal sampling definition.
+        """
+        if (reference.get("features") != list(FEATURE_COLUMNS)
+                or candidate.get("features") != [*FEATURE_COLUMNS, "motion_grid_change_mean"]):
+            raise ValueError("Motion-feature comparison requires one appended raw channel")
+        original = reference.get("model_config")
+        augmented = candidate.get("model_config")
+        if not isinstance(original, dict) or not isinstance(augmented, dict):
+            raise ValueError("Motion-feature comparison requires model constructor metadata")
+        original, augmented = dict(original), dict(augmented)
+        if (augmented.pop("motion_features", None) != definition
+                or "motion_features" in original
+                or original.pop("input_size", None) != 6
+                or augmented.pop("input_size", None) != 7 or original != augmented):
+            raise ValueError("Motion-feature constructors must differ only by the added input")
+        if (original.get("patch_size") != 3 or original.get("d_model") != 16
+                or type(reference.get("parameter_count")) is not int
+                or reference["parameter_count"] <= 0
+                or candidate.get("parameter_count") != reference["parameter_count"] + 48):
+            raise ValueError("Motion-feature parameter change must equal one added patch channel")
+
+
+    @staticmethod
+    def _validate_motion_feature_record(
+        metrics: dict[str, Any], definition: dict[str, Any],
+    ) -> None:
+        """Require immutable audit provenance and training-only missing-value handling.
+
+        Args:
+            metrics (dict[str, Any]): Augmented fold metrics with source and imputation metadata.
+            definition (dict[str, Any]): Required one-second causal sampling settings.
+        """
+        record = metrics.get("motion_features")
+        keys = {"name", "definition", "audit_config_sha256", "snapshot_manifest_sha256",
+                "scaling_fit", "missing_policy", "training_observed_targets",
+                "training_missing_targets", "validation_observed_targets",
+                "validation_missing_targets", "imputation_mean"}
+        if (not isinstance(record, dict) or set(record) != keys
+                or record["name"] != "fixed_lag_motion" or record["definition"] != definition
+                or record["scaling_fit"] != "training_targets_only"
+                or record["missing_policy"] != "training_mean"):
+            raise ValueError("Motion-feature provenance or missing policy differs")
+        for key in ("audit_config_sha256", "snapshot_manifest_sha256"):
+            if (not isinstance(record[key], str)
+                    or re.fullmatch(r"[0-9a-f]{64}", record[key]) is None):
+                raise ValueError("Motion-feature source hashes must be SHA-256 digests")
+        for key in ("training_observed_targets", "training_missing_targets",
+                    "validation_observed_targets", "validation_missing_targets"):
+            if type(record[key]) is not int or record[key] < 0:
+                raise ValueError("Motion-feature support counts must be nonnegative integers")
+        value = record["imputation_mean"]
+        if (record["training_observed_targets"] == 0 or isinstance(value, bool)
+                or not isinstance(value, (int, float)) or not math.isfinite(value)):
+            raise ValueError("Motion-feature imputation requires finite observed training data")
+        count = sum(item["eligible_epochs"] for item in metrics["participants"].values())
+        if record["validation_observed_targets"] + record["validation_missing_targets"] != count:
+            raise ValueError("Motion-feature support must retain every validation target")
+        metadata = metrics["provenance"].get("participants", [])
+        training = [item["eligible_epochs"] for item in metadata
+                    if item.get("partition") == "train"]
+        if training and sum(training) != (
+            record["training_observed_targets"] + record["training_missing_targets"]
+        ):
+            raise ValueError("Motion-feature support must retain every training target")
+
+
     @staticmethod
     def _validate_window_feature_record(
         metrics: dict[str, Any], settings: WindowFeatureSettings,
@@ -261,7 +382,7 @@ class PairedArchitectureReport:
             return
         if (not isinstance(record, dict) or set(record) != {"settings", "scaling"}
                 or record["settings"] != settings.values
-                or metrics.get("model_features") != settings.model_features(list(FEATURE_COLUMNS))):
+                or metrics.get("model_features") != settings.model_features(metrics["features"])):
             raise ValueError("Window-feature provenance or channels differ from the recipe")
         state = record["scaling"]
         WindowFeatureSettings.validate_state(state)
@@ -820,12 +941,21 @@ class PairedArchitectureReport:
         candidate_frames = []
         ablation_mask: list[str] | None = None
         history_definition: dict[str, int] | None = None
+        motion_source: dict[str, Any] | None = None
 
         for fold in reference["plan"]["folds"]:
             name = fold["name"]
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
+            if self.comparison == "motion_features":
+                record = right["metrics"]["motion_features"]
+                source = {key: record[key] for key in (
+                    "definition", "audit_config_sha256", "snapshot_manifest_sha256",
+                )}
+                if motion_source is not None and motion_source != source:
+                    raise ValueError("Motion-feature source differs across folds")
+                motion_source = source
             if self.comparison == "window_feature_ablation":
                 channels = right["metrics"]["config"]["window_features"]["masked_channels"]
                 if ablation_mask is not None and channels != ablation_mask:
@@ -839,6 +969,7 @@ class PairedArchitectureReport:
             if self.comparison in (
                 "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
                 "label_smoothing", "window_features", "window_feature_ablation", "window_history",
+                "motion_features",
             ):
                 self._validate_budget_limit(reference["plan"], left["metrics"])
                 self._validate_budget_limit(candidate["plan"], right["metrics"])
@@ -876,6 +1007,17 @@ class PairedArchitectureReport:
                     "Targeted post-hoc development subset; not a full-cohort benchmark "
                     "or independent evidence for a global recipe"
                 )
+
+        if self.comparison == "motion_features":
+            report["comparison"] = "motion_features"
+            report["motion_features"] = motion_source
+            report["capacity_caveat"] = (
+                "One added motion channel enlarges the patch projection by 48 parameters; "
+                "this is a feature-recipe comparison"
+            )
+            report["selection_caveat"] = (
+                "Development validation selects checkpoints; the reserved test remains separate"
+            )
 
         if self.comparison == "window_features":
             report["comparison"] = "window_features"
@@ -1109,6 +1251,7 @@ def main() -> None:
     parser.add_argument("--comparison", choices=(
         "architecture", "training_budget", "context", "learning_rate", "scheduler", "weight_decay",
         "label_smoothing", "window_features", "window_feature_ablation", "window_history",
+                "motion_features",
     ),
                         default="architecture")
     args = parser.parse_args()

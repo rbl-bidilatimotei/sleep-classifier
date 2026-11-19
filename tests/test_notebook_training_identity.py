@@ -49,7 +49,7 @@ class RecordingNotebookShell:
 
 @pytest.mark.parametrize("notebook_name", [
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
-    "34_hr_history_horizon.ipynb",
+    "34_hr_history_horizon.ipynb", "36_fixed_lag_motion.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,

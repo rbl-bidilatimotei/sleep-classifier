@@ -15,6 +15,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_f
 from sklearn.model_selection import KFold
 
 from sleep_classifier.baseline import CLASS_LABELS, PreparedFeatureDataset
+from sleep_classifier.causal_feature_audit import AuditSettings
 from sleep_classifier.gru_training import GRUExperiment, TrainingConfig
 from sleep_classifier.logging_utils import configure_logging
 
@@ -186,6 +187,15 @@ class GroupedValidationExperiment:
             "provenance": self.source_dir / "provenance.json",
         }
 
+        motion = self.model_settings.get("motion_features")
+        if motion is not None:
+            audit_path = (self.model_path.parent / motion["audit_config"]).resolve()
+            audit = AuditSettings(audit_path)
+            files["motion/audit_config"] = audit_path
+            files["motion/manifest"] = audit.output_dir / "manifest.json"
+            for name in ("rows.csv", "summary.json"):
+                files[f"motion/{name}"] = audit.output_dir / name
+
         for partition in ("train", "validation"):
             for participant in provenance["split"][partition]:
                 files[f"{partition}/{participant}.csv"] = (
@@ -281,6 +291,12 @@ class GroupedValidationExperiment:
             "output_dir": "results",
             "device": device,
         }
+
+        if "motion_features" in recipe:
+            recipe["motion_features"] = dict(recipe["motion_features"])
+            recipe["motion_features"]["audit_config"] = str(
+                (self.model_path.parent / recipe["motion_features"]["audit_config"]).resolve()
+            )
 
         (directory / "gru.yaml").write_text(yaml.safe_dump(recipe, sort_keys=False))
 

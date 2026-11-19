@@ -1,0 +1,187 @@
+{
+  "status": "no_gradient_preflight_only",
+  "model_training_performed": false,
+  "test_observations_read": false,
+  "folds": [
+    {
+      "fold": "fold-01",
+      "train_targets": 18121,
+      "validation_targets": 4587,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "parameters": 2900,
+      "device": "cpu",
+      "base_scaler_means_match_reference": true,
+      "hr_fitted_state_matches_reference": true,
+      "motion_features": {
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "definition": {
+          "max_sample_age_seconds": 0.2,
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0
+        },
+        "imputation_mean": 0.012565814368732022,
+        "missing_policy": "training_mean",
+        "name": "fixed_lag_motion",
+        "scaling_fit": "training_targets_only",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "training_missing_targets": 0,
+        "training_observed_targets": 18121,
+        "validation_missing_targets": 0,
+        "validation_observed_targets": 4587
+      }
+    },
+    {
+      "fold": "fold-02",
+      "train_targets": 18526,
+      "validation_targets": 4182,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "parameters": 2900,
+      "device": "cpu",
+      "base_scaler_means_match_reference": true,
+      "hr_fitted_state_matches_reference": true,
+      "motion_features": {
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "definition": {
+          "max_sample_age_seconds": 0.2,
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0
+        },
+        "imputation_mean": 0.013000797964137377,
+        "missing_policy": "training_mean",
+        "name": "fixed_lag_motion",
+        "scaling_fit": "training_targets_only",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "training_missing_targets": 0,
+        "training_observed_targets": 18526,
+        "validation_missing_targets": 0,
+        "validation_observed_targets": 4182
+      }
+    },
+    {
+      "fold": "fold-03",
+      "train_targets": 17916,
+      "validation_targets": 4792,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "parameters": 2900,
+      "device": "cpu",
+      "base_scaler_means_match_reference": true,
+      "hr_fitted_state_matches_reference": true,
+      "motion_features": {
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "definition": {
+          "max_sample_age_seconds": 0.2,
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0
+        },
+        "imputation_mean": 0.013252978641115737,
+        "missing_policy": "training_mean",
+        "name": "fixed_lag_motion",
+        "scaling_fit": "training_targets_only",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "training_missing_targets": 0,
+        "training_observed_targets": 17916,
+        "validation_missing_targets": 0,
+        "validation_observed_targets": 4792
+      }
+    },
+    {
+      "fold": "fold-04",
+      "train_targets": 18281,
+      "validation_targets": 4427,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "parameters": 2900,
+      "device": "cpu",
+      "base_scaler_means_match_reference": true,
+      "hr_fitted_state_matches_reference": true,
+      "motion_features": {
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "definition": {
+          "max_sample_age_seconds": 0.2,
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0
+        },
+        "imputation_mean": 0.01245014653383068,
+        "missing_policy": "training_mean",
+        "name": "fixed_lag_motion",
+        "scaling_fit": "training_targets_only",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "training_missing_targets": 0,
+        "training_observed_targets": 18281,
+        "validation_missing_targets": 0,
+        "validation_observed_targets": 4427
+      }
+    },
+    {
+      "fold": "fold-05",
+      "train_targets": 17988,
+      "validation_targets": 4720,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "parameters": 2900,
+      "device": "cpu",
+      "base_scaler_means_match_reference": true,
+      "hr_fitted_state_matches_reference": true,
+      "motion_features": {
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "definition": {
+          "max_sample_age_seconds": 0.2,
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0
+        },
+        "imputation_mean": 0.013019034872009,
+        "missing_policy": "training_mean",
+        "name": "fixed_lag_motion",
+        "scaling_fit": "training_targets_only",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "training_missing_targets": 0,
+        "training_observed_targets": 17988,
+        "validation_missing_targets": 0,
+        "validation_observed_targets": 4720
+      }
+    }
+  ]
+}

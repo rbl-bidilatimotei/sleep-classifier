@@ -27,6 +27,7 @@ from sleep_classifier.logging_utils import configure_logging
 from sleep_classifier.loss_settings import LossSettings
 from sleep_classifier.lr_schedule import PlateauSchedule, PlateauSettings
 from sleep_classifier.model_factory import ModelFactory
+from sleep_classifier.motion_feature_input import MotionFeatureInput
 from sleep_classifier.opal_report import OpalRunReport
 from sleep_classifier.optimizer_adapter import AgentOptimizerSettings, OptimizerAdapter
 from sleep_classifier.optimizer_factory import OptimizerFactory
@@ -51,6 +52,7 @@ class TrainingConfig:
             ValueError: If any configuration value is invalid.
         """
         self.values = values
+        MotionFeatureInput.validate_settings(values.get("motion_features"))
         AgentOptimizerSettings(values.get("optimizer_agent"))
         optimizer = OptimizerSettings(values.get("optimizer"))
         loss = LossSettings(values.get("loss"))
@@ -182,6 +184,8 @@ class GRUExperiment:
         self.diagnostics: EpochDiagnostics | None = None
         self.diagnostic_train_loader: DataLoader[dict[str, Any]] | None = None
         self.window_feature_state: dict[str, Any] | None = None
+        self.motion_feature_state: dict[str, Any] | None = None
+        self.input_features: tuple[str, ...] = FEATURE_COLUMNS
 
 
     def run_check(self) -> dict[str, object]:
@@ -224,6 +228,9 @@ class GRUExperiment:
             result["effective_input_shape"] = [
                 *batch["features"].shape[:2], len(result["model_features"]),
             ]
+        if self.motion_feature_state is not None:
+            result["motion_features"] = dict(self.motion_feature_state)
+        result["features"] = list(self.input_features)
         LOGGER.info("Neural model check passed: %s", json.dumps(result, sort_keys=True))
 
         return result
@@ -645,10 +652,14 @@ class GRUExperiment:
 
         factory = ModelFactory(self.settings)
         metrics["model_type"] = factory.model_type
-        metrics["model_config"] = factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS))
+        metrics["model_config"] = factory.checkpoint_config(
+            len(self.input_features), len(CLASS_LABELS),
+        )
         metrics["parameter_count"] = sum(parameter.numel() for parameter in model.parameters())
 
-        metrics["features"] = list(FEATURE_COLUMNS)
+        metrics["features"] = list(self.input_features)
+        if self.motion_feature_state is not None:
+            metrics["motion_features"] = dict(self.motion_feature_state)
         metrics.update(self._window_feature_metadata())
         metrics["provenance"] = context["dataset"]["provenance"]
         metrics["device"] = str(device)
@@ -698,17 +709,22 @@ class GRUExperiment:
             .reset_index(drop=True)
         )
         dataset["partitions"]["validation"] = validation
-        scaler = StandardScaler().fit(train.loc[:, FEATURE_COLUMNS])
-        train_data = CausalSequenceDataset(train, scaler, int(self.settings["context_epochs"]))
+        train, validation = self._prepare_motion_inputs(train, validation)
+        dataset["partitions"]["train"] = train
+        dataset["partitions"]["validation"] = validation
+        scaler = StandardScaler().fit(train.loc[:, self.input_features])
+        train_data = CausalSequenceDataset(
+            train, scaler, int(self.settings["context_epochs"]), self.input_features,
+        )
         validation_data = CausalSequenceDataset(
-            validation, scaler, int(self.settings["context_epochs"])
+            validation, scaler, int(self.settings["context_epochs"]), self.input_features
         )
         self._fit_window_features(train_data, scaler)
         self._seed(int(self.settings["seed"]))
         device = self.config.device()
         factory = ModelFactory(self.settings)
         model = factory.build(
-            len(FEATURE_COLUMNS), len(CLASS_LABELS),
+            len(self.input_features), len(CLASS_LABELS),
             window_feature_state=self.window_feature_state,
         ).to(device)
         LOGGER.info(
@@ -732,6 +748,25 @@ class GRUExperiment:
         }
 
 
+    def _prepare_motion_inputs(
+        self, train: pd.DataFrame, validation: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Join optional sensor inputs and retain their training-only imputation record.
+
+        Args:
+            train (pd.DataFrame): Eligible training targets before feature scaling.
+            validation (pd.DataFrame): Eligible held-out targets in prediction order.
+        """
+        self.input_features = MotionFeatureInput.feature_columns(
+            self.settings.get("motion_features"),
+        )
+        self.motion_feature_state = None
+        if self.settings.get("motion_features") is not None:
+            motion = MotionFeatureInput(self.settings["motion_features"], self.config_path)
+            train, validation, self.motion_feature_state = motion.prepare(train, validation)
+        return train, validation
+
+
     def _fit_window_features(
         self, train_data: CausalSequenceDataset, scaler: StandardScaler,
     ) -> None:
@@ -739,7 +774,7 @@ class GRUExperiment:
 
         Args:
             train_data (CausalSequenceDataset): Original training windows with scaled raw features.
-            scaler (StandardScaler): Original six-feature scaler fitted on training participants.
+            scaler (StandardScaler): Declared raw-feature scaler fitted on training participants.
         """
         settings = ModelFactory(self.settings).window_features
         self.window_feature_state = None
@@ -747,6 +782,7 @@ class GRUExperiment:
             index = FEATURE_COLUMNS.index("heart_rate_mean")
             self.window_feature_state = WindowLocalHeartRate.fit(
                 train_data, float(scaler.scale_[index]), settings.values,
+                input_size=len(self.input_features),
             )
             LOGGER.info("Window-local feature scaling fitted on training targets: %s",
                         json.dumps(self.window_feature_state, sort_keys=True))
@@ -763,7 +799,7 @@ class GRUExperiment:
                 "scaling": dict(self.window_feature_state),
             },
             "window_feature_state": dict(self.window_feature_state),
-            "model_features": factory.model_features(list(FEATURE_COLUMNS)),
+            "model_features": factory.model_features(list(self.input_features)),
         }
 
 
@@ -998,8 +1034,10 @@ class GRUExperiment:
         factory = ModelFactory(self.settings)
         return {
             "model_type": factory.model_type,
-            "model_config": factory.checkpoint_config(len(FEATURE_COLUMNS), len(CLASS_LABELS)),
-            "features": list(FEATURE_COLUMNS),
+            "model_config": factory.checkpoint_config(len(self.input_features), len(CLASS_LABELS)),
+            "features": list(self.input_features),
+            **({"motion_features": dict(self.motion_feature_state)}
+               if self.motion_feature_state is not None else {}),
             "scaler_mean": scaler.mean_.tolist(), "scaler_scale": scaler.scale_.tolist(),
             "context_epochs": int(self.settings["context_epochs"]),
             "training_config": self.settings,

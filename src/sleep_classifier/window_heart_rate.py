@@ -13,17 +13,23 @@ from sleep_classifier.window_feature_settings import WindowFeatureSettings
 class WindowLocalHeartRate(nn.Module):
     """Append standardized past-relative heart rate and unscaled availability flags."""
 
-    def __init__(self, settings: dict[str, Any], state: dict[str, Any]) -> None:
+    def __init__(
+        self, settings: dict[str, Any], state: dict[str, Any], input_size: int = 6,
+    ) -> None:
         """Store validated training-only normalization for the deterministic feature channels.
 
         Args:
             settings (dict[str, Any]): Enabled heart-rate window configuration.
             state (dict[str, Any]): Normalization fitted on available training target deltas.
+            input_size (int): Raw channel count, including an optional fixed-lag motion channel.
         """
         super().__init__()
         validated = WindowFeatureSettings(settings)
         if not validated.enabled:
             raise ValueError("Window-local heart-rate augmentation requires enabled settings")
+        if type(input_size) is not int or input_size not in (6, 7):
+            raise ValueError("Window heart rate supports six or seven declared raw channels")
+        self.input_size = input_size
         self.settings = validated.values
         WindowFeatureSettings.validate_state(state)
         self._normalization_state = dict(state)
@@ -44,7 +50,7 @@ class WindowLocalHeartRate(nn.Module):
     @classmethod
     def fit(
         cls, samples: Iterable[Mapping[str, Any]], heart_rate_scale: float,
-        settings: dict[str, Any],
+        settings: dict[str, Any], input_size: int = 6,
     ) -> dict[str, Any]:
         """Fit one available last-target deviation per supplied training window.
 
@@ -52,7 +58,10 @@ class WindowLocalHeartRate(nn.Module):
             samples (Iterable[Mapping[str, Any]]): Training windows containing scaled raw features.
             heart_rate_scale (float): Training-fitted scale of the raw mean heart-rate channel.
             settings (dict[str, Any]): Enabled window-local history definition.
+            input_size (int): Declared raw input channel count.
         """
+        if type(input_size) is not int or input_size not in (6, 7):
+            raise ValueError("Window heart rate supports six or seven declared raw channels")
         configured = WindowFeatureSettings(settings)
         if not configured.enabled:
             raise ValueError("Fitting window-local heart rate requires enabled settings")
@@ -63,7 +72,7 @@ class WindowLocalHeartRate(nn.Module):
         for sample in samples:
             features = sample["features"]
             if (not isinstance(features, torch.Tensor) or features.ndim != 2
-                    or features.shape[1] != len(FEATURE_COLUMNS) or len(features) == 0
+                    or features.shape[1] != input_size or len(features) == 0
                     or not features.is_floating_point()
                     or not torch.isfinite(features).all()):
                 raise ValueError("Training windows must contain finite raw-feature matrices")
@@ -90,13 +99,13 @@ class WindowLocalHeartRate(nn.Module):
         """Validate a right-padded raw batch and return its valid-position mask.
 
         Args:
-            features (torch.Tensor): Floating raw input batch with six channels.
+            features (torch.Tensor): Floating raw input batch with the declared channels.
             lengths (torch.Tensor): Number of valid epochs in each sequence.
         """
-        if (features.ndim != 3 or features.shape[2] != len(FEATURE_COLUMNS)
+        if (features.ndim != 3 or features.shape[2] != self.input_size
                 or features.shape[0] == 0 or features.shape[1] == 0
                 or not features.is_floating_point()):
-            raise ValueError("Window features require a nonempty floating B x T x 6 batch")
+            raise ValueError("Window features require a floating batch with declared channels")
         if (lengths.ndim != 1 or len(lengths) != features.shape[0]
                 or lengths.dtype not in (torch.uint8, torch.int8, torch.int16,
                                          torch.int32, torch.int64)
@@ -113,7 +122,7 @@ class WindowLocalHeartRate(nn.Module):
         """Derive each channel from previous valid positions inside the supplied window only.
 
         Args:
-            features (torch.Tensor): Training-scaled raw B x T x 6 histories.
+            features (torch.Tensor): Training-scaled raw histories with the declared channels.
             lengths (torch.Tensor): Valid sequence lengths before right padding.
         """
         valid = self._valid_positions(features, lengths)
