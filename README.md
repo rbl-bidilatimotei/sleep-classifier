@@ -364,3 +364,10 @@ Only candidate seeds 43 and 44 need training: ten fresh fits, with all other set
 
 The [completed flag replication](docs/experiments/hr-deviation-only-seeds-2026-11-18/README.md) has a small mean macro-F1 loss of 0.00231 after availability removal.
 Keep both HR channels as the working default. Stop flag masking and next test the strictly past HR reference timescale.
+
+The [HR reference-horizon experiment](docs/hr-history-horizon.md) is prepared in [notebook 34](notebooks/34_hr_history_horizon.ipynb).
+It compares twenty versus ten strictly previous epoch means within the same thirty-epoch raw window.
+Keep both HR channels and all model/training controls fixed. Timo runs five new candidate fits locally.
+
+The [completed twenty-epoch HR comparison](docs/experiments/hr-history-20-2026-11-19/README.md) loses mean fold macro-F1 by 0.00201.
+Retain the ten-epoch full-HR reference. Next, audit cadence-aware motion diagnostics before model integration.

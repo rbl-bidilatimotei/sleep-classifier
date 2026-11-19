@@ -1,0 +1,28 @@
+[
+  {
+    "device": "cpu",
+    "checks": {
+      "identical_initial_trainable_parameters": true,
+      "same_availability": true,
+      "same_original_features": true,
+      "future_prefix_invariant": true,
+      "finite_logits": true,
+      "same_parameter_count": true
+    },
+    "optimizer_steps": 0,
+    "participant_observations_read": false
+  },
+  {
+    "device": "mps",
+    "checks": {
+      "identical_initial_trainable_parameters": true,
+      "same_availability": true,
+      "same_original_features": true,
+      "future_prefix_invariant": true,
+      "finite_logits": true,
+      "same_parameter_count": true
+    },
+    "optimizer_steps": 0,
+    "participant_observations_read": false
+  }
+]

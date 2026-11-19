@@ -49,6 +49,7 @@ class RecordingNotebookShell:
 
 @pytest.mark.parametrize("notebook_name", [
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
+    "34_hr_history_horizon.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,
@@ -73,7 +74,8 @@ def test_training_cell_uses_the_validated_experiment_config(
     summary.write_text(json.dumps({"plan": plan}))
     experiment = SimpleNamespace(
         config_path=config.resolve(), output_dir=tmp_path / "candidate",
-        model_settings={"window_features": {"masked_channels": [masked_channel]}},
+        model_settings={"window_features": {"masked_channels": [masked_channel],
+                                            "history_epochs": 10}},
         validate_training_start=Mock(),
     )
     namespace = {
