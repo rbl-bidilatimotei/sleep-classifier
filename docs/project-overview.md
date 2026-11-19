@@ -194,3 +194,9 @@ Keep both HR channels and all model/training controls fixed. Timo runs five new 
 
 The [completed twenty-epoch HR comparison](experiments/hr-history-20-2026-11-19/README.md) loses mean fold macro-F1 by 0.00201.
 Retain the ten-epoch full-HR reference. Next, audit cadence-aware motion diagnostics before model integration.
+
+The [fixed-lag motion audit](motion-grid-audit.md) is completed in [notebook 35](../notebooks/35_motion_grid_audit.ipynb).
+It adds sampling-aware diagnostics and optional support views without training a model or changing eligible targets.
+Review cadence, staleness, support, and stage-error overlap before a later feature ablation.
+
+The audit preserves all 22,708 targets; every target has a supported estimate. No model was trained.

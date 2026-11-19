@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 from pathlib import Path
+from textwrap import fill
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -44,6 +47,95 @@ class AuditVisualization:
                 raise ValueError("Audit stage codes must be integers from zero through three")
         self.rows = self.rows.sort_values(["participant_id", "time"], kind="stable")
         self.summary = dict(summary)
+        self._validate_catalogs()
+
+
+    @staticmethod
+    def _catalog_label(value: Any) -> bool:
+        """Check that a catalog label contains nonempty display text.
+
+        Args:
+            value (Any): Proposed chart title or column label.
+        """
+        return isinstance(value, str) and bool(value.strip()) and len(value) <= 500
+
+
+    def _catalog_key(self, value: Any, require_column: bool = True) -> bool:
+        """Check a numeric evidence key without accepting stage or identity fields.
+
+        Args:
+            value (Any): Proposed evidence column name.
+            require_column (bool): Require the field to exist in the evidence rows.
+        """
+        reserved = {"participant_id", "time", "target", "segment_id", "fold",
+                    "persistent_to_light", "reference_correct"}
+        if (not isinstance(value, str) or re.fullmatch(r"[a-z][a-z0-9_]*", value) is None
+                or value in reserved or value.startswith("prediction_")):
+            return False
+        if value not in self.rows:
+            return not require_column
+        return (pd.api.types.is_numeric_dtype(self.rows[value])
+                and not pd.api.types.is_bool_dtype(self.rows[value]))
+
+
+    def _validate_catalogs(self) -> None:
+        """Reject malformed optional view descriptions before embedding their data."""
+        diagnostics = self.summary.get("diagnostic_columns")
+        if "diagnostic_columns" in self.summary:
+            if (not isinstance(diagnostics, list) or not diagnostics
+                    or not all(self._catalog_key(key, False) for key in diagnostics)
+                    or len(set(diagnostics)) != len(diagnostics)):
+                raise ValueError("diagnostic_columns requires unique numeric evidence keys")
+            definitions = self.summary.get("feature_definitions", {})
+            if not isinstance(definitions, dict):
+                raise ValueError("feature_definitions must map feature keys to descriptions")
+            for key in diagnostics:
+                if key in definitions and not self._catalog_label(definitions[key]):
+                    raise ValueError("Diagnostic feature definitions must contain display text")
+        for name in ("extra_charts", "extra_table_columns"):
+            catalog = self.summary.get(name, [])
+            if not isinstance(catalog, list):
+                raise ValueError(f"{name} must be a list")
+            if name == "extra_charts":
+                for chart in catalog:
+                    self._validate_extra_chart(chart)
+            else:
+                keys = []
+                for column in catalog:
+                    if (not isinstance(column, dict) or set(column) != {"key", "label", "digits"}
+                            or not self._catalog_key(column["key"])
+                            or not self._catalog_label(column["label"])
+                            or type(column["digits"]) is not int
+                            or not 0 <= column["digits"] <= 12):
+                        raise ValueError(
+                            "Extra table columns require numeric keys, labels, and digits",
+                        )
+                    keys.append(column["key"])
+                if len(set(keys)) != len(keys):
+                    raise ValueError("Extra table column keys must be unique")
+
+
+    def _validate_extra_chart(self, chart: Any) -> None:
+        """Validate one optional chart without exposing user-controlled element IDs.
+
+        Args:
+            chart (Any): Proposed chart title and numeric series catalog.
+        """
+        if (not isinstance(chart, dict) or set(chart) != {"title", "series"}
+                or not self._catalog_label(chart["title"])
+                or not isinstance(chart["series"], list) or not chart["series"]):
+            raise ValueError("Extra charts require a title and nonempty series list")
+        keys = []
+        for series in chart["series"]:
+            if (not isinstance(series, dict) or set(series) != {"key", "label", "color"}
+                    or not self._catalog_key(series["key"])
+                    or not self._catalog_label(series["label"])
+                    or not isinstance(series["color"], str)
+                    or re.fullmatch(r"#[0-9a-fA-F]{6}", series["color"]) is None):
+                raise ValueError("Extra chart series require numeric keys, labels, and hex colors")
+            keys.append(series["key"])
+        if len(set(keys)) != len(keys):
+            raise ValueError("Extra chart series keys must be unique")
 
 
     def _prediction_columns(self) -> list[str]:
@@ -101,11 +193,27 @@ class AuditVisualization:
             ("motion_magnitude_std", "Epoch motion-magnitude variation", "Acceleration units"),
             ("motion_vector_change_mean", "Within-epoch axis-vector change", "Acceleration units"),
         ]
-        figure, axes = plt.subplots(2, 2, figsize=(11, 7), layout="constrained")
-        for axis, (column, title, units) in zip(axes.flat, features, strict=True):
+        diagnostics = self.summary.get("diagnostic_columns")
+        if diagnostics is not None:
+            definitions = self.summary.get("feature_definitions", {})
+            features = [(key, definitions.get(key, key.replace("_", " ").capitalize()),
+                         "Recorded feature value") for key in diagnostics if key in self.rows]
+        panel_count = max(1, len(features))
+        columns = min(2, panel_count)
+        rows = math.ceil(panel_count / columns)
+        figure, axes = plt.subplots(rows, columns, figsize=(11, 3.5 * rows), squeeze=False,
+                                    layout="constrained")
+        for axis, (column, title, units) in zip(axes.flat, features, strict=False):
             self._distribution_panel(axis, column)
-            axis.set(title=title, ylabel=units, xticks=range(4), xticklabels=STAGE_NAMES)
+            axis.set(ylabel=units, xticks=range(4), xticklabels=STAGE_NAMES)
+            axis.set_title(fill(title, width=46), fontsize=10)
             axis.grid(axis="y", alpha=0.2)
+        for axis in list(axes.flat)[len(features):]:
+            figure.delaxes(axis)
+        if not features:
+            axis = figure.add_subplot(111)
+            axis.text(0.5, 0.5, "Declared features unavailable", ha="center", va="center")
+            axis.set_axis_off()
         figure.suptitle("Development descriptions: one median per participant and true stage")
         return figure
 

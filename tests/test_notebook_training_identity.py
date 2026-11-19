@@ -145,3 +145,67 @@ def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
             assert Path(arguments[arguments.index("--config") + 1]) == experiment.config_path
             experiment.validate_training_start.assert_called_once_with()
     namespace["study"].validate_reused_results.assert_called_once_with()
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+def test_motion_audit_cell_uses_validated_config_and_preserves_cached_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool,
+) -> None:
+    """Bind the actual raw-audit cell to its active config without launching processes.
+
+    Args:
+        tmp_path (Path): Isolated notebook working directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped directory replacement.
+        blocked (bool): Whether a valid existing snapshot must skip the raw command.
+    """
+    monkeypatch.chdir(tmp_path)
+    config = tmp_path / "different-audit.yaml"
+    output = tmp_path / "cached-audit"
+    if blocked:
+        output.mkdir()
+    namespace = {
+        "RUN_AUDIT": True, "ROOT": tmp_path, "Path": Path, "logger": Mock(),
+        "experiment": SimpleNamespace(settings=SimpleNamespace(config_path=config),
+                                      output_dir=output, load_report=Mock()),
+    }
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/35_motion_grid_audit.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_AUDIT:" in "".join(cell["source"]))
+    transformed = TransformerManager().transform_cell(source)
+    if blocked:
+        exec(transformed, namespace)
+        namespace["experiment"].load_report.assert_called_once_with()
+        assert shell.commands == []
+    else:
+        exec(transformed, namespace)
+        assert len(shell.commands) == 1
+        arguments = shlex.split(shell.commands[0])
+        assert Path(arguments[arguments.index("--config") + 1]) == config
+        assert "--run" in arguments and "--train" not in arguments
+
+
+def test_motion_audit_cell_rejects_invalid_cache_without_raw_command(tmp_path: Path) -> None:
+    """Preserve invalid cached evidence and surface its validation error.
+
+    Args:
+        tmp_path (Path): Isolated existing snapshot directory.
+    """
+    namespace = {
+        "RUN_AUDIT": True, "logger": Mock(),
+        "experiment": SimpleNamespace(
+            settings=SimpleNamespace(config_path=tmp_path / "audit.yaml"), output_dir=tmp_path,
+            load_report=Mock(side_effect=ValueError("Snapshot hash mismatch")),
+        ),
+    }
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/35_motion_grid_audit.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_AUDIT:" in "".join(cell["source"]))
+
+    with pytest.raises(ValueError, match="Snapshot hash mismatch"):
+        exec(TransformerManager().transform_cell(source), namespace)
+
+    assert shell.commands == []

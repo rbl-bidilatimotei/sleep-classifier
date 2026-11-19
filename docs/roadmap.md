@@ -142,3 +142,9 @@ Five candidate fits remain operator-controlled; the full-HR reference is reused.
 
 Completed: [twenty-epoch HR comparison](experiments/hr-history-20-2026-11-19/README.md) does not improve the primary score.
 Keep ten past epochs and both HR channels. Next, audit fixed-lag motion diagnostics, sampling support, and residual stage errors without training.
+
+Completed: [fixed-lag motion audit](motion-grid-audit.md) in notebook 35.
+Validate one-second axis changes, reading age, pair support, and residual stage errors before training with another feature.
+The full-HR ten-epoch recipe and final-test reservation stay unchanged.
+
+All 22,708 targets have grid-change estimates. Review the measured audit before one later motion-feature ablation.

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+  "outputs": {
+    "summary.json": "8aa7326dee9b090dc2ad72d30dd04b9020d9f150050ee8d8106c862e4d46dd4c",
+    "rows.csv": "fff2930cb2c721f5166d43fd954f80e398062e856a16e6728de4b66415337854",
+    "persistent-errors.png": "9b9713f26e0dce9cf6df2d68fbad970830b7eec118924b153bcd85e032e894c8",
+    "feature-distributions.png": "2c2e6cb0bcf3def041b01aef8ab86d986bd4ffd175597fef16b3282a899e41c3",
+    "dashboard.html": "205936364a58e3adc82cecfb1f68a53ce7f411eab2a24e5ff283463aeff9a73d"
+  },
+  "implementation_hashes": {
+    "causal_feature_audit.py": "0229da5f472eb5fb91f1c8213479f208c01fe91c0f7e69d2a4a02506e1493ad3",
+    "audit_features.py": "942ea0dd322576088c87cdf2638fd55ec3546b780ecaf9dd5dfa8777028afe28",
+    "audit_motion_source.py": "6a32ed5af5b612aba2a14c95979562c26b13ce9d2374cfeec6375fd9e9953971",
+    "audit_evidence.py": "fce04b8046e0c5f1696509a0aec3a0c5a93b0b1a5dd4d5fbf6091e53a4c4811a",
+    "audit_visualization.py": "4a3b0d02d1e51e22336e36bc071eb7cfbdad9eb40262378332ec9363ef281bce",
+    "causal_audit.html": "709daaa8b6f3d53901a30bb7f7fbf801968f95e681749f789819fc67c6264c11",
+    "motion_grid.py": "5b98da30a205611a151f1f4ddd55a33ece6c4053f30b18daf5557213f3c06b18"
+  }
+}
