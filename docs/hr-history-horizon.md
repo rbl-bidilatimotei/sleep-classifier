@@ -1,6 +1,6 @@
 # Test a slower strictly past HR reference
 
-Status: prepared for local training by Timo. No twenty-epoch-horizon model scores exist yet.
+Status: completed locally by Timo. See the [measured findings](experiments/hr-history-20-2026-11-19/README.md).
 
 ## Question
 
@@ -128,4 +128,10 @@ Export skips setup, preparation, training, and recursive export. Keep source out
 
 The [preparation snapshot](experiments/hr-history-20-preparation-2026-11-18/README.md) records five MPS preflights and synthetic CPU/MPS checks.
 All 1,022 tests, Ruff, whitespace checks, and fresh-kernel report export pass.
-No candidate training ran. Keep RUN_PREPARATION false in the current checkout; set RUN_TRAINING true when ready.
+That preparation snapshot predates Timo’s completed run. Reuse the measured artifacts rather than retraining them.
+
+## Measured outcome
+
+Twenty past epochs lose mean fold macro-F1 by 0.00201; pooled macro-F1 and NLL are nearly unchanged.
+Deep and REM F1 improve modestly, while Wake and Light F1 decline. Retain the ten-epoch full-HR reference.
+Next, audit fixed-lag motion diagnostics and their sampling support before another feature-training experiment.

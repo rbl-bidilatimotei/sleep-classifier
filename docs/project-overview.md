@@ -191,3 +191,6 @@ Keep both HR channels as the working default. Stop flag masking and next test th
 The [HR reference-horizon experiment](hr-history-horizon.md) is prepared in [notebook 34](../notebooks/34_hr_history_horizon.ipynb).
 It compares twenty versus ten strictly previous epoch means within the same thirty-epoch raw window.
 Keep both HR channels and all model/training controls fixed. Timo runs five new candidate fits locally.
+
+The [completed twenty-epoch HR comparison](experiments/hr-history-20-2026-11-19/README.md) loses mean fold macro-F1 by 0.00201.
+Retain the ten-epoch full-HR reference. Next, audit cadence-aware motion diagnostics before model integration.
