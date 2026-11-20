@@ -50,6 +50,7 @@ class RecordingNotebookShell:
 @pytest.mark.parametrize("notebook_name", [
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
     "34_hr_history_horizon.ipynb", "36_fixed_lag_motion.ipynb",
+    "37_fixed_lag_motion_mps.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,
@@ -95,7 +96,7 @@ def test_training_cell_uses_the_validated_experiment_config(
     arguments = shlex.split(shell.commands[0])
     invoked_config = Path(arguments[arguments.index("--config") + 1]).resolve()
     assert invoked_config == experiment.config_path
-    if notebook_name.startswith("36_"):
+    if notebook_name.startswith(("36_", "37_")):
         experiment.validate_training_start.assert_called_once_with(expected_device="cpu")
     else:
         experiment.validate_training_start.assert_called_once_with()
@@ -213,3 +214,31 @@ def test_motion_audit_cell_rejects_invalid_cache_without_raw_command(tmp_path: P
         exec(TransformerManager().transform_cell(source), namespace)
 
     assert shell.commands == []
+
+
+def test_mps_repeat_training_cell_blocks_a_different_prepared_device(tmp_path: Path) -> None:
+    """Stop the actual repeat cell before launching a mismatched prepared study.
+
+    Args:
+        tmp_path (Path): Synthetic experiment identity.
+    """
+    experiment = SimpleNamespace(
+        config_path=tmp_path / "different-mps.yaml", output_dir=tmp_path / "different-output",
+        model_settings={"window_features": {"history_epochs": 10}},
+        validate_training_start=Mock(side_effect=ValueError("Prepared device cpu differs")),
+    )
+    namespace = {
+        "RUN_TRAINING": True, "logger": Mock(), "experiment": experiment,
+        "reference_manifest": {"device": "mps"},
+    }
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/37_fixed_lag_motion_mps.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_TRAINING:" in "".join(cell["source"]))
+
+    with pytest.raises(ValueError, match="Prepared device cpu differs"):
+        exec(TransformerManager().transform_cell(source), namespace)
+
+    experiment.validate_training_start.assert_called_once_with(expected_device="mps")
+    assert not shell.commands

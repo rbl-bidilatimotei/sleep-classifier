@@ -155,3 +155,7 @@ Five development folds are prepared. Timo controls training; no candidate perfor
 
 Reviewed: [fixed-lag motion results](experiments/fixed-lag-motion-2026-11-20/README.md) improve mean fold macro-F1 by 0.00715, with CPU/MPS confounding.
 Keep the full-HR reference. Recommend the same motion candidate on MPS before changing another setting.
+
+Prepared: [MPS motion repeat](fixed-lag-motion-mps.md) in notebook 37.
+Repeat the identical seed-42 motion recipe on explicit MPS against the measured MPS reference.
+Preserve the CPU run and all other controls. Five new fits remain operator-controlled.
