@@ -162,3 +162,7 @@ Preserve the CPU run and all other controls. Five new fits remain operator-contr
 
 Reviewed: [MPS motion results](experiments/fixed-lag-motion-mps-2026-11-20/README.md) gain mean fold macro-F1 by 0.00680 at seed 42.
 The fold effects are uneven, and selected NLL worsens. Recommend MPS seed-43/44 motion replication before another intervention.
+
+Prepared: [MPS motion seed replication](motion-mps-seeds.md) in notebook 38.
+Reuse all three references and seed-42 motion. Train only ten new seed-43/44 candidate folds on explicit MPS.
+Keep all other settings fixed and the final test reserved. Training remains operator-controlled.

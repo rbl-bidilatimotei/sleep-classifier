@@ -1,0 +1,5 @@
+source_prepare_config: prepare.yaml
+base_model_config: fixed-lag-motion-mps-seed-43.yaml
+output_dir: ../artifacts/fixed-lag-motion-mps-seeds/seed-43/candidate
+folds: 5
+split_seed: 42
