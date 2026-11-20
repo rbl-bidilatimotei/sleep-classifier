@@ -1,0 +1,132 @@
+{
+  "status": "no_gradient_preflight_only",
+  "model_training_performed": false,
+  "test_observations_read": false,
+  "checks": [
+    {
+      "fold": "fold-01",
+      "learning_rate": 0.0003,
+      "device": "mps",
+      "train_targets": 18121,
+      "validation_targets": 4587,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_motion_reference": true,
+      "hr_state_matches_motion_reference": true,
+      "motion_provenance_matches_motion_reference": true
+    },
+    {
+      "fold": "fold-02",
+      "learning_rate": 0.0003,
+      "device": "mps",
+      "train_targets": 18526,
+      "validation_targets": 4182,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_motion_reference": true,
+      "hr_state_matches_motion_reference": true,
+      "motion_provenance_matches_motion_reference": true
+    },
+    {
+      "fold": "fold-03",
+      "learning_rate": 0.0003,
+      "device": "mps",
+      "train_targets": 17916,
+      "validation_targets": 4792,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_motion_reference": true,
+      "hr_state_matches_motion_reference": true,
+      "motion_provenance_matches_motion_reference": true
+    },
+    {
+      "fold": "fold-04",
+      "learning_rate": 0.0003,
+      "device": "mps",
+      "train_targets": 18281,
+      "validation_targets": 4427,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_motion_reference": true,
+      "hr_state_matches_motion_reference": true,
+      "motion_provenance_matches_motion_reference": true
+    },
+    {
+      "fold": "fold-05",
+      "learning_rate": 0.0003,
+      "device": "mps",
+      "train_targets": 17988,
+      "validation_targets": 4720,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_motion_reference": true,
+      "hr_state_matches_motion_reference": true,
+      "motion_provenance_matches_motion_reference": true
+    }
+  ]
+}
