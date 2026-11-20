@@ -25,7 +25,7 @@ class PairedSeedReport:
         self.comparison = settings.get("comparison", "training_budget")
         if self.comparison not in (
             "architecture", "training_budget", "context", "window_features",
-            "window_feature_ablation",
+            "window_feature_ablation", "motion_features",
         ):
             raise ValueError("Unknown paired seed comparison policy")
         pairs = settings["pairs"]
@@ -110,10 +110,24 @@ class PairedSeedReport:
             if row["status"] != "complete":
                 raise ValueError("Reused results must be complete before starting new runs")
             case = next(case for case in self.cases if case["seed"] == row["seed"])
-            path = Path(case[f"{row['recipe']}_summary"])
-            PairedArchitectureReport(path, path).build()
             role = row["recipe"]
+            self._validate_reused_role(case, role)
             signatures[role] = self._validate_case_run(case, role, signatures.get(role))
+
+
+    def _validate_reused_role(self, case: dict[str, Any], role: str) -> None:
+        """Check a saved recipe through its supported paired validation boundary.
+
+        Args:
+            case (dict[str, Any]): Seed pair containing both saved summary locations.
+            role (str): Reused reference or candidate recipe.
+        """
+        path = Path(case[f"{role}_summary"])
+        if self.comparison == "motion_features" and role == "candidate":
+            reference = Path(case["reference_summary"])
+            PairedArchitectureReport(reference, path, comparison=self.comparison).build()
+        else:
+            PairedArchitectureReport(path, path).build()
 
 
     def status(self) -> list[dict[str, Any]]:
@@ -162,6 +176,13 @@ class PairedSeedReport:
                 "parameter_count": metrics["parameter_count"],
                 "device": metrics["device"],
             }
+            if metrics.get("motion_features") is not None:
+                source = metrics["motion_features"]
+                current["motion_source"] = {
+                    key: source[key] for key in (
+                        "definition", "audit_config_sha256", "snapshot_manifest_sha256",
+                    )
+                }
             if recipe is not None and recipe != current:
                 raise ValueError("Training recipes differ across folds")
             recipe = current

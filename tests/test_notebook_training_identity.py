@@ -103,8 +103,11 @@ def test_training_cell_uses_the_validated_experiment_config(
 
 
 @pytest.mark.parametrize("blocked", [False, True])
+@pytest.mark.parametrize("notebook_name", [
+    "33_hr_deviation_only_seeds.ipynb", "38_motion_mps_seeds.ipynb",
+])
 def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool, notebook_name: str,
 ) -> None:
     """Use each resolved experiment target and stop blocked runs before any CLI command.
 
@@ -112,6 +115,7 @@ def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
         tmp_path (Path): Isolated notebook working directory.
         monkeypatch (pytest.MonkeyPatch): Scoped working-directory replacement.
         blocked (bool): Whether the first readiness check rejects existing results.
+        notebook_name (str): Source notebook containing the training cell.
     """
     monkeypatch.chdir(tmp_path)
     runs = [{"seed": seed, "config": str(tmp_path / f"alias-{seed}.yaml")}
@@ -133,7 +137,7 @@ def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
     }
     shell = RecordingNotebookShell(namespace)
     namespace["get_ipython"] = Mock(return_value=shell)
-    notebook = json.loads((ROOT / "notebooks/33_hr_deviation_only_seeds.ipynb").read_text())
+    notebook = json.loads((ROOT / "notebooks" / notebook_name).read_text())
     source = next("".join(cell["source"]) for cell in notebook["cells"]
                   if cell["cell_type"] == "code" and "if RUN_TRAINING:" in "".join(cell["source"]))
     transformed = TransformerManager().transform_cell(source)
@@ -148,7 +152,10 @@ def test_seed_training_cell_binds_each_validated_config_and_checks_readiness(
         for command, experiment in zip(shell.commands, experiments, strict=True):
             arguments = shlex.split(command)
             assert Path(arguments[arguments.index("--config") + 1]) == experiment.config_path
-            experiment.validate_training_start.assert_called_once_with()
+            if notebook_name.startswith("38_"):
+                experiment.validate_training_start.assert_called_once_with(expected_device="mps")
+            else:
+                experiment.validate_training_start.assert_called_once_with()
     namespace["study"].validate_reused_results.assert_called_once_with()
 
 

@@ -1,0 +1,258 @@
+{
+  "status": "no_gradient_preflight_only",
+  "new_fits_planned": 10,
+  "model_training_performed": false,
+  "test_observations_read": false,
+  "checks": [
+    {
+      "seed": 43,
+      "fold": "fold-01",
+      "device": "mps",
+      "train_targets": 18121,
+      "validation_targets": 4587,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 43,
+      "fold": "fold-02",
+      "device": "mps",
+      "train_targets": 18526,
+      "validation_targets": 4182,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 43,
+      "fold": "fold-03",
+      "device": "mps",
+      "train_targets": 17916,
+      "validation_targets": 4792,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 43,
+      "fold": "fold-04",
+      "device": "mps",
+      "train_targets": 18281,
+      "validation_targets": 4427,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 43,
+      "fold": "fold-05",
+      "device": "mps",
+      "train_targets": 17988,
+      "validation_targets": 4720,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 44,
+      "fold": "fold-01",
+      "device": "mps",
+      "train_targets": 18121,
+      "validation_targets": 4587,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 44,
+      "fold": "fold-02",
+      "device": "mps",
+      "train_targets": 18526,
+      "validation_targets": 4182,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 44,
+      "fold": "fold-03",
+      "device": "mps",
+      "train_targets": 17916,
+      "validation_targets": 4792,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 44,
+      "fold": "fold-04",
+      "device": "mps",
+      "train_targets": 18281,
+      "validation_targets": 4427,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    },
+    {
+      "seed": 44,
+      "fold": "fold-05",
+      "device": "mps",
+      "train_targets": 17988,
+      "validation_targets": 4720,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "logit_shape": [
+        64,
+        4
+      ],
+      "parameter_count": 2900,
+      "scaler_means_match_seed42_motion": true,
+      "hr_state_matches_reference_and_seed42_motion": true,
+      "motion_source_and_imputation_match_seed42_motion": true
+    }
+  ]
+}
