@@ -1,6 +1,6 @@
 # Compare two constant learning rates on the working motion recipe
 
-Status: prepared for five local seed-42 candidate fits. No lower-rate model has been trained.
+Status: all five local fits are complete. LR0.0003 loses primary macro-F1 within forty epochs.
 
 ## Question
 
@@ -41,7 +41,7 @@ The report records fixed_motion_inputs provenance. It does not present this as a
 Strict device matching remains active; a device exception is unavailable for the learning-rate policy.
 The original no-motion learning-rate path remains supported.
 
-## Run locally
+## Initial local execution (completed)
 
 Open [notebook 39](../notebooks/39_motion_learning_rate.ipynb). Restart the kernel before its first run.
 Each code cell explains what it does and why. Source setup, preparation, checks, and training switches default to false.
@@ -81,3 +81,11 @@ Record selected and final epochs. If the lower rate reaches the forty-epoch cap,
 That result alone cannot establish which rate would converge better with additional compute.
 A promising result would need further seed replication before becoming the default optimizer setting.
 Timo runs all new training locally. This preparation performs no participant-data optimization.
+
+## Measured findings
+
+The [completed comparison](experiments/motion-learning-rate-2026-11-20/README.md) loses mean fold macro-F1 by 0.00767.
+Light gains recall and a little F1, while Wake, Deep, and REM F1 decline. Selected pooled NLL improves by 0.00209.
+Three candidate folds reach the cap and select epoch 40 or 39. Keep LR0.001 as the working rate.
+Recommend a separate eighty-epoch LR0.0003 budget comparison with patience twelve unchanged. No new run is prepared here.
+For completed reporting, keep all execution switches false and restart the kernel.
