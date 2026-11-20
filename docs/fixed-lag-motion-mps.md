@@ -1,6 +1,6 @@
 # Repeat the fixed-lag motion candidate on MPS
 
-Status: prepared for five local seed-42 fits. No new model has been trained.
+Status: all five local MPS fits are complete. The matched seed-42 result is positive but uneven.
 
 ## Question and reference
 
@@ -35,7 +35,7 @@ The new study uses artifacts/fixed-lag-motion-mps-grouped-validation.
 The previous CPU study remains artifacts/fixed-lag-motion-grouped-validation.
 The reused reference remains artifacts/transformer-window-local-hr-grouped-validation.
 
-## Local execution
+## Initial local execution (completed)
 
 Open [notebook 37](../notebooks/37_fixed_lag_motion_mps.ipynb). Restart the kernel before its first run.
 Every code cell explains what it does and why. Source setup, preparation, checks, and training switches default to false.
@@ -65,6 +65,9 @@ Report-only notebook execution does not require an available MPS device when all
 The actual preparation, preflight, and training commands require MPS.
 Keep the three reserved final-test participants untouched.
 
+For completed-run reporting, keep every execution switch false and restart the kernel.
+The notebook then reads the saved evidence without optimization.
+
 ## Evaluation and limits
 
 Use the existing `motion_features` paired policy with `allow_device_mismatch=False`.
@@ -79,3 +82,12 @@ It does not make one seed independent replication or guarantee identical numeric
 The original extra 48 projection weights also remain part of the feature-recipe intervention.
 Review this complete matched result before changing architecture, loss, regularization, or seed count.
 The CPU scores can remain beside it for descriptive context; they are not a second device-matched feature comparison.
+
+## Measured findings, 2026-11-20
+
+The [completed matched comparison](experiments/fixed-lag-motion-mps-2026-11-20/README.md) gains mean fold macro-F1 by 0.00680.
+Fold 05 contributes the largest gain. Sixteen participants improve; all four pooled stage F1 scores increase.
+Light recall falls, REM→Deep errors increase by thirteen, and selected pooled NLL worsens by 0.00373.
+Both runs use MPS without an exception. Startup slices and late probability overfitting remain concerns.
+Recommend MPS motion candidates at seeds 43 and 44, reusing the already-verified matching references and this seed-42 result.
+No new training is prepared or run during this review. Keep the final test reserved.

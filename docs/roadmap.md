@@ -159,3 +159,6 @@ Keep the full-HR reference. Recommend the same motion candidate on MPS before ch
 Prepared: [MPS motion repeat](fixed-lag-motion-mps.md) in notebook 37.
 Repeat the identical seed-42 motion recipe on explicit MPS against the measured MPS reference.
 Preserve the CPU run and all other controls. Five new fits remain operator-controlled.
+
+Reviewed: [MPS motion results](experiments/fixed-lag-motion-mps-2026-11-20/README.md) gain mean fold macro-F1 by 0.00680 at seed 42.
+The fold effects are uneven, and selected NLL worsens. Recommend MPS seed-43/44 motion replication before another intervention.
