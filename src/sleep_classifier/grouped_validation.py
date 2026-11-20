@@ -341,8 +341,11 @@ class GroupedValidationExperiment:
 
         return manifest
 
-    def validate_training_start(self) -> dict[str, Any]:
+    def validate_training_start(self, expected_device: str | None = None) -> dict[str, Any]:
         """Validate prepared inputs and fresh outputs without starting optimization.
+
+        Args:
+            expected_device (str | None): Required device for a controlled paired comparison.
 
         Returns:
             dict[str, Any]: Verified preparation manifest for the intended experiment.
@@ -352,6 +355,12 @@ class GroupedValidationExperiment:
             ValueError: If prepared inputs differ from their recorded manifest.
         """
         manifest = self._validate_manifest()
+        if expected_device is not None and manifest["device"] != expected_device:
+            raise ValueError(
+                f"Prepared device {manifest['device']} differs from reference device "
+                f"{expected_device}; preserve existing evidence and use a fresh configuration "
+                "only for an intentional device-matched run"
+            )
         outputs = [self.output_dir / fold["name"] / "results"
                    for fold in manifest["plan"]["folds"]]
         outputs.append(self.output_dir / "summary.json")

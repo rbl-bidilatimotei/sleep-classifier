@@ -37,6 +37,7 @@ class TemporalSliceReport:
 
         self.context_epochs = context_epochs
         self.short_history_epochs = short_history_epochs
+        self.device_comparison: dict[str, Any] | None = None
         self.reference = self._validate_frame(reference, "prediction")
         self.candidate = self._validate_frame(candidate, "prediction")
         self.rows = self._validate_frame(validation_rows, "segment_id")
@@ -98,7 +99,7 @@ class TemporalSliceReport:
     @classmethod
     def from_grouped(
         cls, reference_summary: Path, candidate_summary: Path, short_history_epochs: int = 2,
-        comparison: str = "architecture",
+        comparison: str = "architecture", *, allow_device_mismatch: bool = False,
     ) -> "TemporalSliceReport":
         """Load verified grouped predictions and immutable prepared segment metadata.
 
@@ -107,12 +108,18 @@ class TemporalSliceReport:
             candidate_summary (Path): Completed candidate grouped summary.
             short_history_epochs (int): Upper bound of the short-history slice.
             comparison (str): Explicit paired policy for the recorded recipe change.
+            allow_device_mismatch (bool): Carry an explicit exploratory motion device exception.
         """
-        PairedArchitectureReport(reference_summary, candidate_summary, comparison).build()
+        paired = PairedArchitectureReport(
+            reference_summary, candidate_summary, comparison,
+            allow_device_mismatch=allow_device_mismatch,
+        ).build()
         reference = cls._load_predictions(reference_summary)
         candidate = cls._load_predictions(candidate_summary)
         rows, context = cls._load_metadata(candidate_summary)
-        return cls(reference, candidate, rows, context, short_history_epochs)
+        result = cls(reference, candidate, rows, context, short_history_epochs)
+        result.device_comparison = paired.get("device_comparison")
+        return result
 
 
     @staticmethod
@@ -236,6 +243,8 @@ class TemporalSliceReport:
             })
 
         return {
+            **({"device_comparison": self.device_comparison}
+               if self.device_comparison is not None else {}),
             "context_epochs": context, "short_history_epochs": short,
             "posthoc": True, "independent_outer_test": False,
             "definitions": {

@@ -1,6 +1,6 @@
 # Test one fixed-lag motion feature
 
-Status: prepared for Timo's local training. No candidate accuracy result exists yet.
+Status: five local candidate fits are complete. Reporting includes an explicit CPU/MPS limitation.
 
 ## What the audit showed
 
@@ -99,3 +99,25 @@ Check whether improved Deep or REM recall costs Wake or Light performance, and w
 Keep the original selected-checkpoint rule; do not select a favorable epoch from the final curves.
 Treat one seed as screening evidence. Decide on seed replication after reviewing the complete result.
 Keep the three final-test participants untouched. No candidate training runs automatically during HTML export.
+
+## Completed-run device limitation, 2026-11-20
+
+The saved candidate preparation manifest, fold recipes, and completed metrics all record CPU.
+The reused reference records MPS. All other base recipe settings match.
+The prior notebook checked the current automatic device selection, rather than the device frozen during preparation.
+That check could pass while the already-prepared folds used another device.
+The comparison rejected this mismatch correctly, but its generic error hid the specific differing key.
+
+The existing checkpoints, metrics, predictions, and prepared inputs remain valid saved evidence.
+Do not change their device fields or rerun training to complete reporting.
+The paired validator remains strict by default. An explicit `allow_device_mismatch=True` exception is available only for the motion policy.
+Notebook 36 enables that report-only exception for this completed run and displays the CPU/MPS fold table.
+Paired and temporal JSON reports retain an `exploratory_device_mismatch` marker and interpretation caveat.
+Other recipe, population, source, normalization, and capacity checks remain active.
+This comparison cannot isolate the motion feature from numerical backend effects.
+
+The training cell now passes the measured reference device to `validate_training_start`.
+That guard checks the prepared manifest before any optimization. It does not permit device differences during new controlled training.
+Keep RUN_TRAINING, RUN_PREPARATION, and RUN_CHECK false to finish this notebook from saved evidence.
+Restart the kernel and run all report cells. The executed HTML already contains the completed report.
+No new training or final-test observations are needed.

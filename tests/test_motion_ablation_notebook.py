@@ -41,6 +41,7 @@ def test_motion_ablation_notebook_explains_cells_and_gates_execution() -> None:
     assert all(f"{flag} = False" in source for flag in (
         "RUN_SETUP", "RUN_PREPARATION", "RUN_TRAINING",
     ))
-    assert "experiment.validate_training_start()" in source
+    guard = 'experiment.validate_training_start(expected_device=reference_manifest["device"])'
+    assert guard in source
     assert 'comparison="motion_features"' in source
     assert "grouped_config = experiment.config_path" in source

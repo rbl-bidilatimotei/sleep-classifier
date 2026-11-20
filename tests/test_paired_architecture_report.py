@@ -2917,3 +2917,50 @@ def test_legacy_policies_reject_motion_inputs(tmp_path: Path) -> None:
     paths = _write_motion_feature_pair(tmp_path)
     with pytest.raises(ValueError, match="raw feature schema"):
         PairedArchitectureReport(*paths, "architecture").build()
+
+
+@pytest.mark.parametrize("extra_change", [False, True])
+def test_motion_device_exception_is_explicit_and_rejects_other_changes(
+    tmp_path: Path, extra_change: bool,
+) -> None:
+    """Expose cross-device results without accepting another recipe intervention.
+
+    Args:
+        tmp_path (Path): Isolated completed synthetic studies.
+        extra_change (bool): Whether an additional learning-rate change must fail.
+    """
+    paths = _write_motion_feature_pair(tmp_path)
+    summary = json.loads(paths[1].read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"]["device"] = "mps"
+        metrics["device"] = "mps"
+        if extra_change:
+            metrics["config"]["learning_rate"] *= 2
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    paths[1].write_text(json.dumps(summary))
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "motion_features").build()
+
+    reporter = PairedArchitectureReport(*paths, "motion_features", allow_device_mismatch=True)
+    if extra_change:
+        with pytest.raises(ValueError, match="base recipe"):
+            reporter.build()
+    else:
+        report = reporter.build()
+        assert report["device_comparison"]["status"] == "exploratory_device_mismatch"
+        assert len(report["device_comparison"]["mismatched_folds"]) == 2
+        assert "cannot isolate" in report["device_comparison"]["interpretation"]
+
+
+def test_device_exception_is_not_available_for_other_policies(tmp_path: Path) -> None:
+    """Keep legacy paired comparisons strict about execution devices.
+
+    Args:
+        tmp_path (Path): Isolated summary paths.
+    """
+    with pytest.raises(ValueError, match="motion_features"):
+        PairedArchitectureReport(tmp_path / "left", tmp_path / "right",
+                                 allow_device_mismatch=True)

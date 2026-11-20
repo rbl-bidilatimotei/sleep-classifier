@@ -196,3 +196,35 @@ def test_reject_interleaved_segments_with_contiguous_internal_times() -> None:
 
     with pytest.raises(ValueError, match="consecutive blocks"):
         TemporalSliceReport(predictions, predictions, rows)
+
+
+def test_grouped_device_caveat_reaches_temporal_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Retain explicit device limitations in saved temporal slice evidence.
+
+    Args:
+        tmp_path (Path): Synthetic grouped summary paths.
+        monkeypatch (pytest.MonkeyPatch): Scoped artifact-reader replacements.
+    """
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    reference, candidate, rows = _frames()
+    caveat = {"status": "exploratory_device_mismatch", "mismatched_folds": []}
+    validator = Mock(return_value=SimpleNamespace(build=Mock(return_value={
+        "device_comparison": caveat,
+    })))
+    monkeypatch.setattr(
+        "sleep_classifier.temporal_slice_report.PairedArchitectureReport", validator,
+    )
+    monkeypatch.setattr(TemporalSliceReport, "_load_predictions",
+                        Mock(side_effect=[reference, candidate]))
+    monkeypatch.setattr(TemporalSliceReport, "_load_metadata", Mock(return_value=(rows, 4)))
+    report = TemporalSliceReport.from_grouped(
+        tmp_path / "reference", tmp_path / "candidate", comparison="motion_features",
+        allow_device_mismatch=True,
+    ).build()
+
+    assert report["device_comparison"] == caveat
+    assert validator.call_args.kwargs == {"allow_device_mismatch": True}

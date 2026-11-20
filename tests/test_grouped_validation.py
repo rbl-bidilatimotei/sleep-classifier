@@ -508,3 +508,15 @@ def test_motion_source_hashes_and_fold_paths_are_frozen(
     (snapshot / "rows.csv").write_text("changed source")
     with pytest.raises(ValueError, match="changed after preparation"):
         experiment.validate_training_start()
+
+
+def test_training_start_rejects_prepared_device_mismatch(tmp_path: Path) -> None:
+    """Reject a frozen CPU study when its paired reference requires MPS.
+
+    Args:
+        tmp_path (Path): Isolated prepared synthetic study.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    experiment.prepare()
+    with pytest.raises(ValueError, match="Prepared device cpu differs from reference device mps"):
+        experiment.validate_training_start(expected_device="mps")

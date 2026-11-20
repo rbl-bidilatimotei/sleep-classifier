@@ -32,6 +32,7 @@ class PairedArchitectureReport:
             "weight_decay", "label_smoothing", "window_features", "window_feature_ablation",
             "window_history", "motion_features",
         ] = "architecture",
+        *, allow_device_mismatch: bool = False,
     ) -> None:
         """Store the two grouped experiment summaries.
 
@@ -39,6 +40,7 @@ class PairedArchitectureReport:
             reference_summary (Path): Completed reference experiment summary.
             candidate_summary (Path): Completed candidate experiment summary.
             comparison (str): Explicit policy for the intended recipe change.
+            allow_device_mismatch (bool): Label cross-device motion results as exploratory.
         """
         if comparison not in (
             "architecture", "training_budget", "context", "learning_rate", "scheduler",
@@ -47,6 +49,11 @@ class PairedArchitectureReport:
         ):
             raise ValueError("Unknown paired comparison policy")
 
+        if type(allow_device_mismatch) is not bool:
+            raise ValueError("allow_device_mismatch must be boolean")
+        if allow_device_mismatch and comparison != "motion_features":
+            raise ValueError("Device exceptions require the explicit motion_features policy")
+        self.allow_device_mismatch = allow_device_mismatch
         self.reference_summary = reference_summary.resolve()
         self.candidate_summary = candidate_summary.resolve()
         self.comparison = comparison
@@ -192,7 +199,9 @@ class PairedArchitectureReport:
             self._validate_label_smoothing_recipe(reference, candidate)
 
         if self.comparison == "motion_features":
-            self._validate_motion_feature_recipe(reference, candidate)
+            self._validate_motion_feature_recipe(
+                reference, candidate, allow_device_mismatch=self.allow_device_mismatch,
+            )
         elif any(metrics["config"].get("motion_features") is not None
                  or metrics.get("motion_features") is not None
                  for metrics in (reference, candidate)):
@@ -228,6 +237,8 @@ class PairedArchitectureReport:
         self._validate_optimizer_record(candidate, candidate_optimizer)
 
         for key in SHARED_RECIPE_KEYS:
+            if key == "device" and self.allow_device_mismatch:
+                continue
             if key in ("epochs", "patience") and self.comparison == "training_budget":
                 continue
             if key == "context_epochs" and self.comparison == "context":
@@ -244,7 +255,7 @@ class PairedArchitectureReport:
             raise ValueError("Paired comparisons require recipes without optimizer agents")
         if reference["coverage"] != candidate["coverage"]:
             raise ValueError("Fold eligibility or coverage differs")
-        if reference["device"] != candidate["device"]:
+        if reference["device"] != candidate["device"] and not self.allow_device_mismatch:
             raise ValueError("Resolved training devices differ")
         for key in (
             "split", "rule", "feature_columns", "test_observations_read", "steps_used",
@@ -257,12 +268,14 @@ class PairedArchitectureReport:
     @classmethod
     def _validate_motion_feature_recipe(
         cls, reference: dict[str, Any], candidate: dict[str, Any],
+        *, allow_device_mismatch: bool = False,
     ) -> None:
         """Permit one fixed-lag channel while preserving the full-HR patch recipe.
 
         Args:
             reference (dict[str, Any]): Verified full-HR ten-epoch metrics.
             candidate (dict[str, Any]): Verified metrics with one additional motion channel.
+            allow_device_mismatch (bool): Permit explicitly labeled exploratory device differences.
         """
         definition = {"name": "fixed_lag_motion", "step_seconds": 1.0,
                       "max_sample_age_seconds": 0.2}
@@ -274,10 +287,17 @@ class PairedArchitectureReport:
                 or not isinstance(settings["audit_config"], str) or not settings["audit_config"]):
             raise ValueError("Motion comparison requires disabled versus fixed_lag_motion inputs")
         excluded = {"motion_features", "prepare_config", "output_dir"}
+        if allow_device_mismatch:
+            excluded.add("device")
         left = {key: value for key, value in reference["config"].items() if key not in excluded}
         right = {key: value for key, value in candidate["config"].items() if key not in excluded}
         if left != right:
-            raise ValueError("Motion-feature comparison requires the same base recipe")
+            differences = sorted(key for key in left.keys() | right.keys()
+                                 if left.get(key) != right.get(key))
+            raise ValueError(
+                "Motion-feature comparison requires the same base recipe; "
+                f"differing settings: {', '.join(differences)}"
+            )
         full_hr = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
         if left.get("window_features") != full_hr:
             raise ValueError("Motion-feature comparison requires the unmasked ten-epoch HR recipe")
@@ -942,12 +962,17 @@ class PairedArchitectureReport:
         ablation_mask: list[str] | None = None
         history_definition: dict[str, int] | None = None
         motion_source: dict[str, Any] | None = None
+        device_mismatches: list[dict[str, str]] = []
 
         for fold in reference["plan"]["folds"]:
             name = fold["name"]
             left = self._load_fold(reference_results[name], self.reference_summary)
             right = self._load_fold(candidate_results[name], self.candidate_summary)
             self._validate_recipes(left["metrics"], right["metrics"])
+            if left["metrics"]["device"] != right["metrics"]["device"]:
+                device_mismatches.append({"fold": name,
+                                          "reference": left["metrics"]["device"],
+                                          "candidate": right["metrics"]["device"]})
             if self.comparison == "motion_features":
                 record = right["metrics"]["motion_features"]
                 source = {key: record[key] for key in (
@@ -1011,6 +1036,16 @@ class PairedArchitectureReport:
         if self.comparison == "motion_features":
             report["comparison"] = "motion_features"
             report["motion_features"] = motion_source
+            report["device_comparison"] = {
+                "status": ("exploratory_device_mismatch" if device_mismatches else "matched"),
+                "exception_enabled": self.allow_device_mismatch,
+                "mismatched_folds": device_mismatches,
+                "interpretation": (
+                    "Devices differ; this exploratory comparison cannot isolate the motion feature "
+                    "from numerical backend effects" if device_mismatches else
+                    "Reference and candidate used matching execution devices"
+                ),
+            }
             report["capacity_caveat"] = (
                 "One added motion channel enlarges the patch projection by 48 parameters; "
                 "this is a feature-recipe comparison"
@@ -1254,12 +1289,17 @@ def main() -> None:
                 "motion_features",
     ),
                         default="architecture")
+    parser.add_argument("--allow-device-mismatch", action="store_true",
+                        help="Report cross-device motion results with an exploratory caveat")
     args = parser.parse_args()
     if args.output.resolve() in (args.reference.resolve(), args.candidate.resolve()):
         parser.error("Comparison output must not replace either source summary")
 
     configure_logging()
-    report = PairedArchitectureReport(args.reference, args.candidate, args.comparison).build()
+    report = PairedArchitectureReport(
+        args.reference, args.candidate, args.comparison,
+        allow_device_mismatch=args.allow_device_mismatch,
+    ).build()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     logging.getLogger(__name__).info("Paired comparison saved: %s; differences=%s",
