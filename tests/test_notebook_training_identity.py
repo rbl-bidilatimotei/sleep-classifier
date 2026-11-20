@@ -49,7 +49,7 @@ class RecordingNotebookShell:
 
 @pytest.mark.parametrize("notebook_name", [
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
-    "34_hr_history_horizon.ipynb",
+    "34_hr_history_horizon.ipynb", "36_fixed_lag_motion.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,
@@ -83,6 +83,7 @@ def test_training_cell_uses_the_validated_experiment_config(
         "experiment": experiment, "reference_summary": summary,
         "reference": SimpleNamespace(plan=Mock(return_value=plan)),
         "PairedArchitectureReport": Mock(), "logger": Mock(),
+        "reference_manifest": {"device": "cpu"},
     }
     shell = RecordingNotebookShell(namespace)
     namespace["get_ipython"] = Mock(return_value=shell)
@@ -94,7 +95,10 @@ def test_training_cell_uses_the_validated_experiment_config(
     arguments = shlex.split(shell.commands[0])
     invoked_config = Path(arguments[arguments.index("--config") + 1]).resolve()
     assert invoked_config == experiment.config_path
-    experiment.validate_training_start.assert_called_once_with()
+    if notebook_name.startswith("36_"):
+        experiment.validate_training_start.assert_called_once_with(expected_device="cpu")
+    else:
+        experiment.validate_training_start.assert_called_once_with()
 
 
 @pytest.mark.parametrize("blocked", [False, True])

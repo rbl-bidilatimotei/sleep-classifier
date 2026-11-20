@@ -148,3 +148,10 @@ Validate one-second axis changes, reading age, pair support, and residual stage 
 The full-HR ten-epoch recipe and final-test reservation stay unchanged.
 
 All 22,708 targets have grid-change estimates. Review the measured audit before one later motion-feature ablation.
+
+Prepared: [fixed-lag motion ablation](fixed-lag-motion-ablation.md) in notebook 36.
+Reuse the full-HR ten-epoch reference; add one sensor channel and keep all other settings fixed.
+Five development folds are prepared. Timo controls training; no candidate performance is available yet.
+
+Reviewed: [fixed-lag motion results](experiments/fixed-lag-motion-2026-11-20/README.md) improve mean fold macro-F1 by 0.00715, with CPU/MPS confounding.
+Keep the full-HR reference. Recommend the same motion candidate on MPS before changing another setting.

@@ -2800,3 +2800,167 @@ def test_window_history_policy_accepts_other_strict_increases(
 
     report = PairedArchitectureReport(*paths, "window_history").build()
     assert report["window_history"]["candidate_history_epochs"] == candidate_history
+
+
+
+def _write_motion_feature_pair(root: Path) -> tuple[Path, Path]:
+    """Extend a full-HR fixture by one immutable fixed-lag motion channel.
+
+    Args:
+        root (Path): Temporary grouped artifact directory.
+    """
+    paths = _write_window_history_pair(root)
+    settings = {"name": "heart_rate_deviation", "history_epochs": 10, "min_history_epochs": 4}
+    definition = {"name": "fixed_lag_motion", "step_seconds": 1.0,
+                  "max_sample_age_seconds": 0.2}
+    for index, summary_path in enumerate(paths):
+        summary = json.loads(summary_path.read_text())
+        for result in summary["results"]:
+            path = Path(result["metrics_path"])
+            metrics = json.loads(path.read_text())
+            metrics["config"]["window_features"] = settings
+            metrics["model_config"]["window_features"] = settings
+            metrics["window_features"]["settings"] = settings
+            metrics["window_features"]["scaling"].update(delta_mean=0.1, delta_scale=1.0)
+            if index:
+                metrics["config"]["motion_features"] = {
+                    "name": "fixed_lag_motion", "audit_config": "audit.yaml",
+                }
+                metrics["model_config"].update(input_size=7, motion_features=definition)
+                metrics["features"] = [*FEATURE_COLUMNS, "motion_grid_change_mean"]
+                metrics["model_features"] = [*metrics["features"], "heart_rate_delta_past",
+                                             "heart_history_available"]
+                metrics["parameter_count"] += 48
+                metrics["motion_features"] = {
+                    "name": "fixed_lag_motion", "definition": definition,
+                    "audit_config_sha256": "a" * 64, "snapshot_manifest_sha256": "b" * 64,
+                    "scaling_fit": "training_targets_only", "missing_policy": "training_mean",
+                    "training_observed_targets": sum(
+                        item["eligible_epochs"] for item in metrics["provenance"]["participants"]
+                        if item["partition"] == "train"
+                    ), "training_missing_targets": 0,
+                    "validation_observed_targets": 4, "validation_missing_targets": 0,
+                    "imputation_mean": 0.01,
+                }
+            path.write_text(json.dumps(metrics))
+            result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+        summary_path.write_text(json.dumps(summary))
+    return paths
+
+
+
+def test_motion_feature_policy_reports_one_added_channel(tmp_path: Path) -> None:
+    """Validate the explicit feature intervention and its projection-capacity caveat.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped outputs.
+    """
+    paths = _write_motion_feature_pair(tmp_path)
+    report = PairedArchitectureReport(*paths, "motion_features").build()
+    assert report["comparison"] == "motion_features"
+    assert report["motion_features"]["definition"]["step_seconds"] == 1.0
+    assert "48 parameters" in report["capacity_caveat"]
+    assert report["eligible_epochs"] == 8
+
+
+
+@pytest.mark.parametrize("mutation", [
+    "learning_rate", "window_history", "window_state", "parameter_count", "channel_order",
+    "constructor_definition", "missing_policy", "hash", "validation_count", "fold_source",
+])
+def test_motion_feature_policy_rejects_undeclared_changes(tmp_path: Path, mutation: str) -> None:
+    """Reject changes outside the single declared motion input intervention.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped outputs.
+        mutation (str): One changed recipe or source contract.
+    """
+    paths = _write_motion_feature_pair(tmp_path)
+    summary = json.loads(paths[1].read_text())
+    result = summary["results"][0]
+    path = Path(result["metrics_path"])
+    metrics = json.loads(path.read_text())
+    if mutation == "learning_rate":
+        metrics["config"]["learning_rate"] = 0.002
+    elif mutation == "window_history":
+        metrics["config"]["window_features"]["history_epochs"] = 20
+    elif mutation == "window_state":
+        metrics["window_features"]["scaling"]["delta_mean"] += 0.2
+    elif mutation == "parameter_count":
+        metrics["parameter_count"] += 1
+    elif mutation == "channel_order":
+        metrics["features"].reverse()
+    elif mutation == "constructor_definition":
+        metrics["model_config"]["motion_features"]["step_seconds"] = 2.0
+    elif mutation == "missing_policy":
+        metrics["motion_features"]["missing_policy"] = "zero"
+    elif mutation == "hash":
+        metrics["motion_features"]["audit_config_sha256"] = "not-a-hash"
+    elif mutation == "validation_count":
+        metrics["motion_features"]["validation_missing_targets"] = 1
+    else:
+        metrics["motion_features"]["snapshot_manifest_sha256"] = "c" * 64
+    path.write_text(json.dumps(metrics))
+    result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    paths[1].write_text(json.dumps(summary))
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "motion_features").build()
+
+
+
+def test_legacy_policies_reject_motion_inputs(tmp_path: Path) -> None:
+    """Require the explicit feature policy before accepting a seventh raw channel.
+
+    Args:
+        tmp_path (Path): Temporary synthetic grouped outputs.
+    """
+    paths = _write_motion_feature_pair(tmp_path)
+    with pytest.raises(ValueError, match="raw feature schema"):
+        PairedArchitectureReport(*paths, "architecture").build()
+
+
+@pytest.mark.parametrize("extra_change", [False, True])
+def test_motion_device_exception_is_explicit_and_rejects_other_changes(
+    tmp_path: Path, extra_change: bool,
+) -> None:
+    """Expose cross-device results without accepting another recipe intervention.
+
+    Args:
+        tmp_path (Path): Isolated completed synthetic studies.
+        extra_change (bool): Whether an additional learning-rate change must fail.
+    """
+    paths = _write_motion_feature_pair(tmp_path)
+    summary = json.loads(paths[1].read_text())
+    for result in summary["results"]:
+        path = Path(result["metrics_path"])
+        metrics = json.loads(path.read_text())
+        metrics["config"]["device"] = "mps"
+        metrics["device"] = "mps"
+        if extra_change:
+            metrics["config"]["learning_rate"] *= 2
+        path.write_text(json.dumps(metrics))
+        result["metrics_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    paths[1].write_text(json.dumps(summary))
+    with pytest.raises(ValueError):
+        PairedArchitectureReport(*paths, "motion_features").build()
+
+    reporter = PairedArchitectureReport(*paths, "motion_features", allow_device_mismatch=True)
+    if extra_change:
+        with pytest.raises(ValueError, match="base recipe"):
+            reporter.build()
+    else:
+        report = reporter.build()
+        assert report["device_comparison"]["status"] == "exploratory_device_mismatch"
+        assert len(report["device_comparison"]["mismatched_folds"]) == 2
+        assert "cannot isolate" in report["device_comparison"]["interpretation"]
+
+
+def test_device_exception_is_not_available_for_other_policies(tmp_path: Path) -> None:
+    """Keep legacy paired comparisons strict about execution devices.
+
+    Args:
+        tmp_path (Path): Isolated summary paths.
+    """
+    with pytest.raises(ValueError, match="motion_features"):
+        PairedArchitectureReport(tmp_path / "left", tmp_path / "right",
+                                 allow_device_mismatch=True)

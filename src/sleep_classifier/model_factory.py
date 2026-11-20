@@ -5,6 +5,11 @@ from torch import nn
 
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.gru_model import CausalGRUClassifier
+from sleep_classifier.motion_feature_input import (
+    MOTION_DEFINITION,
+    MOTION_FEATURE,
+    MotionFeatureInput,
+)
 from sleep_classifier.window_feature_settings import WindowFeatureSettings
 
 
@@ -19,6 +24,7 @@ class ModelFactory:
         """
         self.settings = settings
         self.model_type = settings.get("model_type", "gru")
+        self.motion_features = self._motion_definition(settings.get("motion_features"))
         self.window_features = WindowFeatureSettings(settings.get("window_features"))
         if self.window_features.enabled:
             self.window_features.validate_context(settings.get("context_epochs", 10))
@@ -48,6 +54,25 @@ class ModelFactory:
                 if patch_size > settings.get("context_epochs", 10):
                     raise ValueError("patch_size must not exceed context_epochs")
                 self.architecture["patch_size"] = patch_size
+
+
+    @staticmethod
+    def _motion_definition(values: dict[str, Any] | None) -> dict[str, Any] | None:
+        """Validate source settings or the self-contained checkpoint feature definition.
+
+        Args:
+            values (dict[str, Any] | None): Training source or saved feature semantics.
+        """
+        if values is None:
+            return None
+        if isinstance(values, dict) and set(values) == set(MOTION_DEFINITION):
+            if values != MOTION_DEFINITION or any(
+                isinstance(values[key], bool) for key in ("step_seconds", "max_sample_age_seconds")
+            ):
+                raise ValueError("Motion checkpoint definition differs from the declared feature")
+        else:
+            MotionFeatureInput.validate_settings(values)
+        return dict(MOTION_DEFINITION)
 
 
     @staticmethod
@@ -107,9 +132,16 @@ class ModelFactory:
         self._positive_integer("num_classes", num_classes)
 
         arguments = {"input_size": input_size, "num_classes": num_classes} | self.architecture
+        expected = len(FEATURE_COLUMNS) + int(self.motion_features is not None)
+        if ((self.window_features.enabled or self.motion_features is not None)
+                and input_size != expected):
+            message = ("Window-local heart rate requires the original six-feature input"
+                       if self.motion_features is None else
+                       "Window-local features require the declared raw input channel count")
+            raise ValueError(message)
+        if self.motion_features is not None:
+            arguments["motion_features"] = dict(self.motion_features)
         if self.window_features.enabled:
-            if input_size != len(FEATURE_COLUMNS):
-                raise ValueError("Window-local heart rate requires the original six-feature input")
             arguments["window_features"] = dict(self.window_features.values)
         return arguments
 
@@ -135,6 +167,7 @@ class ModelFactory:
             window_feature_state (dict[str, Any] | None): Training-fitted transform normalization.
         """
         arguments = self.checkpoint_config(input_size, num_classes)
+        arguments.pop("motion_features", None)
         if not self.window_features.enabled:
             if window_feature_state is not None:
                 raise ValueError("Window feature state requires an enabled window feature recipe")
@@ -145,9 +178,11 @@ class ModelFactory:
         from sleep_classifier.window_feature_model import WindowFeatureClassifier
         from sleep_classifier.window_heart_rate import WindowLocalHeartRate
 
-        transform = WindowLocalHeartRate(self.window_features.values, window_feature_state)
+        transform = WindowLocalHeartRate(
+            self.window_features.values, window_feature_state, input_size=input_size,
+        )
         arguments.pop("window_features")
-        arguments["input_size"] = len(self.model_features(list(FEATURE_COLUMNS)))
+        arguments["input_size"] = input_size + 2
         backbone = self._construct_backbone(arguments)
         return WindowFeatureClassifier(transform, backbone)
 
@@ -182,6 +217,7 @@ class ModelFactory:
         input_size = arguments.pop("input_size")
         num_classes = arguments.pop("num_classes")
         window_features = arguments.pop("window_features", None)
+        motion_features = arguments.pop("motion_features", None)
 
         if model_type == "gru":
             if set(arguments) != {"hidden_size"}:
@@ -205,6 +241,8 @@ class ModelFactory:
         else:
             raise ValueError("Unsupported checkpoint model_type")
 
+        if motion_features is not None:
+            settings["motion_features"] = motion_features
         if window_features is not None:
             settings["window_features"] = window_features
             settings["context_epochs"] = checkpoint["context_epochs"]
@@ -236,13 +274,17 @@ class ModelFactory:
         if "scaler_scale" in checkpoint:
             scales = checkpoint["scaler_scale"]
             index = FEATURE_COLUMNS.index("heart_rate_mean")
-            if (not isinstance(scales, list) or len(scales) != len(FEATURE_COLUMNS)
+            if (not isinstance(scales, list)
+                    or len(scales) != checkpoint["model_config"]["input_size"]
                     or not math.isclose(float(scales[index]), float(state["heart_rate_scale"]),
                                         rel_tol=1e-12, abs_tol=1e-12)):
                 raise ValueError("Stored heart-rate scales disagree")
+        raw_features = list(FEATURE_COLUMNS)
+        if checkpoint["model_config"].get("motion_features") is not None:
+            raw_features.append(MOTION_FEATURE)
         expected = WindowFeatureSettings(
             checkpoint["model_config"]["window_features"]
-        ).model_features(list(FEATURE_COLUMNS))
+        ).model_features(raw_features)
         if "model_features" in checkpoint and checkpoint["model_features"] != expected:
             raise ValueError("Stored effective model features differ from the transform recipe")
 

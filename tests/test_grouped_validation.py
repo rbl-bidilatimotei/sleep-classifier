@@ -469,3 +469,54 @@ def test_training_readiness_checks_prepared_inputs_without_creating_results(
     assert not (experiment.output_dir / "summary.json").exists()
     assert not list(experiment.output_dir.glob("fold-*/results"))
     forbidden.assert_not_called()
+
+
+def test_motion_source_hashes_and_fold_paths_are_frozen(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Hash cached sensor inputs and resolve their source independently of fold directories.
+
+    Args:
+        tmp_path (Path): Isolated synthetic grouped study.
+        monkeypatch (pytest.MonkeyPatch): Scoped audit settings replacement.
+    """
+    from types import SimpleNamespace
+
+    path = _configuration(tmp_path)
+    model_path = tmp_path / "gru.yaml"
+    model = yaml.safe_load(model_path.read_text())
+    model["motion_features"] = {"name": "fixed_lag_motion", "audit_config": "audit.yaml"}
+    model_path.write_text(yaml.safe_dump(model))
+    audit_path = tmp_path / "audit.yaml"
+    audit_path.write_text("synthetic audit config")
+    snapshot = tmp_path / "snapshot"
+    snapshot.mkdir()
+    for name in ("manifest.json", "rows.csv", "summary.json"):
+        (snapshot / name).write_text("synthetic immutable source")
+    monkeypatch.setattr("sleep_classifier.grouped_validation.AuditSettings",
+                        Mock(return_value=SimpleNamespace(output_dir=snapshot)))
+    experiment = GroupedValidationExperiment(path)
+    experiment.prepare()
+    manifest = json.loads((experiment.output_dir / "manifest.json").read_text())
+
+    assert set(key for key in manifest["source_hashes"] if key.startswith("motion/")) == {
+        "motion/audit_config", "motion/manifest", "motion/rows.csv", "motion/summary.json",
+    }
+    for fold in manifest["plan"]["folds"]:
+        recipe = yaml.safe_load((experiment.output_dir / fold["name"] / "gru.yaml").read_text())
+        assert recipe["motion_features"]["audit_config"] == str(audit_path.resolve())
+    (snapshot / "rows.csv").write_text("changed source")
+    with pytest.raises(ValueError, match="changed after preparation"):
+        experiment.validate_training_start()
+
+
+def test_training_start_rejects_prepared_device_mismatch(tmp_path: Path) -> None:
+    """Reject a frozen CPU study when its paired reference requires MPS.
+
+    Args:
+        tmp_path (Path): Isolated prepared synthetic study.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    experiment.prepare()
+    with pytest.raises(ValueError, match="Prepared device cpu differs from reference device mps"):
+        experiment.validate_training_start(expected_device="mps")

@@ -12,7 +12,10 @@ from sleep_classifier.features import FEATURE_COLUMNS
 class CausalSequenceDataset(Dataset):
     """Create causal, participant-local windows from eligible scored epochs."""
 
-    def __init__(self, frame: pd.DataFrame, scaler, context_epochs: int = 10) -> None:
+    def __init__(
+        self, frame: pd.DataFrame, scaler, context_epochs: int = 10,
+        feature_columns: tuple[str, ...] = FEATURE_COLUMNS,
+    ) -> None:
         """Validate rows and scale each retained history window.
 
         Args:
@@ -20,6 +23,7 @@ class CausalSequenceDataset(Dataset):
             scaler (StandardScaler): Training-fitted feature scaler.
             context_epochs (int, optional): The number of context epochs to include in each sample.
                 Defaults to 10.
+            feature_columns (tuple[str, ...]): Ordered raw input columns for this recipe.
 
         Raises:
             ValueError: If any validation checks fail.
@@ -31,13 +35,18 @@ class CausalSequenceDataset(Dataset):
         ):
             raise ValueError("context_epochs must be a positive integer")
         self.context_epochs = context_epochs
+        if (not isinstance(feature_columns, tuple) or not feature_columns
+                or any(not isinstance(name, str) or not name for name in feature_columns)
+                or len(set(feature_columns)) != len(feature_columns)):
+            raise ValueError("feature_columns requires unique nonempty names")
+        self.feature_columns = feature_columns
         self._validate(frame)
 
         ordered = frame.sort_values(["participant_id", "time"], kind="stable").reset_index(
             drop=True
         )
 
-        scaled_features = scaler.transform(ordered.loc[:, FEATURE_COLUMNS])
+        scaled_features = scaler.transform(ordered.loc[:, self.feature_columns])
         self.samples = self._make_samples(ordered, scaled_features)
         self.samples.sort(key=itemgetter("participant_id", "time"))
 
@@ -51,7 +60,7 @@ class CausalSequenceDataset(Dataset):
         Raises:
             ValueError: If any validation checks fail.
         """
-        required = set(FEATURE_COLUMNS) | {
+        required = set(self.feature_columns) | {
             "participant_id",
             "segment_id",
             "time",
@@ -62,7 +71,7 @@ class CausalSequenceDataset(Dataset):
         if missing:
             raise ValueError(f"Frame is missing columns: {sorted(missing)}")
 
-        features = frame.loc[:, FEATURE_COLUMNS].to_numpy(dtype=float)
+        features = frame.loc[:, self.feature_columns].to_numpy(dtype=float)
         times = frame["time"].to_numpy(dtype=float)
         targets = frame["target"].to_numpy(dtype=float)
         segments = frame["segment_id"].to_numpy(dtype=float)

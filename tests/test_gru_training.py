@@ -457,3 +457,51 @@ def test_synthetic_adamw_training_records_effective_optimizer(tmp_path: Path) ->
     assert metrics["optimizer"]["base_optimizer"] == "AdamW"
     assert metrics["optimizer"]["updates"] > 0
     assert [group["weight_decay"] for group in metrics["optimizer"]["param_groups"]] == [0.01, 0.0]
+
+
+def test_motion_input_preserves_base_scaling_and_hr_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Append one sensor channel without changing base scaling or HR normalization.
+
+    Args:
+        tmp_path (Path): Isolated synthetic preparation directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped synthetic motion source replacement.
+    """
+    from unittest.mock import Mock
+
+    from sleep_classifier.model_factory import ModelFactory
+    from sleep_classifier.motion_feature_input import MOTION_FEATURE, MotionFeatureInput
+
+    path = _config(tmp_path)
+    settings = yaml.safe_load(path.read_text())
+    settings["window_features"] = {
+        "name": "heart_rate_deviation", "history_epochs": 1, "min_history_epochs": 1,
+    }
+    path.write_text(yaml.safe_dump(settings))
+    reference = GRUExperiment(path)
+    control = reference._prepare()
+    train = control["dataset"]["partitions"]["train"].assign(**{MOTION_FEATURE: [2.0, 4.0]})
+    validation = control["validation_frame"].assign(**{MOTION_FEATURE: [100.0, 200.0]})
+    metadata = {"imputation_mean": 3.0, "missing_policy": "training_mean"}
+    monkeypatch.setattr(
+        MotionFeatureInput, "prepare", Mock(return_value=(train, validation, metadata)),
+    )
+    settings["motion_features"] = {"name": "fixed_lag_motion", "audit_config": "audit.yaml"}
+    path.write_text(yaml.safe_dump(settings))
+    candidate = GRUExperiment(path)
+    context = candidate._prepare()
+
+    assert context["scaler"].mean_[:6].tolist() == control["scaler"].mean_.tolist()
+    assert context["scaler"].scale_[:6].tolist() == control["scaler"].scale_.tolist()
+    assert context["scaler"].mean_[-1] == 3.0
+    assert candidate.window_feature_state == reference.window_feature_state
+    assert len(context["train_data"]) == len(control["train_data"])
+    checkpoint = candidate._checkpoint_metadata(context["scaler"])
+    checkpoint["state_dict"] = context["model"].state_dict()
+    restored = ModelFactory.from_checkpoint(checkpoint)
+    assert checkpoint["motion_features"] == metadata
+    assert checkpoint["features"][-1] == MOTION_FEATURE
+    sample = context["train_data"][0]["features"].unsqueeze(0)
+    with torch.no_grad():
+        assert restored(sample, torch.tensor([1])).shape == (1, 4)

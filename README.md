@@ -377,3 +377,10 @@ It adds sampling-aware diagnostics and optional support views without training a
 Review cadence, staleness, support, and stage-error overlap before a later feature ablation.
 
 The audit preserves all 22,708 targets; every target has a supported estimate. No model was trained.
+
+Prepared: [fixed-lag motion ablation](docs/fixed-lag-motion-ablation.md) in notebook 36.
+Reuse the full-HR ten-epoch reference; add one sensor channel and keep all other settings fixed.
+Five development folds are prepared. Timo controls training; no candidate performance is available yet.
+
+Reviewed: [fixed-lag motion results](docs/experiments/fixed-lag-motion-2026-11-20/README.md) improve mean fold macro-F1 by 0.00715, with CPU/MPS confounding.
+Keep the full-HR reference. Recommend the same motion candidate on MPS before changing another setting.

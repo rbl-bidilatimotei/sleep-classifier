@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import torch
+import yaml
 from sklearn.preprocessing import StandardScaler
 from torch import nn
 from torch.utils.data import DataLoader
@@ -11,6 +12,7 @@ from torch.utils.data import DataLoader
 from sleep_classifier.baseline import PreparedFeatureDataset
 from sleep_classifier.features import FEATURE_COLUMNS
 from sleep_classifier.model_factory import ModelFactory
+from sleep_classifier.motion_feature_input import MOTION_FEATURE, MotionFeatureInput
 from sleep_classifier.sequences import CausalSequenceDataset, SequenceBatchCollator
 
 
@@ -35,14 +37,18 @@ class CheckpointReplayAudit:
         checkpoint = torch.load(
             self.fold_dir / "results/model_checkpoint.pt", map_location="cpu", weights_only=True,
         )
-        if checkpoint["features"] != list(FEATURE_COLUMNS):
-            raise ValueError("Checkpoint features differ from the prepared feature schema")
+        columns = FEATURE_COLUMNS
+        motion_enabled = checkpoint["model_config"].get("motion_features") is not None
+        if motion_enabled:
+            columns = (*columns, MOTION_FEATURE)
+        if checkpoint["features"] != list(columns):
+            raise ValueError("Checkpoint features differ from the declared feature schema")
         scaler = StandardScaler()
         scaler.mean_ = np.asarray(checkpoint["scaler_mean"], dtype=float)
         scaler.scale_ = np.asarray(checkpoint["scaler_scale"], dtype=float)
-        scaler.n_features_in_ = len(FEATURE_COLUMNS)
-        scaler.feature_names_in_ = np.asarray(FEATURE_COLUMNS, dtype=object)
-        if (scaler.mean_.shape != (len(FEATURE_COLUMNS),)
+        scaler.n_features_in_ = len(columns)
+        scaler.feature_names_in_ = np.asarray(columns, dtype=object)
+        if (scaler.mean_.shape != (len(columns),)
                 or scaler.scale_.shape != scaler.mean_.shape
                 or not np.isfinite(scaler.mean_).all()
                 or not np.isfinite(scaler.scale_).all() or (scaler.scale_ <= 0).any()):
@@ -52,7 +58,16 @@ class CheckpointReplayAudit:
         frame = loaded["partitions"]["validation"].sort_values(
             ["participant_id", "time"], kind="stable",
         ).reset_index(drop=True)
-        data = CausalSequenceDataset(frame, scaler, checkpoint["context_epochs"])
+        if motion_enabled:
+            recipe_path = self.fold_dir / "gru.yaml"
+            recipe = yaml.safe_load(recipe_path.read_text())
+            if "motion_features" not in recipe or "motion_features" not in checkpoint:
+                raise ValueError("Motion replay requires saved source and imputation metadata")
+            frame = MotionFeatureInput(recipe["motion_features"], recipe_path).transform(
+                frame, checkpoint["motion_features"],
+            )
+        data = CausalSequenceDataset(frame, scaler, checkpoint["context_epochs"],
+                                     feature_columns=columns)
         model = ModelFactory.from_checkpoint(checkpoint).to(self.device).eval()
 
         return model, data, frame
