@@ -1,0 +1,279 @@
+{
+  "device_comparison": {
+    "status": "matched",
+    "exception_enabled": false,
+    "mismatched_folds": [],
+    "interpretation": "Reference and candidate used matching execution devices"
+  },
+  "context_epochs": 30,
+  "short_history_epochs": 4,
+  "posthoc": true,
+  "independent_outer_test": false,
+  "definitions": {
+    "history": "Contiguous eligible epochs within each segment, capped at context",
+    "stage_transition": "True stage changes within the same contiguous segment",
+    "interpretation": "History bins are disjoint; transitions overlap; inspect support"
+  },
+  "slices": [
+    {
+      "name": "history_1_4",
+      "targets": 500,
+      "reference": {
+        "accuracy": 0.554,
+        "macro_f1": 0.42799971138923987,
+        "classes": {
+          "wake": {
+            "precision": 0.6818181818181818,
+            "recall": 0.6687898089171974,
+            "f1": 0.6752411575562701,
+            "support": 157
+          },
+          "light": {
+            "precision": 0.5236363636363637,
+            "recall": 0.72,
+            "f1": 0.6063157894736843,
+            "support": 200
+          },
+          "deep": {
+            "precision": 0.2857142857142857,
+            "recall": 0.10526315789473684,
+            "f1": 0.15384615384615385,
+            "support": 19
+          },
+          "REM": {
+            "precision": 0.40625,
+            "recall": 0.20967741935483872,
+            "f1": 0.2765957446808511,
+            "support": 124
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.492,
+        "macro_f1": 0.367691886260351,
+        "classes": {
+          "wake": {
+            "precision": 0.6821192052980133,
+            "recall": 0.6560509554140127,
+            "f1": 0.6688311688311688,
+            "support": 157
+          },
+          "light": {
+            "precision": 0.4574468085106383,
+            "recall": 0.645,
+            "f1": 0.5352697095435685,
+            "support": 200
+          },
+          "deep": {
+            "precision": 0.18181818181818182,
+            "recall": 0.10526315789473684,
+            "f1": 0.13333333333333333,
+            "support": 19
+          },
+          "REM": {
+            "precision": 0.21428571428571427,
+            "recall": 0.0967741935483871,
+            "f1": 0.13333333333333333,
+            "support": 124
+          }
+        }
+      },
+      "macro_f1_difference": -0.06030782512888888
+    },
+    {
+      "name": "history_5_29",
+      "targets": 2074,
+      "reference": {
+        "accuracy": 0.6485053037608486,
+        "macro_f1": 0.5226938385415657,
+        "classes": {
+          "wake": {
+            "precision": 0.6634429400386848,
+            "recall": 0.6191335740072202,
+            "f1": 0.6405228758169934,
+            "support": 554
+          },
+          "light": {
+            "precision": 0.6847058823529412,
+            "recall": 0.7794642857142857,
+            "f1": 0.72901878914405,
+            "support": 1120
+          },
+          "deep": {
+            "precision": 0.4444444444444444,
+            "recall": 0.26666666666666666,
+            "f1": 0.3333333333333333,
+            "support": 75
+          },
+          "REM": {
+            "precision": 0.459915611814346,
+            "recall": 0.3353846153846154,
+            "f1": 0.3879003558718861,
+            "support": 325
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.662970106075217,
+        "macro_f1": 0.5052084683299928,
+        "classes": {
+          "wake": {
+            "precision": 0.666030534351145,
+            "recall": 0.6299638989169675,
+            "f1": 0.647495361781076,
+            "support": 554
+          },
+          "light": {
+            "precision": 0.6780415430267063,
+            "recall": 0.8160714285714286,
+            "f1": 0.7406807131280388,
+            "support": 1120
+          },
+          "deep": {
+            "precision": 0.325,
+            "recall": 0.17333333333333334,
+            "f1": 0.22608695652173913,
+            "support": 75
+          },
+          "REM": {
+            "precision": 0.6111111111111112,
+            "recall": 0.3046153846153846,
+            "f1": 0.406570841889117,
+            "support": 325
+          }
+        }
+      },
+      "macro_f1_difference": -0.017485370211572926
+    },
+    {
+      "name": "history_30",
+      "targets": 20134,
+      "reference": {
+        "accuracy": 0.6546140856263037,
+        "macro_f1": 0.5531845763314777,
+        "classes": {
+          "wake": {
+            "precision": 0.5695142378559463,
+            "recall": 0.28499580888516346,
+            "f1": 0.37988826815642457,
+            "support": 1193
+          },
+          "light": {
+            "precision": 0.6921242885709891,
+            "recall": 0.7821816601477618,
+            "f1": 0.7344024156363488,
+            "support": 11505
+          },
+          "deep": {
+            "precision": 0.5990528808208366,
+            "recall": 0.5018181818181818,
+            "f1": 0.5461413923367512,
+            "support": 3025
+          },
+          "REM": {
+            "precision": 0.580604848787803,
+            "recall": 0.5266379505781003,
+            "f1": 0.5523062291963862,
+            "support": 4411
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.6663852190324824,
+        "macro_f1": 0.5695295751669989,
+        "classes": {
+          "wake": {
+            "precision": 0.6196319018404908,
+            "recall": 0.33864207879295893,
+            "f1": 0.43794037940379404,
+            "support": 1193
+          },
+          "light": {
+            "precision": 0.6946008860854547,
+            "recall": 0.8039982616253802,
+            "f1": 0.7453065828700346,
+            "support": 11505
+          },
+          "deep": {
+            "precision": 0.5759545085296507,
+            "recall": 0.4687603305785124,
+            "f1": 0.5168580280663386,
+            "support": 3025
+          },
+          "REM": {
+            "precision": 0.6332703213610587,
+            "recall": 0.53162548175017,
+            "f1": 0.5780133103278284,
+            "support": 4411
+          }
+        }
+      },
+      "macro_f1_difference": 0.016344998835521207
+    },
+    {
+      "name": "stage_transition",
+      "targets": 1398,
+      "reference": {
+        "accuracy": 0.45779685264663805,
+        "macro_f1": 0.37735637468861233,
+        "classes": {
+          "wake": {
+            "precision": 0.5803108808290155,
+            "recall": 0.28940568475452194,
+            "f1": 0.38620689655172413,
+            "support": 387
+          },
+          "light": {
+            "precision": 0.4941588785046729,
+            "recall": 0.6619718309859155,
+            "f1": 0.565886287625418,
+            "support": 639
+          },
+          "deep": {
+            "precision": 0.40298507462686567,
+            "recall": 0.17763157894736842,
+            "f1": 0.2465753424657534,
+            "support": 152
+          },
+          "REM": {
+            "precision": 0.2765957446808511,
+            "recall": 0.35454545454545455,
+            "f1": 0.3107569721115538,
+            "support": 220
+          }
+        }
+      },
+      "candidate": {
+        "accuracy": 0.48354792560801146,
+        "macro_f1": 0.3975550091742419,
+        "classes": {
+          "wake": {
+            "precision": 0.6085106382978723,
+            "recall": 0.3695090439276486,
+            "f1": 0.45980707395498394,
+            "support": 387
+          },
+          "light": {
+            "precision": 0.5103686635944701,
+            "recall": 0.6932707355242567,
+            "f1": 0.5879230258792303,
+            "support": 639
+          },
+          "deep": {
+            "precision": 0.45454545454545453,
+            "recall": 0.19736842105263158,
+            "f1": 0.27522935779816515,
+            "support": 152
+          },
+          "REM": {
+            "precision": 0.26200873362445415,
+            "recall": 0.2727272727272727,
+            "f1": 0.267260579064588,
+            "support": 220
+          }
+        }
+      },
+      "macro_f1_difference": 0.020198634485629585
+    }
+  ]
+}

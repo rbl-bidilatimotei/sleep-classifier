@@ -1,6 +1,6 @@
 # Replicate the MPS motion effect across training seeds
 
-Status: seeds 43 and 44 are prepared for local training. No new candidate model has been trained.
+Status: all three seed pairs are complete. The primary motion gain repeats across the three MPS training seeds.
 
 ## Question and reused evidence
 
@@ -89,3 +89,11 @@ The same participants and folds repeat; fifteen seed-fold cells are not fifteen 
 Neither a positive seed mean nor the seed deviation establishes final-test performance or a confidence interval.
 Review replication before promoting the motion recipe or changing the architecture, loss, or regularization.
 Timo runs all new training locally. This preparation performs no participant-data optimization.
+
+## Measured findings, 2026-11-20
+
+The [completed replication](experiments/motion-mps-seeds-2026-11-20/README.md) gives mean seed macro-F1 gain +0.00747, with sample deviation 0.00074.
+Wake, Light, and REM pooled F1 improve at every seed. Deep is mixed and declines on average.
+Selected NLL improves at two seeds, but late validation/training separation persists. Partial-history epochs 5–29 decline at every seed.
+Use motion as the working feature reference. Next, compare learning rate 0.0003 with 0.001 on the seed-42 MPS motion recipe.
+Keep all other controls and the final-test reservation fixed.
