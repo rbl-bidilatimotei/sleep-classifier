@@ -137,7 +137,8 @@ class PairedArchitectureReport:
 
         metrics = self._read_json(path)
         expected = FEATURE_COLUMNS
-        if self.comparison == "motion_features" and metrics["config"].get("motion_features"):
+        if (self.comparison in ("motion_features", "learning_rate")
+                and metrics["config"].get("motion_features")):
             expected = (*FEATURE_COLUMNS, "motion_grid_change_mean")
         if tuple(metrics.get("features", [])) != expected:
             raise ValueError("Fold features differ from the declared raw feature schema")
@@ -205,7 +206,11 @@ class PairedArchitectureReport:
         elif any(metrics["config"].get("motion_features") is not None
                  or metrics.get("motion_features") is not None
                  for metrics in (reference, candidate)):
-            raise ValueError("Motion-feature changes require the explicit motion_features policy")
+            if self.comparison != "learning_rate":
+                raise ValueError(
+                    "Motion-feature changes require the explicit motion_features policy"
+                )
+            self._validate_fixed_motion_inputs(reference, candidate)
 
         reference_window = WindowFeatureSettings(reference["config"].get("window_features"))
         candidate_window = WindowFeatureSettings(candidate["config"].get("window_features"))
@@ -337,6 +342,39 @@ class PairedArchitectureReport:
                 or reference["parameter_count"] <= 0
                 or candidate.get("parameter_count") != reference["parameter_count"] + 48):
             raise ValueError("Motion-feature parameter change must equal one added patch channel")
+
+
+    @classmethod
+    def _validate_fixed_motion_inputs(
+        cls, reference: dict[str, Any], candidate: dict[str, Any],
+    ) -> None:
+        """Require identical motion inputs while another supported training setting changes.
+
+        Args:
+            reference (dict[str, Any]): Existing motion recipe with fitted input provenance.
+            candidate (dict[str, Any]): Same motion recipe under a learning-rate intervention.
+        """
+        settings = reference["config"].get("motion_features")
+        if (not isinstance(settings, dict) or set(settings) != {"name", "audit_config"}
+                or settings["name"] != "fixed_lag_motion"
+                or not isinstance(settings["audit_config"], str) or not settings["audit_config"]
+                or candidate["config"].get("motion_features") != settings):
+            raise ValueError("Learning-rate comparison requires identical enabled motion inputs")
+        definition = {"name": "fixed_lag_motion", "step_seconds": 1.0,
+                      "max_sample_age_seconds": 0.2}
+        raw = [*FEATURE_COLUMNS, "motion_grid_change_mean"]
+        derived = [*raw, "heart_rate_delta_past", "heart_history_available"]
+        for metrics in (reference, candidate):
+            constructor = metrics.get("model_config", {})
+            if (metrics.get("features") != raw or metrics.get("model_features") != derived
+                    or constructor.get("input_size") != len(raw)
+                    or constructor.get("motion_features") != definition):
+                raise ValueError("Fixed motion input schema or constructor differs")
+            cls._validate_motion_feature_record(metrics, definition)
+        if reference["motion_features"] != candidate["motion_features"]:
+            raise ValueError("Motion source, support, or fitted imputation changed")
+        if reference.get("window_features") != candidate.get("window_features"):
+            raise ValueError("Fixed motion inputs require identical fitted HR state")
 
 
     @staticmethod
@@ -973,7 +1011,9 @@ class PairedArchitectureReport:
                 device_mismatches.append({"fold": name,
                                           "reference": left["metrics"]["device"],
                                           "candidate": right["metrics"]["device"]})
-            if self.comparison == "motion_features":
+            if (self.comparison == "motion_features"
+                    or (self.comparison == "learning_rate"
+                        and right["metrics"].get("motion_features") is not None)):
                 record = right["metrics"]["motion_features"]
                 source = {key: record[key] for key in (
                     "definition", "audit_config_sha256", "snapshot_manifest_sha256",
@@ -1027,6 +1067,8 @@ class PairedArchitectureReport:
             report["optimization_caveat"] = (
                 "A fixed epoch cap does not compare asymptotic convergence at different rates"
             )
+            if motion_source is not None:
+                report["fixed_motion_inputs"] = motion_source
             if report["validation_scope"] == "selected development folds":
                 report["interpretation"] = (
                     "Targeted post-hoc development subset; not a full-cohort benchmark "

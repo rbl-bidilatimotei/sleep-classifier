@@ -50,7 +50,7 @@ class RecordingNotebookShell:
 @pytest.mark.parametrize("notebook_name", [
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
     "34_hr_history_horizon.ipynb", "36_fixed_lag_motion.ipynb",
-    "37_fixed_lag_motion_mps.ipynb",
+    "37_fixed_lag_motion_mps.ipynb", "39_motion_learning_rate.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,
@@ -84,7 +84,7 @@ def test_training_cell_uses_the_validated_experiment_config(
         "experiment": experiment, "reference_summary": summary,
         "reference": SimpleNamespace(plan=Mock(return_value=plan)),
         "PairedArchitectureReport": Mock(), "logger": Mock(),
-        "reference_manifest": {"device": "cpu"},
+        "reference_manifest": {"device": "cpu"}, "feature_baseline_summary": summary,
     }
     shell = RecordingNotebookShell(namespace)
     namespace["get_ipython"] = Mock(return_value=shell)
@@ -96,7 +96,7 @@ def test_training_cell_uses_the_validated_experiment_config(
     arguments = shlex.split(shell.commands[0])
     invoked_config = Path(arguments[arguments.index("--config") + 1]).resolve()
     assert invoked_config == experiment.config_path
-    if notebook_name.startswith(("36_", "37_")):
+    if notebook_name.startswith(("36_", "37_", "39_")):
         experiment.validate_training_start.assert_called_once_with(expected_device="cpu")
     else:
         experiment.validate_training_start.assert_called_once_with()
@@ -223,11 +223,17 @@ def test_motion_audit_cell_rejects_invalid_cache_without_raw_command(tmp_path: P
     assert shell.commands == []
 
 
-def test_mps_repeat_training_cell_blocks_a_different_prepared_device(tmp_path: Path) -> None:
+@pytest.mark.parametrize("notebook_name", [
+    "37_fixed_lag_motion_mps.ipynb", "39_motion_learning_rate.ipynb",
+])
+def test_mps_repeat_training_cell_blocks_a_different_prepared_device(
+    tmp_path: Path, notebook_name: str,
+) -> None:
     """Stop the actual repeat cell before launching a mismatched prepared study.
 
     Args:
         tmp_path (Path): Synthetic experiment identity.
+        notebook_name (str): Source notebook containing the prepared-device guard.
     """
     experiment = SimpleNamespace(
         config_path=tmp_path / "different-mps.yaml", output_dir=tmp_path / "different-output",
@@ -240,7 +246,7 @@ def test_mps_repeat_training_cell_blocks_a_different_prepared_device(tmp_path: P
     }
     shell = RecordingNotebookShell(namespace)
     namespace["get_ipython"] = Mock(return_value=shell)
-    notebook = json.loads((ROOT / "notebooks/37_fixed_lag_motion_mps.ipynb").read_text())
+    notebook = json.loads((ROOT / "notebooks" / notebook_name).read_text())
     source = next("".join(cell["source"]) for cell in notebook["cells"]
                   if cell["cell_type"] == "code" and "if RUN_TRAINING:" in "".join(cell["source"]))
 
