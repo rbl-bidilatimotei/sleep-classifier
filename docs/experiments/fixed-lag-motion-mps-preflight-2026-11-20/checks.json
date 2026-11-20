@@ -1,0 +1,187 @@
+{
+  "status": "no_gradient_preflight_only",
+  "model_training_performed": false,
+  "test_observations_read": false,
+  "folds": [
+    {
+      "fold": "fold-01",
+      "device": "mps",
+      "parameters": 2900,
+      "train_targets": 18121,
+      "validation_targets": 4587,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "scaler_means_match_cpu_candidate": true,
+      "hr_state_matches_both_saved_recipes": true,
+      "motion_features": {
+        "name": "fixed_lag_motion",
+        "definition": {
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0,
+          "max_sample_age_seconds": 0.2
+        },
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "scaling_fit": "training_targets_only",
+        "missing_policy": "training_mean",
+        "training_observed_targets": 18121,
+        "training_missing_targets": 0,
+        "validation_observed_targets": 4587,
+        "validation_missing_targets": 0,
+        "imputation_mean": 0.012565814368732022
+      }
+    },
+    {
+      "fold": "fold-02",
+      "device": "mps",
+      "parameters": 2900,
+      "train_targets": 18526,
+      "validation_targets": 4182,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "scaler_means_match_cpu_candidate": true,
+      "hr_state_matches_both_saved_recipes": true,
+      "motion_features": {
+        "name": "fixed_lag_motion",
+        "definition": {
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0,
+          "max_sample_age_seconds": 0.2
+        },
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "scaling_fit": "training_targets_only",
+        "missing_policy": "training_mean",
+        "training_observed_targets": 18526,
+        "training_missing_targets": 0,
+        "validation_observed_targets": 4182,
+        "validation_missing_targets": 0,
+        "imputation_mean": 0.013000797964137377
+      }
+    },
+    {
+      "fold": "fold-03",
+      "device": "mps",
+      "parameters": 2900,
+      "train_targets": 17916,
+      "validation_targets": 4792,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "scaler_means_match_cpu_candidate": true,
+      "hr_state_matches_both_saved_recipes": true,
+      "motion_features": {
+        "name": "fixed_lag_motion",
+        "definition": {
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0,
+          "max_sample_age_seconds": 0.2
+        },
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "scaling_fit": "training_targets_only",
+        "missing_policy": "training_mean",
+        "training_observed_targets": 17916,
+        "training_missing_targets": 0,
+        "validation_observed_targets": 4792,
+        "validation_missing_targets": 0,
+        "imputation_mean": 0.013252978641115737
+      }
+    },
+    {
+      "fold": "fold-04",
+      "device": "mps",
+      "parameters": 2900,
+      "train_targets": 18281,
+      "validation_targets": 4427,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "scaler_means_match_cpu_candidate": true,
+      "hr_state_matches_both_saved_recipes": true,
+      "motion_features": {
+        "name": "fixed_lag_motion",
+        "definition": {
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0,
+          "max_sample_age_seconds": 0.2
+        },
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "scaling_fit": "training_targets_only",
+        "missing_policy": "training_mean",
+        "training_observed_targets": 18281,
+        "training_missing_targets": 0,
+        "validation_observed_targets": 4427,
+        "validation_missing_targets": 0,
+        "imputation_mean": 0.01245014653383068
+      }
+    },
+    {
+      "fold": "fold-05",
+      "device": "mps",
+      "parameters": 2900,
+      "train_targets": 17988,
+      "validation_targets": 4720,
+      "raw_input_shape": [
+        64,
+        30,
+        7
+      ],
+      "effective_input_shape": [
+        64,
+        30,
+        9
+      ],
+      "scaler_means_match_cpu_candidate": true,
+      "hr_state_matches_both_saved_recipes": true,
+      "motion_features": {
+        "name": "fixed_lag_motion",
+        "definition": {
+          "name": "fixed_lag_motion",
+          "step_seconds": 1.0,
+          "max_sample_age_seconds": 0.2
+        },
+        "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+        "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+        "scaling_fit": "training_targets_only",
+        "missing_policy": "training_mean",
+        "training_observed_targets": 17988,
+        "training_missing_targets": 0,
+        "validation_observed_targets": 4720,
+        "validation_missing_targets": 0,
+        "imputation_mean": 0.013019034872009
+      }
+    }
+  ]
+}
