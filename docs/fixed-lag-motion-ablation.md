@@ -121,3 +121,11 @@ That guard checks the prepared manifest before any optimization. It does not per
 Keep RUN_TRAINING, RUN_PREPARATION, and RUN_CHECK false to finish this notebook from saved evidence.
 Restart the kernel and run all report cells. The executed HTML already contains the completed report.
 No new training or final-test observations are needed.
+
+## Measured findings, 2026-11-20
+
+The [completed exploratory comparison](experiments/fixed-lag-motion-2026-11-20/README.md) gains mean fold macro-F1 by 0.00715.
+Only folds 02 and 05 improve. All four pooled stage F1 scores increase, while Wake recall decreases.
+Selected pooled NLL worsens by 0.00856; late validation/training separation remains.
+Retain the full-HR reference. Next, repeat the same motion candidate on MPS at seed 42 before another intervention.
+Keep the completed CPU evidence intact. This review prepares no new training run.
