@@ -411,3 +411,7 @@ Prepared: [motion training-budget follow-up](docs/motion-training-budget.md) in 
 Permit eighty epochs at LR0.0003, retaining patience twelve and every other optimization setting.
 Compare the first forty epochs with the full new trajectory. Original notebook-39 weights are unavailable locally.
 Historical findings remain preserved. Five fresh fits remain operator-controlled; the final test stays reserved.
+
+Reviewed: [eighty-epoch budget results](docs/experiments/motion-training-budget-2026-11-23/README.md) partly close the lower-rate gap.
+Mean fold macro-F1 gains 0.00459 against the prefix, but remains below LR0.001. No fold reaches eighty epochs.
+Keep the working LR0.001 recipe. Next, audit chronological inference before another training sweep.

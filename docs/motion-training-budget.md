@@ -74,3 +74,12 @@ After all folds finish, the notebook displays paired fold, participant, pooled, 
 It writes prefix-budget-comparison.json only after all verification checks pass.
 Report-only HTML execution skips preparation, checks, training, and recursive export.
 No candidate scores exist before Timo completes training.
+
+## Measured decision
+
+The [completed comparison](experiments/motion-training-budget-2026-11-23/README.md) gains mean fold macro-F1 by 0.004587 against its own prefix.
+It remains 0.003081 below the LR0.001 working recipe. Three folds improve; two stop before forty epochs.
+All folds exhaust patience before eighty epochs. Later training reduces training NLL while selected-to-final validation NLL rises.
+Keep LR0.001. Pause small tuning changes and audit chronological inference on the saved working checkpoints.
+The prefix search is nested inside the full search, so nonnegative selected macro-F1 changes are guaranteed.
+No independent generalization gain or upper performance limit has been established.
