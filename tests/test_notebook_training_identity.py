@@ -261,3 +261,52 @@ def test_mps_repeat_training_cell_blocks_a_different_prepared_device(
 
     experiment.validate_training_start.assert_called_once_with(expected_device="mps")
     assert not shell.commands
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+@pytest.mark.parametrize("cached", [False, True])
+def test_chronological_audit_cell_binds_its_config_and_preserves_snapshots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool, cached: bool,
+) -> None:
+    """Use the active audit config and inspect cached evidence without another run.
+
+    Args:
+        tmp_path (Path): Isolated audit paths.
+        monkeypatch (pytest.MonkeyPatch): Scoped working-directory replacement.
+        blocked (bool): Whether readiness must reject the source or device.
+        cached (bool): Whether a complete snapshot already exists.
+    """
+    monkeypatch.chdir(tmp_path)
+    output = tmp_path / "different-snapshot"
+    if cached:
+        output.mkdir()
+        (output / "report.json").write_text("{}")
+    study = SimpleNamespace(
+        config_path=tmp_path / "different-audit.yaml", output_dir=output,
+        reference=SimpleNamespace(output_dir=tmp_path / "different-reference"),
+        read_report=Mock(), validate_run_start=Mock(),
+    )
+    if blocked:
+        study.validate_run_start.side_effect = ValueError("Source or device mismatch")
+    namespace = {"ROOT": tmp_path, "RUN_AUDIT": True, "study": study, "logger": Mock()}
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/41_chronological_inference.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_AUDIT:" in "".join(cell["source"]))
+    if blocked and not cached:
+        with pytest.raises(ValueError, match="Source or device mismatch"):
+            exec(TransformerManager().transform_cell(source), namespace)
+        assert shell.commands == []
+    else:
+        exec(TransformerManager().transform_cell(source), namespace)
+        if cached:
+            study.read_report.assert_called_once_with()
+            study.validate_run_start.assert_not_called()
+            assert shell.commands == []
+        else:
+            study.validate_run_start.assert_called_once_with()
+            assert len(shell.commands) == 1
+            arguments = shlex.split(shell.commands[0])
+            assert Path(arguments[arguments.index("--config") + 1]) == study.config_path
+            assert "--run" in arguments and "--train" not in arguments

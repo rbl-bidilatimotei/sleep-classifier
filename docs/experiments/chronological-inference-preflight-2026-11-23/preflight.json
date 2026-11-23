@@ -1,0 +1,56 @@
+{
+  "status": "bounded_preflight_passed",
+  "device": "mps",
+  "fold": "fold-01",
+  "epochs_checked": 31,
+  "stream_vs_offline_max_abs_probability_difference": 1.7881393432617188e-07,
+  "prediction_disagreements": 0,
+  "context_eviction_checked": true,
+  "checkpoint_sha256": "80b8a1f3c42b3ea1c58a82af9234fdae0790d0f4b86c8814ceb13269ac9d535c",
+  "full_audit_performed": false,
+  "training_performed": false,
+  "test_observations_read": false,
+  "reference_plan": {
+    "schema_version": 1,
+    "config_sha256": "6f7eb4e18f19cbc87535322c3b883de1d5a47c32406336a122bfe156a315d80f",
+    "reference_manifest_sha256": "be1a6655783534f15cd4043a1094671147f7674e128205cbecb8a1438f60d6cc",
+    "reference_summary_sha256": "3e13ff44516edb5560968ad49a23bcedfa61be1348438cf7852e8079fef4dd2e",
+    "sources": {
+      "fold-01": {
+        "metrics.json": "9d8f7281926968f23d1cff5ce105a8133cd5fee92112f240f128adddafc3839f",
+        "model_checkpoint.pt": "80b8a1f3c42b3ea1c58a82af9234fdae0790d0f4b86c8814ceb13269ac9d535c",
+        "validation_predictions.csv": "a11244dce559e174d43adf7a64889f8e2d6690fbcc0383132a6c29b8540cab7e"
+      },
+      "fold-02": {
+        "metrics.json": "c98e3222fc1de0481ed22abc678d02d67533d28f3d1ae2b5006e8279ffcfedb3",
+        "model_checkpoint.pt": "e43b638d5f2dc73bcbe3e698a529570a834e35dc9bc9e3a67632146434f529c1",
+        "validation_predictions.csv": "450ad033af22620dcfd69509ae6ceca660c71830baa413cea3659f1d9ded2f63"
+      },
+      "fold-03": {
+        "metrics.json": "224b7f497cb9945d9eed7b0c6d85c17ef4f51e1c67077090117c1daf23efa609",
+        "model_checkpoint.pt": "5233005b24c65ab60bb94e30a82ba0c1174ae5e163ff76c99996f8d50342f2b4",
+        "validation_predictions.csv": "6edccf446ceee200d4cd074dc5e2cfc8ced048efc65971d0478b42dcab066719"
+      },
+      "fold-04": {
+        "metrics.json": "7f3225dae147eb0cb3c23634540059c61d1f97c0299de6944c34273e26f57e5e",
+        "model_checkpoint.pt": "f27100131a4fddb62f1caaf9e4c38fd8bd5dc4bc71b1992b6176258795463aa9",
+        "validation_predictions.csv": "7d443c9bd4f80ccd491b4ec9366027b517bdfcf5dd7abead089f737b8dec2aaf"
+      },
+      "fold-05": {
+        "metrics.json": "fdc41d93994d0225166ed8ae70e038ef9282c209c1e5d05909eafdba6ae5cde5",
+        "model_checkpoint.pt": "f7fbb514e9f4ce9d8a1b1a501e6f5b98820fb1c59e2580d3ee826629849f8a8b",
+        "validation_predictions.csv": "63a20b53b201d825053bd90b4535d0832526b5847411e1f288aa6b881c47a671"
+      }
+    },
+    "device": "mps",
+    "folds": [
+      "fold-01",
+      "fold-02",
+      "fold-03",
+      "fold-04",
+      "fold-05"
+    ],
+    "development_participants": 26,
+    "reserved_test_participants": 3
+  }
+}

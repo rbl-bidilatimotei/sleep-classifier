@@ -186,3 +186,8 @@ Historical findings remain preserved. Five fresh fits remain operator-controlled
 Reviewed: [eighty-epoch budget results](experiments/motion-training-budget-2026-11-23/README.md) partly close the lower-rate gap.
 Mean fold macro-F1 gains 0.00459 against the prefix, but remains below LR0.001. No fold reaches eighty epochs.
 Keep the working LR0.001 recipe. Next, audit chronological inference before another training sweep.
+
+Prepared: [chronological inference audit](chronological-inference.md) in notebook 41.
+Replay the frozen LR0.001 motion checkpoints one completed epoch at a time and compare offline probabilities.
+The full audit remains opt-in. A bounded MPS preflight passed; no new model training is needed.
+After parity, consolidate the model card and inference contract before another model sweep.
