@@ -419,3 +419,7 @@ Keep the working LR0.001 recipe. Next, audit chronological inference before anot
 Prepared: [chronological inference audit](docs/chronological-inference.md) in notebook 41.
 Replay the frozen LR0.001 motion checkpoints one completed epoch at a time and compare offline probabilities.
 The full audit remains opt-in. A bounded MPS preflight passed; no new model training is needed.
+
+Reviewed: [chronological inference results](docs/experiments/chronological-inference-2026-11-23/README.md) pass across all 22,708 development validation epochs.
+The largest probability difference is 8.94e-7, with zero class disagreements and matched history/reset behavior.
+Next, consolidate the model card and inference-bundle contract before raw-sensor integration or another training sweep.

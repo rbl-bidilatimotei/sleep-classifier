@@ -86,3 +86,15 @@ If parity fails, inspect the mismatched epochs before changing architecture or n
 If parity passes, consolidate the model card, inference contract, and measured limitations.
 Use a new modeling hypothesis before reopening training. Reserve the final test for an explicitly frozen model-selection decision.
 Docker, FastAPI, and CI remain later engineering milestones; this PR adds no service or deployment pipeline.
+
+## Completed audit: 2026-11-23
+
+The [full audit](experiments/chronological-inference-2026-11-23/README.md) passed on all five folds and 22,708 development validation epochs.
+The maximum probability difference is 8.94e-7, below 2e-6. There are zero class disagreements.
+Offline probabilities match the saved validation probabilities exactly. All histories and reset events match the prepared segmentation.
+Weights and buffers remain unchanged; no gradients or training occurred.
+Keep RUN_AUDIT false for report inspection. Existing snapshots are verified and reused rather than overwritten.
+
+The next work chunk should consolidate the model card and versioned inference-bundle contract.
+Specify the feature semantics, availability, missing-data rules, saved transforms, reset behavior, and model identity before adding a service.
+Raw-sensor adapter parity remains a separate later audit. Keep all final-test observations reserved.

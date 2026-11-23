@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "source_guard": "current hashes match cached snapshot",
+  "training_performed": false,
+  "test_observations_read": false,
+  "folds": [
+    {
+      "fold": "fold-01",
+      "independent_csv_check": "passed",
+      "epochs": 4587,
+      "stream_vs_saved_max_abs_probability_difference": 7.450580596923828e-07,
+      "prediction_disagreements": 0,
+      "history_and_resets_recomputed": true
+    },
+    {
+      "fold": "fold-02",
+      "independent_csv_check": "passed",
+      "epochs": 4182,
+      "stream_vs_saved_max_abs_probability_difference": 8.940696716308594e-07,
+      "prediction_disagreements": 0,
+      "history_and_resets_recomputed": true
+    },
+    {
+      "fold": "fold-03",
+      "independent_csv_check": "passed",
+      "epochs": 4792,
+      "stream_vs_saved_max_abs_probability_difference": 4.76837158203125e-07,
+      "prediction_disagreements": 0,
+      "history_and_resets_recomputed": true
+    },
+    {
+      "fold": "fold-04",
+      "independent_csv_check": "passed",
+      "epochs": 4427,
+      "stream_vs_saved_max_abs_probability_difference": 8.940696716308594e-07,
+      "prediction_disagreements": 0,
+      "history_and_resets_recomputed": true
+    },
+    {
+      "fold": "fold-05",
+      "independent_csv_check": "passed",
+      "epochs": 4720,
+      "stream_vs_saved_max_abs_probability_difference": 6.556510925292969e-07,
+      "prediction_disagreements": 0,
+      "history_and_resets_recomputed": true
+    }
+  ]
+}

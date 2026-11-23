@@ -191,3 +191,8 @@ Prepared: [chronological inference audit](chronological-inference.md) in noteboo
 Replay the frozen LR0.001 motion checkpoints one completed epoch at a time and compare offline probabilities.
 The full audit remains opt-in. A bounded MPS preflight passed; no new model training is needed.
 After parity, consolidate the model card and inference contract before another model sweep.
+
+Reviewed: [chronological inference results](experiments/chronological-inference-2026-11-23/README.md) pass across all 22,708 development validation epochs.
+The largest probability difference is 8.94e-7, with zero class disagreements and matched history/reset behavior.
+Next, consolidate the model card and versioned inference-bundle contract, including measured limitations and compatibility requirements.
+Follow with raw-sensor adapter parity before deployment components. No new training or final-test reads are needed for the next contract milestone.
