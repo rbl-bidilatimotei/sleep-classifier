@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sleep-classifier:epoch-request:1.0.0",
+  "title": "Label-free completed-epoch input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "participant_id",
+    "segment_id",
+    "time",
+    "features"
+  ],
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "segment_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "time": {
+      "type": "number"
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "heart_rate_mean",
+        "heart_rate_std",
+        "heart_rate_min",
+        "heart_rate_max",
+        "motion_magnitude_mean",
+        "motion_magnitude_std",
+        "motion_grid_change_mean"
+      ],
+      "properties": {
+        "heart_rate_mean": {
+          "type": "number"
+        },
+        "heart_rate_std": {
+          "type": "number"
+        },
+        "heart_rate_min": {
+          "type": "number"
+        },
+        "heart_rate_max": {
+          "type": "number"
+        },
+        "motion_magnitude_mean": {
+          "type": "number"
+        },
+        "motion_magnitude_std": {
+          "type": "number"
+        },
+        "motion_grid_change_mean": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

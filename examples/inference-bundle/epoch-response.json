@@ -1,0 +1,13 @@
+{
+  "participant_id": "example-participant",
+  "time": 0.0,
+  "prediction": 1,
+  "probabilities": [
+    0.1,
+    0.6,
+    0.2,
+    0.1
+  ],
+  "history_epochs": 1,
+  "reset_reason": null
+}

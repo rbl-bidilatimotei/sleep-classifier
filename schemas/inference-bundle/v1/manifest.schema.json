@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sleep-classifier:inference-bundle:1.0.0",
+  "title": "Prepared-epoch research inference bundle v1",
+  "description": "Contract for evaluation-fold artifacts of the current fixed-lag motion reference; schema validation does not verify file bytes or model state.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "feature_contract_version",
+    "bundle_id",
+    "artifact_role",
+    "files",
+    "model",
+    "runtime",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "feature_contract_version": {
+      "const": "1.0.0"
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+      "not": {
+        "pattern": "[^A-Za-z0-9._-]"
+      }
+    },
+    "artifact_role": {
+      "const": "evaluation_fold"
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint",
+        "model_card",
+        "environment_lock"
+      ],
+      "properties": {
+        "checkpoint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "checkpoint.pt"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            }
+          }
+        },
+        "model_card": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "MODEL_CARD.md"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            }
+          }
+        },
+        "environment_lock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "uv.lock"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            }
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_type",
+        "context_epochs",
+        "parameter_count",
+        "raw_features",
+        "effective_features",
+        "class_names"
+      ],
+      "properties": {
+        "model_type": {
+          "const": "patch_transformer"
+        },
+        "context_epochs": {
+          "const": 30
+        },
+        "parameter_count": {
+          "const": 2900
+        },
+        "raw_features": {
+          "const": [
+            "heart_rate_mean",
+            "heart_rate_std",
+            "heart_rate_min",
+            "heart_rate_max",
+            "motion_magnitude_mean",
+            "motion_magnitude_std",
+            "motion_grid_change_mean"
+          ]
+        },
+        "effective_features": {
+          "const": [
+            "heart_rate_mean",
+            "heart_rate_std",
+            "heart_rate_min",
+            "heart_rate_max",
+            "motion_magnitude_mean",
+            "motion_magnitude_std",
+            "motion_grid_change_mean",
+            "heart_rate_delta_past",
+            "heart_history_available"
+          ]
+        },
+        "class_names": {
+          "const": [
+            "wake",
+            "light",
+            "deep",
+            "REM"
+          ]
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "python_requires",
+        "project_version",
+        "source_revision",
+        "validated_device"
+      ],
+      "properties": {
+        "python_requires": {
+          "const": ">=3.11,<3.13"
+        },
+        "project_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "minLength": 40,
+          "maxLength": 40
+        },
+        "validated_device": {
+          "const": "mps"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fold_id",
+        "training_seed",
+        "grouped_manifest_sha256",
+        "metrics_sha256",
+        "final_test_used",
+        "source_checkpoint_sha256"
+      ],
+      "properties": {
+        "fold_id": {
+          "type": "string",
+          "pattern": "^fold-0[1-5]$",
+          "minLength": 7,
+          "maxLength": 7
+        },
+        "training_seed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "grouped_manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "metrics_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "final_test_used": {
+          "const": false
+        },
+        "source_checkpoint_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "feature_contract_version": "1.0.0",
+  "bundle_id": "documentation-example-motion-seed-42-fold-01",
+  "artifact_role": "evaluation_fold",
+  "files": {
+    "checkpoint": {
+      "path": "checkpoint.pt",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "model_card": {
+      "path": "MODEL_CARD.md",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "environment_lock": {
+      "path": "uv.lock",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "model": {
+    "model_type": "patch_transformer",
+    "context_epochs": 30,
+    "parameter_count": 2900,
+    "raw_features": [
+      "heart_rate_mean",
+      "heart_rate_std",
+      "heart_rate_min",
+      "heart_rate_max",
+      "motion_magnitude_mean",
+      "motion_magnitude_std",
+      "motion_grid_change_mean"
+    ],
+    "effective_features": [
+      "heart_rate_mean",
+      "heart_rate_std",
+      "heart_rate_min",
+      "heart_rate_max",
+      "motion_magnitude_mean",
+      "motion_magnitude_std",
+      "motion_grid_change_mean",
+      "heart_rate_delta_past",
+      "heart_history_available"
+    ],
+    "class_names": [
+      "wake",
+      "light",
+      "deep",
+      "REM"
+    ]
+  },
+  "runtime": {
+    "python_requires": ">=3.11,<3.13",
+    "project_version": "0.1.0",
+    "source_revision": "f993ef8f91d8cb7790e035df18bcc41bd076d70f",
+    "validated_device": "mps"
+  },
+  "provenance": {
+    "fold_id": "fold-01",
+    "training_seed": 42,
+    "grouped_manifest_sha256": "be1a6655783534f15cd4043a1094671147f7674e128205cbecb8a1438f60d6cc",
+    "metrics_sha256": "9d8f7281926968f23d1cff5ce105a8133cd5fee92112f240f128adddafc3839f",
+    "source_checkpoint_sha256": "80b8a1f3c42b3ea1c58a82af9234fdae0790d0f4b86c8814ceb13269ac9d535c",
+    "final_test_used": false
+  }
+}
