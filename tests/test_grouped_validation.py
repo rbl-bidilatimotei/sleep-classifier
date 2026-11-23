@@ -520,3 +520,42 @@ def test_training_start_rejects_prepared_device_mismatch(tmp_path: Path) -> None
     experiment.prepare()
     with pytest.raises(ValueError, match="Prepared device cpu differs from reference device mps"):
         experiment.validate_training_start(expected_device="mps")
+
+
+@pytest.mark.parametrize("state", ["absent", "empty", "partial"])
+def test_missing_manifest_explains_preparation_without_modifying_output(
+    tmp_path: Path, state: str,
+) -> None:
+    """Explain missing preparation and preserve any partial evidence.
+
+    Args:
+        tmp_path (Path): Synthetic configuration directory.
+        state (str): Existing output state without a manifest.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    if state != "absent":
+        experiment.output_dir.mkdir()
+    if state == "partial":
+        (experiment.output_dir / "keep.txt").write_text("preserve")
+    with pytest.raises(FileNotFoundError, match="Preparation must finish before training"):
+        experiment.validate_training_start()
+    if state == "partial":
+        assert (experiment.output_dir / "keep.txt").read_text() == "preserve"
+    assert not (experiment.output_dir / "manifest.json").exists()
+
+
+def test_unavailable_device_does_not_create_preparation_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Resolve the required device before creating an incomplete output directory.
+
+    Args:
+        tmp_path (Path): Synthetic experiment directory.
+        monkeypatch (pytest.MonkeyPatch): Scoped device validation replacement.
+    """
+    experiment = GroupedValidationExperiment(_configuration(tmp_path))
+    monkeypatch.setattr("sleep_classifier.grouped_validation.TrainingConfig.device",
+                        Mock(side_effect=RuntimeError("MPS unavailable")))
+    with pytest.raises(RuntimeError, match="MPS unavailable"):
+        experiment.prepare()
+    assert not experiment.output_dir.exists()

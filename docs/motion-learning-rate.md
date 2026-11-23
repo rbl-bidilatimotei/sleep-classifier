@@ -89,3 +89,11 @@ Light gains recall and a little F1, while Wake, Deep, and REM F1 decline. Select
 Three candidate folds reach the cap and select epoch 40 or 39. Keep LR0.001 as the working rate.
 Recommend a separate eighty-epoch LR0.0003 budget comparison with patience twelve unchanged. No new run is prepared here.
 For completed reporting, keep all execution switches false and restart the kernel.
+
+## Local availability update: 2026-11-23
+
+The candidate output directory is now empty in this checkout; the reason is unknown.
+The archived findings and historical executed HTML remain preserved. Trained checkpoints have not been recovered.
+The earlier preparation instructions describe the original run, not the current local artifact state.
+Setting RUN_TRAINING false did not prepare folds or remove results.
+Use [notebook 40's separate budget study](motion-training-budget.md) for the agreed eighty-epoch follow-up.
