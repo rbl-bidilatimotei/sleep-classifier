@@ -222,3 +222,10 @@ Keep all other settings fixed and the final test reserved. Training remains oper
 Reviewed: [MPS motion seed results](experiments/motion-mps-seeds-2026-11-20/README.md) improve primary macro-F1 at all three seeds.
 Use motion as the working feature reference. Deep remains mixed, and partial-history performance declines.
 Next: test a lower constant learning rate at seed 42, keeping the motion recipe and other controls fixed.
+
+Prepared: [motion learning-rate comparison](motion-learning-rate.md) in notebook 39.
+Compare 0.0003 with the completed seed-42 MPS motion reference at 0.001.
+Keep the forty-epoch cap and all other controls fixed. Five new fits remain operator-controlled.
+
+Reviewed: [lower-rate motion results](experiments/motion-learning-rate-2026-11-20/README.md) lose primary macro-F1 within forty epochs.
+Keep LR0.001. Recommend a separate longer-budget test of LR0.0003 because three folds reach the cap.
