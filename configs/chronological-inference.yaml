@@ -1,0 +1,4 @@
+reference_grouped_config: fixed-lag-motion-mps-grouped.yaml
+output_dir: ../artifacts/chronological-inference
+device: mps
+absolute_tolerance: 0.000002
