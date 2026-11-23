@@ -1,0 +1,704 @@
+{
+  "status": "preflight_only",
+  "training_performed": false,
+  "test_observations_read": false,
+  "manifest_sha256": "33b0d993dc47d75a256659db8a58b50e3e63c589b0968b806ad5d55b3b82f7d6",
+  "prefix_report_status": "prepared",
+  "folds": [
+    {
+      "fold": "fold-01",
+      "result": {
+        "model_type": "patch_transformer",
+        "train_rows": 18121,
+        "validation_rows": 4587,
+        "train_sequences": 18121,
+        "validation_sequences": 4587,
+        "input_shape": [
+          64,
+          30,
+          7
+        ],
+        "logit_shape": [
+          64,
+          4
+        ],
+        "scaler_mean": [
+          63.868176490838046,
+          1.3122207541346536,
+          62.26770045803212,
+          65.65752441918217,
+          0.9984439731639332,
+          0.004800749438304523,
+          0.012565814368732022
+        ],
+        "device": "mps",
+        "parameter_count": 2900,
+        "loss": {
+          "training": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          },
+          "evaluation": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          }
+        },
+        "optimizer": {
+          "settings": {
+            "name": "adam",
+            "weight_decay": 0.0,
+            "exclude_bias_and_norm": false
+          },
+          "param_groups": [
+            {
+              "name": "all",
+              "weight_decay": 0.0,
+              "parameter_names": [
+                "backbone.backbone.input_projection.weight",
+                "backbone.backbone.input_projection.bias",
+                "backbone.backbone.position_embedding.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_bias",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.bias",
+                "backbone.backbone.encoder.layers.0.linear1.weight",
+                "backbone.backbone.encoder.layers.0.linear1.bias",
+                "backbone.backbone.encoder.layers.0.linear2.weight",
+                "backbone.backbone.encoder.layers.0.linear2.bias",
+                "backbone.backbone.encoder.layers.0.norm1.weight",
+                "backbone.backbone.encoder.layers.0.norm1.bias",
+                "backbone.backbone.encoder.layers.0.norm2.weight",
+                "backbone.backbone.encoder.layers.0.norm2.bias",
+                "backbone.backbone.classifier.weight",
+                "backbone.backbone.classifier.bias"
+              ],
+              "parameter_count": 2900
+            }
+          ]
+        },
+        "window_features": {
+          "settings": {
+            "name": "heart_rate_deviation",
+            "history_epochs": 10,
+            "min_history_epochs": 4
+          },
+          "scaling": {
+            "schema_version": 1,
+            "heart_rate_scale": 9.171421252335701,
+            "delta_mean": 0.0328947787321988,
+            "delta_scale": 3.74899704939008,
+            "available_training_targets": 17707,
+            "scaling_fit": "training_targets_only"
+          }
+        },
+        "window_feature_state": {
+          "schema_version": 1,
+          "heart_rate_scale": 9.171421252335701,
+          "delta_mean": 0.0328947787321988,
+          "delta_scale": 3.74899704939008,
+          "available_training_targets": 17707,
+          "scaling_fit": "training_targets_only"
+        },
+        "model_features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean",
+          "heart_rate_delta_past",
+          "heart_history_available"
+        ],
+        "effective_input_shape": [
+          64,
+          30,
+          9
+        ],
+        "motion_features": {
+          "name": "fixed_lag_motion",
+          "definition": {
+            "name": "fixed_lag_motion",
+            "step_seconds": 1.0,
+            "max_sample_age_seconds": 0.2
+          },
+          "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+          "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+          "scaling_fit": "training_targets_only",
+          "missing_policy": "training_mean",
+          "training_observed_targets": 18121,
+          "training_missing_targets": 0,
+          "validation_observed_targets": 4587,
+          "validation_missing_targets": 0,
+          "imputation_mean": 0.012565814368732022
+        },
+        "features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean"
+        ]
+      },
+      "working_mps_reference_input_state_matches": true
+    },
+    {
+      "fold": "fold-02",
+      "result": {
+        "model_type": "patch_transformer",
+        "train_rows": 18526,
+        "validation_rows": 4182,
+        "train_sequences": 18526,
+        "validation_sequences": 4182,
+        "input_shape": [
+          64,
+          30,
+          7
+        ],
+        "logit_shape": [
+          64,
+          4
+        ],
+        "scaler_mean": [
+          62.434540645579176,
+          1.3233864632645909,
+          60.83336931879521,
+          64.2479218395768,
+          0.9977204474590343,
+          0.0049916046987266965,
+          0.013000797964137377
+        ],
+        "device": "mps",
+        "parameter_count": 2900,
+        "loss": {
+          "training": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          },
+          "evaluation": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          }
+        },
+        "optimizer": {
+          "settings": {
+            "name": "adam",
+            "weight_decay": 0.0,
+            "exclude_bias_and_norm": false
+          },
+          "param_groups": [
+            {
+              "name": "all",
+              "weight_decay": 0.0,
+              "parameter_names": [
+                "backbone.backbone.input_projection.weight",
+                "backbone.backbone.input_projection.bias",
+                "backbone.backbone.position_embedding.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_bias",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.bias",
+                "backbone.backbone.encoder.layers.0.linear1.weight",
+                "backbone.backbone.encoder.layers.0.linear1.bias",
+                "backbone.backbone.encoder.layers.0.linear2.weight",
+                "backbone.backbone.encoder.layers.0.linear2.bias",
+                "backbone.backbone.encoder.layers.0.norm1.weight",
+                "backbone.backbone.encoder.layers.0.norm1.bias",
+                "backbone.backbone.encoder.layers.0.norm2.weight",
+                "backbone.backbone.encoder.layers.0.norm2.bias",
+                "backbone.backbone.classifier.weight",
+                "backbone.backbone.classifier.bias"
+              ],
+              "parameter_count": 2900
+            }
+          ]
+        },
+        "window_features": {
+          "settings": {
+            "name": "heart_rate_deviation",
+            "history_epochs": 10,
+            "min_history_epochs": 4
+          },
+          "scaling": {
+            "schema_version": 1,
+            "heart_rate_scale": 9.12557526467332,
+            "delta_mean": 0.012613035541156972,
+            "delta_scale": 3.7221187922834065,
+            "available_training_targets": 18242,
+            "scaling_fit": "training_targets_only"
+          }
+        },
+        "window_feature_state": {
+          "schema_version": 1,
+          "heart_rate_scale": 9.12557526467332,
+          "delta_mean": 0.012613035541156972,
+          "delta_scale": 3.7221187922834065,
+          "available_training_targets": 18242,
+          "scaling_fit": "training_targets_only"
+        },
+        "model_features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean",
+          "heart_rate_delta_past",
+          "heart_history_available"
+        ],
+        "effective_input_shape": [
+          64,
+          30,
+          9
+        ],
+        "motion_features": {
+          "name": "fixed_lag_motion",
+          "definition": {
+            "name": "fixed_lag_motion",
+            "step_seconds": 1.0,
+            "max_sample_age_seconds": 0.2
+          },
+          "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+          "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+          "scaling_fit": "training_targets_only",
+          "missing_policy": "training_mean",
+          "training_observed_targets": 18526,
+          "training_missing_targets": 0,
+          "validation_observed_targets": 4182,
+          "validation_missing_targets": 0,
+          "imputation_mean": 0.013000797964137377
+        },
+        "features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean"
+        ]
+      },
+      "working_mps_reference_input_state_matches": true
+    },
+    {
+      "fold": "fold-03",
+      "result": {
+        "model_type": "patch_transformer",
+        "train_rows": 17916,
+        "validation_rows": 4792,
+        "train_sequences": 17916,
+        "validation_sequences": 4792,
+        "input_shape": [
+          64,
+          30,
+          7
+        ],
+        "logit_shape": [
+          64,
+          4
+        ],
+        "scaler_mean": [
+          62.09815993153234,
+          1.3118314468712946,
+          60.51060504576915,
+          63.89378209421746,
+          0.998054048981371,
+          0.004981502095486453,
+          0.013252978641115737
+        ],
+        "device": "mps",
+        "parameter_count": 2900,
+        "loss": {
+          "training": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          },
+          "evaluation": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          }
+        },
+        "optimizer": {
+          "settings": {
+            "name": "adam",
+            "weight_decay": 0.0,
+            "exclude_bias_and_norm": false
+          },
+          "param_groups": [
+            {
+              "name": "all",
+              "weight_decay": 0.0,
+              "parameter_names": [
+                "backbone.backbone.input_projection.weight",
+                "backbone.backbone.input_projection.bias",
+                "backbone.backbone.position_embedding.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_bias",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.bias",
+                "backbone.backbone.encoder.layers.0.linear1.weight",
+                "backbone.backbone.encoder.layers.0.linear1.bias",
+                "backbone.backbone.encoder.layers.0.linear2.weight",
+                "backbone.backbone.encoder.layers.0.linear2.bias",
+                "backbone.backbone.encoder.layers.0.norm1.weight",
+                "backbone.backbone.encoder.layers.0.norm1.bias",
+                "backbone.backbone.encoder.layers.0.norm2.weight",
+                "backbone.backbone.encoder.layers.0.norm2.bias",
+                "backbone.backbone.classifier.weight",
+                "backbone.backbone.classifier.bias"
+              ],
+              "parameter_count": 2900
+            }
+          ]
+        },
+        "window_features": {
+          "settings": {
+            "name": "heart_rate_deviation",
+            "history_epochs": 10,
+            "min_history_epochs": 4
+          },
+          "scaling": {
+            "schema_version": 1,
+            "heart_rate_scale": 9.024792700085056,
+            "delta_mean": 0.012271315876492446,
+            "delta_scale": 3.7536298754646182,
+            "available_training_targets": 17472,
+            "scaling_fit": "training_targets_only"
+          }
+        },
+        "window_feature_state": {
+          "schema_version": 1,
+          "heart_rate_scale": 9.024792700085056,
+          "delta_mean": 0.012271315876492446,
+          "delta_scale": 3.7536298754646182,
+          "available_training_targets": 17472,
+          "scaling_fit": "training_targets_only"
+        },
+        "model_features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean",
+          "heart_rate_delta_past",
+          "heart_history_available"
+        ],
+        "effective_input_shape": [
+          64,
+          30,
+          9
+        ],
+        "motion_features": {
+          "name": "fixed_lag_motion",
+          "definition": {
+            "name": "fixed_lag_motion",
+            "step_seconds": 1.0,
+            "max_sample_age_seconds": 0.2
+          },
+          "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+          "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+          "scaling_fit": "training_targets_only",
+          "missing_policy": "training_mean",
+          "training_observed_targets": 17916,
+          "training_missing_targets": 0,
+          "validation_observed_targets": 4792,
+          "validation_missing_targets": 0,
+          "imputation_mean": 0.013252978641115737
+        },
+        "features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean"
+        ]
+      },
+      "working_mps_reference_input_state_matches": true
+    },
+    {
+      "fold": "fold-04",
+      "result": {
+        "model_type": "patch_transformer",
+        "train_rows": 18281,
+        "validation_rows": 4427,
+        "train_sequences": 18281,
+        "validation_sequences": 4427,
+        "input_shape": [
+          64,
+          30,
+          7
+        ],
+        "logit_shape": [
+          64,
+          4
+        ],
+        "scaler_mean": [
+          63.72430470355639,
+          1.326221457457884,
+          62.11060664077458,
+          65.53995952081397,
+          0.9982764697500455,
+          0.004658142797374264,
+          0.01245014653383068
+        ],
+        "device": "mps",
+        "parameter_count": 2900,
+        "loss": {
+          "training": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          },
+          "evaluation": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          }
+        },
+        "optimizer": {
+          "settings": {
+            "name": "adam",
+            "weight_decay": 0.0,
+            "exclude_bias_and_norm": false
+          },
+          "param_groups": [
+            {
+              "name": "all",
+              "weight_decay": 0.0,
+              "parameter_names": [
+                "backbone.backbone.input_projection.weight",
+                "backbone.backbone.input_projection.bias",
+                "backbone.backbone.position_embedding.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_bias",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.bias",
+                "backbone.backbone.encoder.layers.0.linear1.weight",
+                "backbone.backbone.encoder.layers.0.linear1.bias",
+                "backbone.backbone.encoder.layers.0.linear2.weight",
+                "backbone.backbone.encoder.layers.0.linear2.bias",
+                "backbone.backbone.encoder.layers.0.norm1.weight",
+                "backbone.backbone.encoder.layers.0.norm1.bias",
+                "backbone.backbone.encoder.layers.0.norm2.weight",
+                "backbone.backbone.encoder.layers.0.norm2.bias",
+                "backbone.backbone.classifier.weight",
+                "backbone.backbone.classifier.bias"
+              ],
+              "parameter_count": 2900
+            }
+          ]
+        },
+        "window_features": {
+          "settings": {
+            "name": "heart_rate_deviation",
+            "history_epochs": 10,
+            "min_history_epochs": 4
+          },
+          "scaling": {
+            "schema_version": 1,
+            "heart_rate_scale": 9.817626570669278,
+            "delta_mean": 0.026460493277949623,
+            "delta_scale": 3.6950732137546476,
+            "available_training_targets": 17899,
+            "scaling_fit": "training_targets_only"
+          }
+        },
+        "window_feature_state": {
+          "schema_version": 1,
+          "heart_rate_scale": 9.817626570669278,
+          "delta_mean": 0.026460493277949623,
+          "delta_scale": 3.6950732137546476,
+          "available_training_targets": 17899,
+          "scaling_fit": "training_targets_only"
+        },
+        "model_features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean",
+          "heart_rate_delta_past",
+          "heart_history_available"
+        ],
+        "effective_input_shape": [
+          64,
+          30,
+          9
+        ],
+        "motion_features": {
+          "name": "fixed_lag_motion",
+          "definition": {
+            "name": "fixed_lag_motion",
+            "step_seconds": 1.0,
+            "max_sample_age_seconds": 0.2
+          },
+          "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+          "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+          "scaling_fit": "training_targets_only",
+          "missing_policy": "training_mean",
+          "training_observed_targets": 18281,
+          "training_missing_targets": 0,
+          "validation_observed_targets": 4427,
+          "validation_missing_targets": 0,
+          "imputation_mean": 0.01245014653383068
+        },
+        "features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean"
+        ]
+      },
+      "working_mps_reference_input_state_matches": true
+    },
+    {
+      "fold": "fold-05",
+      "result": {
+        "model_type": "patch_transformer",
+        "train_rows": 17988,
+        "validation_rows": 4720,
+        "train_sequences": 17988,
+        "validation_sequences": 4720,
+        "input_shape": [
+          64,
+          30,
+          7
+        ],
+        "logit_shape": [
+          64,
+          4
+        ],
+        "scaler_mean": [
+          64.36154460116266,
+          1.2900714252943184,
+          62.786301979097175,
+          66.1197464976651,
+          0.9983157253409632,
+          0.004984977320044602,
+          0.013019034872009
+        ],
+        "device": "mps",
+        "parameter_count": 2900,
+        "loss": {
+          "training": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          },
+          "evaluation": {
+            "name": "cross_entropy",
+            "label_smoothing": 0.0
+          }
+        },
+        "optimizer": {
+          "settings": {
+            "name": "adam",
+            "weight_decay": 0.0,
+            "exclude_bias_and_norm": false
+          },
+          "param_groups": [
+            {
+              "name": "all",
+              "weight_decay": 0.0,
+              "parameter_names": [
+                "backbone.backbone.input_projection.weight",
+                "backbone.backbone.input_projection.bias",
+                "backbone.backbone.position_embedding.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_weight",
+                "backbone.backbone.encoder.layers.0.self_attn.in_proj_bias",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.weight",
+                "backbone.backbone.encoder.layers.0.self_attn.out_proj.bias",
+                "backbone.backbone.encoder.layers.0.linear1.weight",
+                "backbone.backbone.encoder.layers.0.linear1.bias",
+                "backbone.backbone.encoder.layers.0.linear2.weight",
+                "backbone.backbone.encoder.layers.0.linear2.bias",
+                "backbone.backbone.encoder.layers.0.norm1.weight",
+                "backbone.backbone.encoder.layers.0.norm1.bias",
+                "backbone.backbone.encoder.layers.0.norm2.weight",
+                "backbone.backbone.encoder.layers.0.norm2.bias",
+                "backbone.backbone.classifier.weight",
+                "backbone.backbone.classifier.bias"
+              ],
+              "parameter_count": 2900
+            }
+          ]
+        },
+        "window_features": {
+          "settings": {
+            "name": "heart_rate_deviation",
+            "history_epochs": 10,
+            "min_history_epochs": 4
+          },
+          "scaling": {
+            "schema_version": 1,
+            "heart_rate_scale": 9.670935481784493,
+            "delta_mean": 0.03879012740006194,
+            "delta_scale": 3.569229825980465,
+            "available_training_targets": 17512,
+            "scaling_fit": "training_targets_only"
+          }
+        },
+        "window_feature_state": {
+          "schema_version": 1,
+          "heart_rate_scale": 9.670935481784493,
+          "delta_mean": 0.03879012740006194,
+          "delta_scale": 3.569229825980465,
+          "available_training_targets": 17512,
+          "scaling_fit": "training_targets_only"
+        },
+        "model_features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean",
+          "heart_rate_delta_past",
+          "heart_history_available"
+        ],
+        "effective_input_shape": [
+          64,
+          30,
+          9
+        ],
+        "motion_features": {
+          "name": "fixed_lag_motion",
+          "definition": {
+            "name": "fixed_lag_motion",
+            "step_seconds": 1.0,
+            "max_sample_age_seconds": 0.2
+          },
+          "audit_config_sha256": "50d9c2729ae1f30a6b307f0a33d6f41e66a49af3e595d6a33c6f93abdaacbb8f",
+          "snapshot_manifest_sha256": "421aa6211a4f6190551b1b8bb566e17a918a8c84a297595cc4e69e51de3b7806",
+          "scaling_fit": "training_targets_only",
+          "missing_policy": "training_mean",
+          "training_observed_targets": 17988,
+          "training_missing_targets": 0,
+          "validation_observed_targets": 4720,
+          "validation_missing_targets": 0,
+          "imputation_mean": 0.013019034872009
+        },
+        "features": [
+          "heart_rate_mean",
+          "heart_rate_std",
+          "heart_rate_min",
+          "heart_rate_max",
+          "motion_magnitude_mean",
+          "motion_magnitude_std",
+          "motion_grid_change_mean"
+        ]
+      },
+      "working_mps_reference_input_state_matches": true
+    }
+  ]
+}

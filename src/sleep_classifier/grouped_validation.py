@@ -212,6 +212,7 @@ class GroupedValidationExperiment:
             Path: Path to the manifest JSON file.
         """
         plan = self.plan()
+        device = str(TrainingConfig(self.model_settings).device())
 
         dataset = PreparedFeatureDataset(self.source_dir).load()
         provenance = dataset["provenance"]
@@ -221,7 +222,6 @@ class GroupedValidationExperiment:
 
         self.output_dir.mkdir(parents=True, exist_ok=False)
 
-        device = str(TrainingConfig(self.model_settings).device())
         for fold in plan["folds"]:
             self._prepare_fold(fold, provenance, device)
 
@@ -328,7 +328,16 @@ class GroupedValidationExperiment:
         Returns:
             dict[str, Any]: Validated manifest.
         """
-        manifest = json.loads((self.output_dir / "manifest.json").read_text())
+        manifest_path = self.output_dir / "manifest.json"
+        if not manifest_path.is_file():
+            raise FileNotFoundError(
+                f"No prepared manifest at {manifest_path}. "
+                "Preparation must finish before training. "
+                f"Use grouped_validation --config {self.config_path} --prepare for the intended "
+                "fresh study, then --train. Skipping training does not prepare inputs. "
+                "Preserve existing evidence; do not delete non-empty output directories."
+            )
+        manifest = json.loads(manifest_path.read_text())
         provenance = self._source_provenance()
         expected = {
             name: self._digest(path) for name, path in self._source_files(provenance).items()

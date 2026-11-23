@@ -1,0 +1,72 @@
+prepare_config: prepare.yaml
+output_dir: ../artifacts/motion-training-budget-single
+model_type: patch_transformer
+seed: 42
+epochs: 80
+batch_size: 64
+context_epochs: 30
+learning_rate: 0.0003
+patience: 12
+gradient_clip: 1.0
+device: mps
+transformer:
+  d_model: 16
+  nhead: 2
+  num_layers: 1
+  feedforward_dim: 32
+  dropout: 0.2
+  max_context: 30
+diagnostics:
+  enabled: true
+  save_predictions: true
+  evaluate_training: true
+  checkpoint_epochs:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+  - 22
+  - 23
+  - 24
+  - 25
+  - 26
+  - 27
+  - 28
+  - 29
+  - 30
+  - 31
+  - 32
+  - 33
+  - 34
+  - 35
+  - 36
+  - 37
+  - 38
+  - 39
+  - 40
+  high_confidence_threshold: 0.8
+patch_size: 3
+window_features:
+  name: heart_rate_deviation
+  history_epochs: 10
+  min_history_epochs: 4
+motion_features:
+  name: fixed_lag_motion
+  audit_config: motion-grid-audit.yaml

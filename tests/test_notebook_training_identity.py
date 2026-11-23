@@ -51,6 +51,7 @@ class RecordingNotebookShell:
     "31_hr_availability_control.ipynb", "32_hr_deviation_only.ipynb",
     "34_hr_history_horizon.ipynb", "36_fixed_lag_motion.ipynb",
     "37_fixed_lag_motion_mps.ipynb", "39_motion_learning_rate.ipynb",
+    "40_motion_training_budget.ipynb",
 ])
 def test_training_cell_uses_the_validated_experiment_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, notebook_name: str,
@@ -76,7 +77,8 @@ def test_training_cell_uses_the_validated_experiment_config(
     experiment = SimpleNamespace(
         config_path=config.resolve(), output_dir=tmp_path / "candidate",
         model_settings={"window_features": {"masked_channels": [masked_channel],
-                                            "history_epochs": 10}},
+                                            "history_epochs": 10},
+                        "motion_features": {"name": "fixed_lag_motion"}},
         validate_training_start=Mock(),
     )
     namespace = {
@@ -96,7 +98,9 @@ def test_training_cell_uses_the_validated_experiment_config(
     arguments = shlex.split(shell.commands[0])
     invoked_config = Path(arguments[arguments.index("--config") + 1]).resolve()
     assert invoked_config == experiment.config_path
-    if notebook_name.startswith(("36_", "37_", "39_")):
+    if notebook_name.startswith("40_"):
+        experiment.validate_training_start.assert_called_once_with(expected_device="mps")
+    elif notebook_name.startswith(("36_", "37_", "39_")):
         experiment.validate_training_start.assert_called_once_with(expected_device="cpu")
     else:
         experiment.validate_training_start.assert_called_once_with()
@@ -225,6 +229,7 @@ def test_motion_audit_cell_rejects_invalid_cache_without_raw_command(tmp_path: P
 
 @pytest.mark.parametrize("notebook_name", [
     "37_fixed_lag_motion_mps.ipynb", "39_motion_learning_rate.ipynb",
+    "40_motion_training_budget.ipynb",
 ])
 def test_mps_repeat_training_cell_blocks_a_different_prepared_device(
     tmp_path: Path, notebook_name: str,
@@ -237,7 +242,8 @@ def test_mps_repeat_training_cell_blocks_a_different_prepared_device(
     """
     experiment = SimpleNamespace(
         config_path=tmp_path / "different-mps.yaml", output_dir=tmp_path / "different-output",
-        model_settings={"window_features": {"history_epochs": 10}},
+        model_settings={"window_features": {"history_epochs": 10},
+                        "motion_features": {"name": "fixed_lag_motion"}},
         validate_training_start=Mock(side_effect=ValueError("Prepared device cpu differs")),
     )
     namespace = {
