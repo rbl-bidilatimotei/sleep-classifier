@@ -211,3 +211,8 @@ Verify the evaluation-bundle implementation before extending its input boundary.
 Next, audit the raw-sensor-to-epoch adapter on development data.
 Define a separate deployment-model fitting protocol before any final-test decision. Training requires Timo's explicit authorization.
 Docker, FastAPI, and economical CI remain later scoped milestones.
+
+The [label-free preparation audit](label-free-sensor-audit.md) verifies raw summary formulas and exposes label-dependent research reset boundaries.
+It does not extend the version-one prepared-epoch request schema or change the recorded models.
+A later sensor adapter must define clock, coverage, end-of-session, and reset semantics without reading sleep labels.
+Measure that policy's prediction impact with frozen development checkpoints before claiming end-to-end equivalence.

@@ -72,6 +72,12 @@ All history lengths matched offline preparation. The 168 history starts comprise
 - Macro-F1 measures class decisions. Calibration requires separate evidence, and NLL alone cannot isolate calibration error. [Probability-quality results](experiments/motion-mps-seeds-2026-11-20/README.md#probability-quality-improves-at-two-seeds-while-late-overfitting-remains)
 - The 26-person development cohort and repeated validation choices limit estimates of generalization. The three reserved participants remain unevaluated. Transfer to other wearables, populations, and backends requires separate validation. [Development scope](experiments/motion-training-budget-2026-11-23/README.md) · [Replay scope](experiments/chronological-inference-2026-11-23/README.md#timing-and-interpretation-limits)
 
+The [label-free preparation audit](label-free-sensor-audit.md) identifies an additional inference-policy limitation.
+Research segmentation resets after unscored epochs, even when sensor coverage is sufficient.
+Sensor-only segmentation preserves those epochs and changes 566 shared development contexts.
+Raw feature parity passed; prediction impact under the label-free reset policy remains unmeasured.
+The frozen research scores and checkpoints remain unchanged.
+
 ## Requirements for a deployment model
 
 Use all five fold checkpoints as evaluation evidence. Freeze a separate procedure to select and train one model before accessing the final-test set. The bundle contract specifies requirements for future export and loading. End-to-end raw-sensor adapter parity and final-test evaluation remain pending. [Inference bundle contract](inference-bundle-contract.md)
