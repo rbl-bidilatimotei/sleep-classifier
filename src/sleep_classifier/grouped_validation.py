@@ -310,16 +310,36 @@ class GroupedValidationExperiment:
         Returns:
             dict[str, str]: Hashes of derived files.
         """
-        files = []
+        files: set[Path] = set()
         for fold in plan["folds"]:
-            directory = self.output_dir / fold["name"]
-            files.extend(directory.glob("*.yaml"))
-            files.extend((directory / "features").rglob("*.csv"))
-            files.append(directory / "features/provenance.json")
-
+            files.update(self._derived_inventory(fold))
         return {
             str(path.relative_to(self.output_dir)): self._digest(path) for path in sorted(files)
         }
+
+
+    def _derived_inventory(self, fold: dict[str, Any]) -> set[Path]:
+        """Reject unplanned fold files before reading any table contents.
+
+        Args:
+            fold (dict[str, Any]): Frozen development membership for one numbered fold.
+        """
+        directory = self.output_dir / fold["name"]
+        features = directory / "features"
+        directories = (directory, features, features / "train", features / "validation")
+        if any(path.is_symlink() for path in directories):
+            raise ValueError("Prepared fold inventory must not contain symlink directories")
+        expected = {directory / "gru.yaml", directory / "prepare.yaml",
+                    features / "provenance.json"}
+        for partition in ("train", "validation"):
+            expected.update(features / partition / f"{participant}.csv"
+                            for participant in fold[partition])
+        observed = {*directory.glob("*.yaml"), *features.rglob("*.csv"),
+                    features / "provenance.json"}
+        if (observed != expected
+                or any(path.is_symlink() or not path.is_file() for path in expected)):
+            raise ValueError("Prepared fold inventory differs from the frozen development plan")
+        return expected
 
 
     def _validate_manifest(self) -> dict[str, Any]:

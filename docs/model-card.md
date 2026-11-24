@@ -1,6 +1,6 @@
 # Model card — causal sleep-stage classifier
 
-**Status** · Research reference as of 2026-11-23. The five saved checkpoints are evaluation artifacts. A single trained deployment model and exported inference bundle are pending.
+**Status** · Research reference as of 2026-11-23. The five saved checkpoints are evaluation artifacts. A single trained deployment model remains pending. Evaluation-bundle support preserves the research-only checkpoint role.
 
 ## Intended use
 
@@ -75,3 +75,8 @@ All history lengths matched offline preparation. The 168 history starts comprise
 ## Requirements for a deployment model
 
 Use all five fold checkpoints as evaluation evidence. Freeze a separate procedure to select and train one model before accessing the final-test set. The bundle contract specifies requirements for future export and loading. End-to-end raw-sensor adapter parity and final-test evaluation remain pending. [Inference bundle contract](inference-bundle-contract.md)
+
+## Evaluation-bundle implementation
+
+The [exporter and loader](evaluation-bundles.md) package a selected evaluation fold with its fitted preprocessing and runtime identity.
+Publication requires full selected-fold parity against saved development predictions. No training or model-quality improvement is implied.

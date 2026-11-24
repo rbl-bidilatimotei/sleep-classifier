@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "synthetic_epochs": 33,
+  "maximum_probability_difference": 0.0,
+  "class_disagreements": 0,
+  "loaded_module_from_wheel": true,
+  "source_access_blocked": true,
+  "git_access_blocked": true,
+  "weights_unchanged": true,
+  "gradients_created": false,
+  "runtime": {
+    "source_revision": "a298c3df3d340d0fa3f17160e251eb6f29b248af",
+    "project_version": "0.1.0",
+    "python_requires": ">=3.11,<3.13",
+    "validated_device": "mps"
+  },
+  "wheel_sha256": "270697f07b1f2f072a2e3a0f7a378e8afaacf93de393721071f4495e6ac5e72b",
+  "bundle_manifest_sha256": "07afb631a3272bbf14320fd7f9914d5cc6323af497707e32331d807e9008f024",
+  "training_performed": false,
+  "test_observations_read": false
+}

@@ -1,0 +1,24 @@
+{
+  "synthetic_request": true,
+  "response": {
+    "participant_id": "example-participant",
+    "time": 0.0,
+    "prediction": 3,
+    "probabilities": [
+      0.13552582263946533,
+      0.29899781942367554,
+      0.006071591749787331,
+      0.559404730796814
+    ],
+    "history_epochs": 1,
+    "reset_reason": null
+  },
+  "integrity": {
+    "state_sha256": "97e3a12dc04ea5490e3f2b6aca243e2be8c809ebd0af6988d267f24108acee9d",
+    "evaluation_mode": true,
+    "gradients_created": false
+  },
+  "runtime_revision": "1c223c2687308ed2c818d2a4ecdc37bd7b0eae91",
+  "training_performed": false,
+  "test_observations_read": false
+}

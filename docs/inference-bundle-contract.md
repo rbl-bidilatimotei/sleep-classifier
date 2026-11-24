@@ -1,7 +1,7 @@
 # Versioned inference-bundle contract
 
-Status: proposed version 1.0.0, 2026-11-23. This PR defines documentation, JSON schemas, and structural tests.
-The bundle exporter, bundle loader, and service are not implemented here. Existing checkpoint inference remains unchanged.
+Status: reviewed contract 1.0.0, 2026-11-23. Exporter and loader implementation follows on 2026-11-24.
+See the [operating guide](evaluation-bundles.md) for publication and self-contained loading. No service is added.
 Read the [model card](model-card.md) for measured performance and limitations.
 
 ## Purpose and scope
@@ -16,7 +16,7 @@ Labels are not input fields. A feature adapter must establish coverage, timestam
 The [chronological audit](experiments/chronological-inference-2026-11-23/README.md) validates this prepared-feature boundary.
 It does not validate a raw-event adapter or a different inference backend.
 
-## Proposed directory layout
+## Bundle directory layout
 
 ```text
 <bundle_id>/
@@ -42,7 +42,7 @@ Verify the original digest against the recorded chronological audit before expor
 The checkpoint contains weights, constructor metadata, feature order, context length, and fitted preprocessing state.
 It must retain scaler_mean, scaler_scale, window_feature_state, and motion_features metadata.
 It must also retain model_type, model_config, features, model_features, context_epochs, and state_dict.
-A future loader must compare those fields with the manifest and the selected feature profile.
+The loader must compare those fields with the manifest and the selected feature profile.
 The constructor must match width 16, two heads, one layer, feedforward width 32, P3 patches, and dropout 0.2.
 The stored checkpoint remains authoritative for numerical fitted values. Never refit transforms while exporting or loading.
 A raw-sensor adapter can use the stored motion imputation value without a local training-data cache.
@@ -64,7 +64,7 @@ Input units, aggregation, missingness, label mapping, and reset semantics define
 Change the feature-contract major version when those meanings change incompatibly.
 Change the manifest major version when required field meanings change incompatibly.
 Additive optional metadata can use a minor version after the loader explicitly supports it.
-Version 1 readers must reject unknown versions and unknown fields; no forward compatibility is assumed.
+Version 1 readers reject unknown versions and unknown fields; no forward compatibility is assumed.
 
 The manifest records runtime Python requirements and project version. It also records the exact source revision and validated backend.
 Use the packaged lock with that source revision to reconstruct the runtime.
@@ -156,7 +156,7 @@ Reject duplicate object keys and decoded non-finite values, including exponent o
 JSON Schema uses mathematical integers. A future JSON adapter must normalize validated segment IDs to Python int and reject booleans.
 The Python predictor already enforces finite inputs and finite model probabilities.
 
-## Future exporter and loader acceptance checks
+## Exporter and loader acceptance checks
 
 1. Verify the bundle role and exact supported versions.
 2. Reject missing files, changed hashes, unexpected entries, symlinks, and paths outside the bundle directory.
@@ -172,7 +172,7 @@ The Python predictor already enforces finite inputs and finite model probabiliti
 Resolve packaged model-card links against runtime.source_revision. Verify each target exists and rewrite relative links to revision-pinned repository URLs.
 Hash the rewritten MODEL_CARD.md bytes, not the original repository document.
 These are implementation acceptance requirements. Structural schema validation alone does not satisfy them.
-This PR adds no exporter or loader command. Existing StreamingEpochPredictor still loads a checkpoint path directly.
+The [exporter and loader](evaluation-bundles.md) implement these checks. Legacy checkpoint-path inference remains available.
 
 ## Examples and checks
 
@@ -207,8 +207,7 @@ Record the selected bundle identity alongside each inference session.
 
 ## Next implementation boundary
 
-After review, implement an immutable evaluation-bundle exporter and loader using this contract.
-Validate self-contained inference without the original artifact tree or motion audit cache.
-Then audit the raw-sensor-to-epoch adapter on development data.
+Verify the evaluation-bundle implementation before extending its input boundary.
+Next, audit the raw-sensor-to-epoch adapter on development data.
 Define a separate deployment-model fitting protocol before any final-test decision. Training requires Timo's explicit authorization.
 Docker, FastAPI, and economical CI remain later scoped milestones.

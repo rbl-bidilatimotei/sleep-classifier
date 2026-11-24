@@ -427,3 +427,17 @@ Next, consolidate the model card and inference-bundle contract before raw-sensor
 Prepared: [research model card](docs/model-card.md) and [inference-bundle contract v1](docs/inference-bundle-contract.md).
 The contract includes strict manifest and epoch request/response schemas, illustrative examples, and structural tests.
 It defines evaluation-fold packaging and future loader checks. No exporter, deployment model, service, or new training is added.
+
+Prepared: [evaluation-bundle exporter and loader](docs/evaluation-bundles.md) in notebook 43.
+Export an explicitly selected research fold only after full saved-prediction parity. Load sanitized model bytes without the source artifact tree.
+Bundles pin the runtime revision and preserve the evaluation-only role. No deployment fitting, training, or final-test evaluation is added.
+
+Verified: [evaluation-bundle preflight](docs/experiments/evaluation-bundle-preflight-2026-11-24/README.md) preserves all 4,587 fold-01 class predictions.
+A copied bundle also passes an isolated wheel check with source/cache/Git access blocked. No new model training occurred.
+
+Verified: [notebook-43 operator export and loading](docs/experiments/evaluation-bundle-2026-11-24/README.md) preserves all 4,587 fold-01 predicted classes.
+A matching-wheel check also preserves thirty-three synthetic responses with original inputs and Git blocked.
+Metadata inspection remains available after later commits; actual loading retains the exact-runtime requirement.
+Next: audit label-free raw-sensor preparation, including clock-based epochs, coverage, and history resets.
+Offline eligibility currently uses scored-label availability. A live adapter must not use that ground-truth signal.
+No new training or final-test evaluation is needed for this audit.

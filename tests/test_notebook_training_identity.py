@@ -310,3 +310,49 @@ def test_chronological_audit_cell_binds_its_config_and_preserves_snapshots(
             arguments = shlex.split(shell.commands[0])
             assert Path(arguments[arguments.index("--config") + 1]) == study.config_path
             assert "--run" in arguments and "--train" not in arguments
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+@pytest.mark.parametrize("cached", [False, True])
+def test_bundle_export_cell_uses_the_validated_configuration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool, cached: bool,
+) -> None:
+    """Bind export to the active config and reuse only a verified immutable bundle.
+
+    Args:
+        tmp_path (Path): Isolated notebook paths.
+        monkeypatch (pytest.MonkeyPatch): Scoped working-directory replacement.
+        blocked (bool): Whether fresh publication is not ready.
+        cached (bool): Whether an existing bundle should be inspected instead of overwritten.
+    """
+    monkeypatch.chdir(tmp_path)
+    output = tmp_path / "different-bundle"
+    if cached:
+        output.mkdir()
+    exporter = SimpleNamespace(
+        config_path=tmp_path / "different-export.yaml", output_dir=output,
+        settings=SimpleNamespace(fold="fold-04"), read_existing=Mock(), validate_start=Mock(),
+    )
+    if blocked:
+        exporter.validate_start.side_effect = ValueError("Runtime or source mismatch")
+    namespace = {"ROOT": tmp_path, "RUN_EXPORT": True, "exporter": exporter, "logger": Mock()}
+    shell = RecordingNotebookShell(namespace)
+    namespace["get_ipython"] = Mock(return_value=shell)
+    notebook = json.loads((ROOT / "notebooks/43_evaluation_bundle.ipynb").read_text())
+    source = next("".join(cell["source"]) for cell in notebook["cells"]
+                  if cell["cell_type"] == "code" and "if RUN_EXPORT:" in "".join(cell["source"]))
+    if blocked and not cached:
+        with pytest.raises(ValueError, match="Runtime or source mismatch"):
+            exec(TransformerManager().transform_cell(source), namespace)
+        assert not shell.commands
+    else:
+        exec(TransformerManager().transform_cell(source), namespace)
+        if cached:
+            exporter.read_existing.assert_called_once_with()
+            exporter.validate_start.assert_not_called()
+            assert not shell.commands
+        else:
+            exporter.validate_start.assert_called_once_with()
+            arguments = shlex.split(shell.commands[0])
+            assert Path(arguments[arguments.index("--config") + 1]) == exporter.config_path
+            assert "--export" in arguments and "--train" not in arguments
