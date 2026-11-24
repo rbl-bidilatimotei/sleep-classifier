@@ -232,4 +232,4 @@ Keep LR0.001. Recommend a separate longer-budget test of LR0.0003 because three 
 
 The [model card](model-card.md) consolidates the working recipe, grouped results, parity evidence, and known limits.
 The [versioned inference-bundle contract](inference-bundle-contract.md) defines the next packaging boundary.
-Its schemas and examples describe evaluation artifacts only. Exporter and loader implementation follow after contract review.
+Its schemas and examples describe evaluation artifacts only. The [exporter and loader](evaluation-bundles.md) implement that packaging boundary.

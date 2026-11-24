@@ -2037,6 +2037,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "ipython" },
+    { name = "jsonschema" },
     { name = "matplotlib" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
@@ -2050,7 +2051,6 @@ baseline = [
     { name = "scikit-learn" },
 ]
 dev = [
-    { name = "jsonschema" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -2071,6 +2071,7 @@ opal = [
 [package.metadata]
 requires-dist = [
     { name = "ipython", specifier = ">=9.17.1" },
+    { name = "jsonschema", specifier = ">=4.0" },
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "pandas", specifier = ">=2.2" },
@@ -2083,7 +2084,6 @@ baseline = [
     { name = "scikit-learn", specifier = ">=1.9.1" },
 ]
 dev = [
-    { name = "jsonschema", specifier = ">=4.0" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.9" },
 ]

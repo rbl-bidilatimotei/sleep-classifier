@@ -202,3 +202,9 @@ Versioned schemas define evaluation-fold manifests and label-free epoch requests
 The contract separates original training checkpoints from sanitized inference bytes and specifies compatibility, validation, and rollback.
 Review this contract before implementing the evaluation-bundle exporter and loader.
 No new training, final-test evaluation, or deployment artifact is included in this milestone.
+
+Prepared: [evaluation-bundle exporter and loader](evaluation-bundles.md) in notebook 43.
+The exporter verifies the completed chronological source, sanitizes inference fields, checks full-fold parity, and atomically publishes immutable files.
+The loader verifies runtime identity, schemas, files, hashes, and fitted metadata before creating a stream.
+Standard wheels include schemas and runtime identity for loading without Git or source artifacts.
+Keep the final test reserved. Raw-sensor adapter parity and deployment fitting remain separate milestones.

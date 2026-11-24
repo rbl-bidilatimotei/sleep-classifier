@@ -29,6 +29,33 @@ class StreamingEpochPredictor:
             stream.seek(0)
             checkpoint = torch.load(stream, map_location="cpu", weights_only=True)
 
+        self._initialize(checkpoint)
+
+
+    @classmethod
+    def from_checkpoint(
+        cls, checkpoint: dict[str, Any], digest: str, device: str = "cpu",
+    ) -> "StreamingEpochPredictor":
+        """Restore a stream from a checkpoint already loaded into memory.
+
+        Args:
+            checkpoint (dict[str, Any]): Saved weights and preprocessing metadata.
+            digest (str): SHA-256 digest of the bytes that supplied the checkpoint.
+            device (str): Explicit inference device, either cpu, mps, or cuda.
+        """
+        predictor = cls.__new__(cls)
+        predictor.device = cls._resolve_device(device)
+        predictor.checkpoint_sha256 = digest
+        predictor._initialize(checkpoint)
+        return predictor
+
+
+    def _initialize(self, checkpoint: dict[str, Any]) -> None:
+        """Restore the model and preprocessing for an empty stream.
+
+        Args:
+            checkpoint (dict[str, Any]): Saved weights and preprocessing metadata.
+        """
         self.feature_columns = self._checkpoint_features(checkpoint)
         context = checkpoint.get("context_epochs")
         if type(context) is not int or context <= 0:
