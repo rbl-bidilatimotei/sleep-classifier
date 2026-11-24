@@ -1,0 +1,14 @@
+{
+  "participant_id": "example-participant",
+  "segment_id": 0,
+  "time": 0.0,
+  "features": {
+    "heart_rate_mean": 60.0,
+    "heart_rate_std": 2.0,
+    "heart_rate_min": 57.0,
+    "heart_rate_max": 63.0,
+    "motion_magnitude_mean": 1.0,
+    "motion_magnitude_std": 0.01,
+    "motion_grid_change_mean": 0.02
+  }
+}

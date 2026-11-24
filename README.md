@@ -423,3 +423,7 @@ The full audit remains opt-in. A bounded MPS preflight passed; no new model trai
 Reviewed: [chronological inference results](docs/experiments/chronological-inference-2026-11-23/README.md) pass across all 22,708 development validation epochs.
 The largest probability difference is 8.94e-7, with zero class disagreements and matched history/reset behavior.
 Next, consolidate the model card and inference-bundle contract before raw-sensor integration or another training sweep.
+
+Prepared: [research model card](docs/model-card.md) and [inference-bundle contract v1](docs/inference-bundle-contract.md).
+The contract includes strict manifest and epoch request/response schemas, illustrative examples, and structural tests.
+It defines evaluation-fold packaging and future loader checks. No exporter, deployment model, service, or new training is added.

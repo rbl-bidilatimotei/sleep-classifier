@@ -196,3 +196,9 @@ Reviewed: [chronological inference results](experiments/chronological-inference-
 The largest probability difference is 8.94e-7, with zero class disagreements and matched history/reset behavior.
 Next, consolidate the model card and versioned inference-bundle contract, including measured limitations and compatibility requirements.
 Follow with raw-sensor adapter parity before deployment components. No new training or final-test reads are needed for the next contract milestone.
+
+Prepared: [research model card](model-card.md) and [inference-bundle contract v1](inference-bundle-contract.md).
+Versioned schemas define evaluation-fold manifests and label-free epoch requests/responses.
+The contract separates original training checkpoints from sanitized inference bytes and specifies compatibility, validation, and rollback.
+Review this contract before implementing the evaluation-bundle exporter and loader.
+No new training, final-test evaluation, or deployment artifact is included in this milestone.

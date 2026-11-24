@@ -229,3 +229,7 @@ Keep the forty-epoch cap and all other controls fixed. Five new fits remain oper
 
 Reviewed: [lower-rate motion results](experiments/motion-learning-rate-2026-11-20/README.md) lose primary macro-F1 within forty epochs.
 Keep LR0.001. Recommend a separate longer-budget test of LR0.0003 because three folds reach the cap.
+
+The [model card](model-card.md) consolidates the working recipe, grouped results, parity evidence, and known limits.
+The [versioned inference-bundle contract](inference-bundle-contract.md) defines the next packaging boundary.
+Its schemas and examples describe evaluation artifacts only. Exporter and loader implementation follow after contract review.

@@ -20,7 +20,7 @@ baseline = [
     "joblib>=1.6.0",
     "scikit-learn>=1.9.1",
 ]
-dev = ["pytest>=8.0", "ruff>=0.9"]
+dev = ["pytest>=8.0", "ruff>=0.9", "jsonschema>=4.0"]
 gru = [
     { include-group = "baseline" },
     "torch>=2.15.0",

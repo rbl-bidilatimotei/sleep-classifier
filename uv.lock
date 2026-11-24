@@ -2050,6 +2050,7 @@ baseline = [
     { name = "scikit-learn" },
 ]
 dev = [
+    { name = "jsonschema" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -2082,6 +2083,7 @@ baseline = [
     { name = "scikit-learn", specifier = ">=1.9.1" },
 ]
 dev = [
+    { name = "jsonschema", specifier = ">=4.0" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.9" },
 ]
