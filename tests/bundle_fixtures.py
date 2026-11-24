@@ -43,4 +43,3 @@ def make_checkpoint() -> dict[str, Any]:
         "scaler_mean": [1.0] * 7, "scaler_scale": [3.0] * 7, "window_feature_state": state,
         "motion_features": motion,
     }
-

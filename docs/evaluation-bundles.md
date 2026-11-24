@@ -126,3 +126,30 @@ These tests use synthetic weights and inputs without fitting a model.
 Real evaluation evidence, when available, is recorded separately from synthetic tests.
 Raw-sensor adapter parity, a single deployment-model fitting protocol, final-test evaluation, Docker, FastAPI, and CI remain separate milestones.
 No training or final-test observations are required for this packaging milestone.
+
+## Measured preflight and portable-wheel check
+
+The [packaging preflight](experiments/evaluation-bundle-preflight-2026-11-24/README.md) passed all 4,587 fold-01 validation targets.
+Maximum difference was 7.45e-7 with zero class disagreements. The original checkpoint remained unchanged.
+A separate-process wheel check also passed thirty-three synthetic requests with source/cache/Git access blocked.
+These results apply to the recorded preflight revision and MPS backend.
+The default notebook export remains fresh; the preflight used a different output identifier and collection.
+
+After exporting at a clean revision, build its matching wheel:
+
+```bash
+uv build --wheel --out-dir artifacts/evaluation-runtime-wheel
+```
+
+Verify the approved wheel and bundle without training:
+
+```bash
+uv run --locked --inexact --group gru python scripts/verify_bundle_wheel.py \
+  --bundle artifacts/evaluation-bundles/motion-seed42-fold01-evaluation-v1 \
+  --wheel artifacts/evaluation-runtime-wheel/sleep_classifier-0.1.0-py3-none-any.whl \
+  --output artifacts/evaluation-bundle-verification/portable-wheel.json
+```
+
+Preserve the wheel and bundle together before building a runtime for another revision.
+Use approved locally built wheels; the verifier executes the supplied runtime code.
+The verifier checks the current matching runtime as its reference and refuses to overwrite its output report.

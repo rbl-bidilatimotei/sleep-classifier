@@ -431,3 +431,6 @@ It defines evaluation-fold packaging and future loader checks. No exporter, depl
 Prepared: [evaluation-bundle exporter and loader](docs/evaluation-bundles.md) in notebook 43.
 Export an explicitly selected research fold only after full saved-prediction parity. Load sanitized model bytes without the source artifact tree.
 Bundles pin the runtime revision and preserve the evaluation-only role. No deployment fitting, training, or final-test evaluation is added.
+
+Verified: [evaluation-bundle preflight](docs/experiments/evaluation-bundle-preflight-2026-11-24/README.md) preserves all 4,587 fold-01 class predictions.
+A copied bundle also passes an isolated wheel check with source/cache/Git access blocked. No new model training occurred.

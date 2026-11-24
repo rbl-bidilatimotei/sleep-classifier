@@ -208,3 +208,7 @@ The exporter verifies the completed chronological source, sanitizes inference fi
 The loader verifies runtime identity, schemas, files, hashes, and fitted metadata before creating a stream.
 Standard wheels include schemas and runtime identity for loading without Git or source artifacts.
 Keep the final test reserved. Raw-sensor adapter parity and deployment fitting remain separate milestones.
+
+Verified: [evaluation-bundle preflight](experiments/evaluation-bundle-preflight-2026-11-24/README.md) preserves all 4,587 selected-fold class predictions.
+An isolated runtime wheel loads copied bundle files without the original artifact tree, data, source modules, or Git.
+Keep default notebook-43 publication operator-controlled. Next, audit raw-sensor-to-epoch equivalence on development data.
