@@ -10,7 +10,7 @@ pytest.importorskip("jsonschema")
 
 from bundle_fixtures import make_checkpoint  # noqa: E402
 
-from sleep_classifier.bundle_loader import BundlePredictor, EvaluationBundle  # noqa: E402
+from sleep_classifier.bundle_loader import BundlePredictor, EvaluationBundle, inspect_bundle  # noqa: E402
 from sleep_classifier.bundle_runtime import RuntimeIdentity  # noqa: E402
 from sleep_classifier.bundle_validation import sha256_bytes  # noqa: E402
 from sleep_classifier.features import FEATURE_COLUMNS  # noqa: E402
@@ -345,3 +345,39 @@ def test_response_semantics(update: dict[str, Any], message: str) -> None:
     with pytest.raises(ValueError, match=message):
         BundlePredictor(model).predict(request)
     assert type(model.predict_epoch.call_args.kwargs["segment_id"]) is int
+
+
+def test_inspection_does_not_restore_or_approve_runtime(
+    bundle_dir: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Inspect recorded metadata despite an incompatible current runtime.
+
+    Args:
+        bundle_dir (Path): Valid synthetic bundle directory.
+        monkeypatch (pytest.MonkeyPatch): Fixture for observing runtime and deserialization calls.
+    """
+    verify = Mock(side_effect=ValueError("runtime mismatch"))
+    load = Mock(side_effect=AssertionError("Inspection must not deserialize weights"))
+    monkeypatch.setattr(RuntimeIdentity, "verify", verify)
+    monkeypatch.setattr(torch, "load", load)
+
+    assert inspect_bundle(bundle_dir) == _read_manifest(bundle_dir)
+    verify.assert_not_called()
+    load.assert_not_called()
+
+    with pytest.raises(ValueError, match="runtime mismatch"):
+        EvaluationBundle(bundle_dir)
+    load.assert_not_called()
+
+
+@pytest.mark.parametrize("filename", ["checkpoint.pt", "MODEL_CARD.md", "uv.lock"])
+def test_inspection_rejects_changed_payload(bundle_dir: Path, filename: str) -> None:
+    """Reject payload corruption during metadata inspection.
+
+    Args:
+        bundle_dir (Path): Valid synthetic bundle directory.
+        filename (str): Bundle file whose recorded digest must fail.
+    """
+    (bundle_dir / filename).write_bytes(b"changed")
+    with pytest.raises(ValueError, match="SHA-256 differs"):
+        inspect_bundle(bundle_dir)

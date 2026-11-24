@@ -107,8 +107,8 @@ def _verify_environment_lock(data: bytes, runtime: dict[str, Any]) -> None:
         raise ValueError("Bundle uv.lock project version differs from the runtime")
 
 
-def _read_bundle(bundle_dir: Path) -> tuple[dict[str, Any], bytes]:
-    """Verify the bundle layout, runtime, and recorded file digests.
+def _read_bundle_files(bundle_dir: Path) -> tuple[dict[str, Any], bytes]:
+    """Verify the bundle layout, schema, lock metadata, and recorded file digests.
 
     Args:
         bundle_dir (Path): Directory containing a version-one evaluation bundle.
@@ -127,7 +127,6 @@ def _read_bundle(bundle_dir: Path) -> tuple[dict[str, Any], bytes]:
 
         manifest = strict_json_loads(_read_regular_file(descriptor, "manifest.json"))
         validate_schema(manifest, "manifest")
-        RuntimeIdentity.verify(manifest["runtime"])
 
         file_records = manifest["files"]
         _read_verified_file(descriptor, _FILES["model_card"], file_records["model_card"]["sha256"])
@@ -143,6 +142,19 @@ def _read_bundle(bundle_dir: Path) -> tuple[dict[str, Any], bytes]:
         os.close(descriptor)
 
 
+def inspect_bundle(bundle_dir: Path) -> dict[str, Any]:
+    """Inspect file integrity without restoring weights or approving runtime compatibility.
+
+    Args:
+        bundle_dir (Path): Directory containing a version-one evaluation bundle.
+
+    Returns:
+        dict[str, Any]: Manifest with verified file hashes, without checkpoint semantic validation.
+    """
+    manifest, _ = _read_bundle_files(bundle_dir)
+    return deepcopy(manifest)
+
+
 class EvaluationBundle:
     """Verify and retain a self-contained evaluation-fold inference checkpoint."""
 
@@ -152,7 +164,8 @@ class EvaluationBundle:
         Args:
             bundle_dir (Path): Directory with exactly the files required by the contract.
         """
-        manifest, checkpoint_bytes = _read_bundle(bundle_dir)
+        manifest, checkpoint_bytes = _read_bundle_files(bundle_dir)
+        RuntimeIdentity.verify(manifest["runtime"])
         try:
             checkpoint = torch.load(
                 BytesIO(checkpoint_bytes), weights_only=True, map_location="cpu",

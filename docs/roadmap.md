@@ -212,3 +212,10 @@ Keep the final test reserved. Raw-sensor adapter parity and deployment fitting r
 Verified: [evaluation-bundle preflight](experiments/evaluation-bundle-preflight-2026-11-24/README.md) preserves all 4,587 selected-fold class predictions.
 An isolated runtime wheel loads copied bundle files without the original artifact tree, data, source modules, or Git.
 Keep default notebook-43 publication operator-controlled. Next, audit raw-sensor-to-epoch equivalence on development data.
+
+Verified: [notebook-43 operator export and loading](experiments/evaluation-bundle-2026-11-24/README.md) preserves all 4,587 fold-01 predicted classes.
+A matching-wheel check also preserves thirty-three synthetic responses with original inputs and Git blocked.
+Metadata inspection remains available after later commits; actual loading retains the exact-runtime requirement.
+Next: audit label-free raw-sensor preparation, including clock-based epochs, coverage, and history resets.
+Offline eligibility currently uses scored-label availability. A live adapter must not use that ground-truth signal.
+No new training or final-test evaluation is needed for this audit.

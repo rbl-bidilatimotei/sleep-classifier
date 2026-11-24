@@ -434,3 +434,10 @@ Bundles pin the runtime revision and preserve the evaluation-only role. No deplo
 
 Verified: [evaluation-bundle preflight](docs/experiments/evaluation-bundle-preflight-2026-11-24/README.md) preserves all 4,587 fold-01 class predictions.
 A copied bundle also passes an isolated wheel check with source/cache/Git access blocked. No new model training occurred.
+
+Verified: [notebook-43 operator export and loading](docs/experiments/evaluation-bundle-2026-11-24/README.md) preserves all 4,587 fold-01 predicted classes.
+A matching-wheel check also preserves thirty-three synthetic responses with original inputs and Git blocked.
+Metadata inspection remains available after later commits; actual loading retains the exact-runtime requirement.
+Next: audit label-free raw-sensor preparation, including clock-based epochs, coverage, and history resets.
+Offline eligibility currently uses scored-label availability. A live adapter must not use that ground-truth signal.
+No new training or final-test evaluation is needed for this audit.

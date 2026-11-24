@@ -1,6 +1,6 @@
 # Evaluation-bundle export and loading
 
-Status: implementation prepared on 2026-11-24. No deployment model is fitted by this workflow.
+Status: operator export and loading verified on 2026-11-24. No deployment model is fitted by this workflow.
 Read the [model card](model-card.md) and [version-one contract](inference-bundle-contract.md) before exporting.
 
 ## What is implemented
@@ -44,7 +44,10 @@ Version-one inference requires the validated MPS backend. It does not silently f
 A source checkout must have clean runtime inputs: src/sleep_classifier, schemas, pyproject.toml, uv.lock, and hatch_build.py.
 The identity guard compares tracked source bytes with Git objects, including edits hidden by index flags.
 Commit model-card edits before export. Other uncommitted documentation does not become part of the packaged card.
-A different commit requires a newly identified bundle or the matching prior runtime.
+Inference from a different commit requires a newly identified bundle or the matching prior runtime.
+Metadata-only inspection remains available through `inspect_bundle(path)` after later commits.
+It checks schema, file layout, lock metadata, and hashes without deserializing weights or approving runtime compatibility.
+Checkpoint semantic validation still requires `EvaluationBundle(path)` and its matching runtime.
 Do not bypass the revision check after pulling code.
 
 Standard wheels embed runtime identity and the three contract schemas.
@@ -133,7 +136,8 @@ The [packaging preflight](experiments/evaluation-bundle-preflight-2026-11-24/REA
 Maximum difference was 7.45e-7 with zero class disagreements. The original checkpoint remained unchanged.
 A separate-process wheel check also passed thirty-three synthetic requests with source/cache/Git access blocked.
 These results apply to the recorded preflight revision and MPS backend.
-The default notebook export remains fresh; the preflight used a different output identifier and collection.
+The [operator run](experiments/evaluation-bundle-2026-11-24/README.md) also passed at revision `1c223c26`.
+It published the default notebook identifier and passed a matching-wheel check with thirty-three synthetic requests.
 
 After exporting at a clean revision, build its matching wheel:
 
