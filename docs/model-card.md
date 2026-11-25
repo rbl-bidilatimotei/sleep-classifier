@@ -75,8 +75,10 @@ All history lengths matched offline preparation. The 168 history starts comprise
 The [label-free preparation audit](label-free-sensor-audit.md) identifies an additional inference-policy limitation.
 Research segmentation resets after unscored epochs, even when sensor coverage is sufficient.
 Sensor-only segmentation preserves those epochs and changes 566 shared development contexts.
-Raw feature parity passed. Full-cohort prediction impact under sensor-only resets remains unmeasured.
-A [one-fold preflight](experiments/sensor-only-replay-preflight-2026-11-25/README.md) passed; the [full frozen replay](sensor-only-replay.md) remains opt-in.
+Raw feature parity passed. The [full frozen replay](experiments/sensor-only-replay-2026-11-25/README.md) verifies sensor-only reset behavior.
+On 22,705 shared development targets, accuracy changes from 66.298% to 66.426%, and macro-F1 from 0.590391 to 0.593919.
+All legacy controls match exactly. The policy changes 177 class decisions within 566 changed histories; no weights or fitted transforms change.
+Gains vary across participants and folds. REM F1 falls slightly. This is a separate input-policy result, not retraining or final-test evidence.
 The frozen research scores and checkpoints remain unchanged.
 
 ## Requirements for a deployment model

@@ -1,6 +1,7 @@
 # Frozen-model replay with sensor-only eligibility and resets
 
-Status: prepared on 2026-11-25. One fold passed an inference preflight. The full five-fold replay remains opt-in.
+Status: full five-fold replay verified on 2026-11-25. No model was trained or changed.
+Read the [measured findings](experiments/sensor-only-replay-2026-11-25/README.md).
 Start with [notebook 45](../notebooks/45_sensor_only_frozen_replay.ipynb).
 
 ## Question
@@ -119,8 +120,10 @@ Tables, shared-scale confusion matrices, and paired participant plots appear aft
 
 ## Verification and limits
 
-The [fold-01 preflight](experiments/sensor-only-replay-preflight-2026-11-25/README.md) verified execution on MPS.
-It left the default full-study destination unused.
+The [fold-01 preflight](experiments/sensor-only-replay-preflight-2026-11-25/README.md) first verified execution on MPS.
+The subsequent [full replay](experiments/sensor-only-replay-2026-11-25/README.md) passed all five controls exactly.
+The default full-study destination is now occupied by the verified immutable snapshot.
+Keep RUN_REPLAY false to inspect it. Notebook reruns verify and reuse the saved outputs.
 Synthetic tests cover label-independent projection, saved imputation, causal history, control rejection, publication, cached evidence, and notebook gates.
 Training and optimizer tests are excluded from this milestone's targeted checks.
 
@@ -130,3 +133,7 @@ Keep the final test reserved. Review the full five-fold results before selecting
 
 Validation completed with 425 targeted non-training tests, Ruff, and whitespace checks.
 Notebook 45 passed fresh-kernel report-only execution. Synthetic completed-report checks also rendered both chart types and the participant table.
+
+The completed replay changes 177 class decisions within 566 changed histories, with 29 additional correct decisions overall.
+Paired macro-F1 rises by 0.003528, while REM F1 falls slightly. These changes are heterogeneous across folds and participants.
+Next, audit a bounded raw-event adapter with explicit completion and session-end semantics before running another model sweep.
