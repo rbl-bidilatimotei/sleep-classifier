@@ -441,3 +441,10 @@ Metadata inspection remains available after later commits; actual loading retain
 Next: audit label-free raw-sensor preparation, including clock-based epochs, coverage, and history resets.
 Offline eligibility currently uses scored-label availability. A live adapter must not use that ground-truth signal.
 No new training or final-test evaluation is needed for this audit.
+
+Verified: [label-free raw-sensor preparation audit](docs/label-free-sensor-audit.md) in notebook 44.
+Six base features and six coverage measurements match on all 23,823 shared development epochs.
+Fixed-lag motion matches exactly on 22,705 saved identities; three eligible tail epochs remain outside the conservative clock boundary.
+Keeping covered unscored epochs changes 566 shared model contexts across fifteen participants. No model was loaded or trained.
+Next: replay the frozen models with sensor-only eligibility and resets, then score shared development targets after prediction.
+Keep the final test reserved. Restore saved fitted transforms; do not infer reset boundaries from labels.

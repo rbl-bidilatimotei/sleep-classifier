@@ -1,0 +1,7 @@
+prepared_dir: ../data/processed/baseline
+raw_data_dir: ../data/raw/sleep-accel/1.0.0
+split_path: splits/baseline.json
+motion_snapshot_dir: ../artifacts/motion-grid-audit
+output_dir: ../artifacts/label-free-sensor-preparation-audit
+# This is the declared session clock origin, not a value read from stage labels
+session_start_seconds: 0.0

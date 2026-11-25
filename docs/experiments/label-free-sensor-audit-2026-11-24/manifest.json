@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "config_sha256": "17f905461f7819e29326e03a2844d87c91056678c80d32cdba421050c71b859a",
+  "outputs": {
+    "rows.csv": "575d1a8fdf00ccbd0377db9bb2ddc26ba95103c265e4cd8f91cdbf08426d11b5",
+    "summary.json": "f53838be3965877f0bc77e490c9817850b9323d5369946fdd8988b012a809045"
+  },
+  "implementation_hashes": {
+    "sensor_preparation_audit.py": "828168bde23beb239b7e86fe9e0e8e19bc71fd35c89f15a9b937159eb7ab2a47",
+    "sensor_audit_source.py": "f05c9242f709f8f788c52cd9e223a9b7db2b939d754aa8eaaa8d85b8bc2f6f64",
+    "sensor_epochs.py": "108eb187d57838e2961b769ee39eda43f450b434fa41253de0e29548ee596d45",
+    "features.py": "b1153624c5b9a7bcd34cef6bbfe456fc1a43de51293fe60344471b16674be6e2",
+    "coverage.py": "b9672f3d1522186031df89dc5a2acdccea827c94949ab542d47e2f8bfc82694f",
+    "motion_grid.py": "5b98da30a205611a151f1f4ddd55a33ece6c4053f30b18daf5557213f3c06b18"
+  }
+}

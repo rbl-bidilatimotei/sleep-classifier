@@ -22,7 +22,7 @@ RULE_THRESHOLDS: set[str] = {
 
 
 class EpochFeatureBuilder:
-    """Build sensor summaries and eligibility for labeled 30-second epochs."""
+    """Build sensor summaries with separate sensor-only and labeled eligibility views."""
 
     def __init__(self, rule: dict[str, float]) -> None:
         """Store and validate the coverage rule used for eligibility.
@@ -52,18 +52,41 @@ class EpochFeatureBuilder:
         """
         self._validate_frames(heart, motion, labels)
         targets = self._targets(labels)
+        result = self.build_sensor_epochs(heart, motion, labels[["time"]])
+        result.insert(1 + len(FEATURE_COLUMNS), "target", targets)
+        result["eligible"] &= targets >= 0
+        result["segment_id"] = self._segment_ids(
+            result.time.to_numpy(), result.eligible.to_numpy(),
+        )
+        return result
+
+
+    def build_sensor_epochs(
+        self, heart: pd.DataFrame, motion: pd.DataFrame, epochs: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Build sensor-only summaries and coverage decisions on an explicit epoch schedule.
+
+        Args:
+            heart (pd.DataFrame): Timestamped heart-rate observations.
+            motion (pd.DataFrame): Timestamped x, y, and z observations.
+            epochs (pd.DataFrame): Clock-generated starts with exactly one time column.
+        """
+        if set(epochs.columns) != {"time"}:
+            raise ValueError("Sensor epochs require only time, without labels or targets")
+        required = {"heart_rate"}
+        if not required.issubset(heart) or not {"x", "y", "z"}.issubset(motion):
+            raise ValueError("Sensor frames lack required values")
         heart_clean = deduplicate_sensor(heart)
         motion_clean = deduplicate_sensor(motion)
-        coverage = self._coverage(heart_clean, motion_clean, labels)
+        coverage = self._coverage(heart_clean, motion_clean, epochs)
         heart_times, motion_times, hr_values, magnitude = self._sensor_arrays(
             heart_clean, motion_clean
         )
-        label_times = labels["time"].to_numpy(dtype=float)
+        label_times = epochs["time"].to_numpy(dtype=float)
         result = self._summarize_epochs(
             label_times, heart_times, motion_times, hr_values, magnitude
         )
         result.insert(0, "time", label_times)
-        result["target"] = targets
         self._append_coverage(result, coverage)
         result["eligible"] = self._eligible_epochs(result)
         result["segment_id"] = self._segment_ids(label_times, result["eligible"].to_numpy())
@@ -244,7 +267,7 @@ class EpochFeatureBuilder:
 
 
     def _eligible_epochs(self, result: pd.DataFrame) -> pd.Series:
-        """Mark epochs that meet coverage thresholds and have scored targets.
+        """Mark epochs that meet sensor coverage thresholds independently of target availability.
 
         Args:
             result (pd.DataFrame): DataFrame containing epoch features.
@@ -258,7 +281,6 @@ class EpochFeatureBuilder:
             & (result.motion_sample_count > 0)
             & (result.motion_occupied_bin_fraction >= self.thresholds["min_motion_bin_fraction"])
             & (result.motion_largest_observation_gap <= self.thresholds["max_motion_gap_seconds"])
-            & (result.target >= 0)
         )
 
     def _segment_ids(self, times: np.ndarray, eligible: np.ndarray) -> np.ndarray:
