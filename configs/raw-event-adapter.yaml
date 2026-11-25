@@ -1,0 +1,4 @@
+replay_config: sensor-only-replay.yaml
+output_dir: ../artifacts/raw-event-adapter-audit
+chunk_sizes: [128, 1024]
+max_buffered_events: 8192

@@ -137,3 +137,6 @@ Notebook 45 passed fresh-kernel report-only execution. Synthetic completed-repor
 The completed replay changes 177 class decisions within 566 changed histories, with 29 additional correct decisions overall.
 Paired macro-F1 rises by 0.003528, while REM F1 falls slightly. These changes are heterogeneous across folds and participants.
 Next, audit a bounded raw-event adapter with explicit completion and session-end semantics before running another model sweep.
+
+The [bounded raw-event adapter](raw-event-adapter.md) is now prepared in notebook 46, with a bounded prefix preflight.
+Full development feature and fixed-prediction parity remain opt-in before live-source or service work.

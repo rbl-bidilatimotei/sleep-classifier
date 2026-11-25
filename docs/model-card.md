@@ -89,3 +89,7 @@ Use all five fold checkpoints as evaluation evidence. Freeze a separate procedur
 
 The [exporter and loader](evaluation-bundles.md) package a selected evaluation fold with its fitted preprocessing and runtime identity.
 Publication requires full selected-fold parity against saved development predictions. No training or model-quality improvement is implied.
+
+The [bounded raw-event adapter](raw-event-adapter.md) now prepares epochs with explicit watermark, session-end, and late-event rules.
+A thirty-epoch preflight preserves batch features and frozen predictions. Full-cohort adapter parity remains pending.
+This adds an input component, without changing the model, fitted preprocessing, or completed evaluation results.

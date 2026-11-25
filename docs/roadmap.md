@@ -240,3 +240,9 @@ All 177 changed class decisions occur within the 566 changed histories. The othe
 No training ran, fitted state stayed unchanged, and the final test remained reserved.
 Next: implement a bounded raw-event adapter with explicit clock, completion, session-end, and late-event rules.
 Use chunking parity and frozen predictions to verify the adapter before deployment services or further model tuning.
+
+Prepared: [bounded raw-event adapter and audit](raw-event-adapter.md) in notebook 46.
+Per-stream watermarks close thirty-second epochs. Late events are rejected, exact duplicates are counted, and overflow raises without dropping data.
+An explicit session end drains complete epochs and counts discarded tail events. Pending event queues have a fixed combined cap.
+A thirty-epoch development preflight preserves batch features and frozen MPS predictions exactly for two chunk sizes.
+The full twenty-six-participant audit remains opt-in. No model training or final-test observation reads are needed.
