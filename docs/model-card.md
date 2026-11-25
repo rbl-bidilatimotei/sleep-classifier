@@ -75,7 +75,8 @@ All history lengths matched offline preparation. The 168 history starts comprise
 The [label-free preparation audit](label-free-sensor-audit.md) identifies an additional inference-policy limitation.
 Research segmentation resets after unscored epochs, even when sensor coverage is sufficient.
 Sensor-only segmentation preserves those epochs and changes 566 shared development contexts.
-Raw feature parity passed; prediction impact under the label-free reset policy remains unmeasured.
+Raw feature parity passed. Full-cohort prediction impact under sensor-only resets remains unmeasured.
+A [one-fold preflight](experiments/sensor-only-replay-preflight-2026-11-25/README.md) passed; the [full frozen replay](sensor-only-replay.md) remains opt-in.
 The frozen research scores and checkpoints remain unchanged.
 
 ## Requirements for a deployment model
