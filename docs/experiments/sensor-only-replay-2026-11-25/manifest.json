@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "outputs": {
+    "candidate-predictions.csv": "ce14564dabac9cba9db2e71abfe9c2ca8d47ef0e5b896bfea7179ef3e44913a4",
+    "reference-predictions.csv": "d65c65cccc1f6032fd8011ab8844de9b612b53a927103bacabcfe47022394edb",
+    "report.json": "b797e25ee7eb7c51a59bd5148713b6843c1b652110c8d837ccd96cee16ee6201"
+  },
+  "implementation_hashes": {
+    "sensor_only_replay.py": "fe424ff22fde1f1cc960efd8d7314e2405cd0ba387deb677818c075df64dca26",
+    "sensor_replay_inputs.py": "dbf3e784bf7ca838cffecf95dbdaab98244efd267d24216401b29cf16f5d6ca8",
+    "sensor_replay_inference.py": "79c2124db54248aef864109eaa2b65ca792a71d0fba0a50371bd035884ac0635",
+    "sensor_replay_report.py": "0028b06f3e3bb21124305312a7a89201902f311f622f9435c32d219eae9a3384",
+    "streaming_inference.py": "378e756f7f713637812646dfd7b6656a2001a79aebd437853e9a315c1f24ec8e",
+    "model_factory.py": "08d2ec3ffbb206576b3b1d15c713000f72b98bfdfac8009ebf1e7f97359f893f"
+  }
+}

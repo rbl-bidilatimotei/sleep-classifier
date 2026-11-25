@@ -226,3 +226,17 @@ Fixed-lag motion matches exactly on 22,705 saved identities; three eligible tail
 Keeping covered unscored epochs changes 566 shared model contexts across fifteen participants. No model was loaded or trained.
 Next: replay the frozen models with sensor-only eligibility and resets, then score shared development targets after prediction.
 Keep the final test reserved. Restore saved fitted transforms; do not infer reset boundaries from labels.
+
+Prepared: [frozen-model sensor-only replay](sensor-only-replay.md) in notebook 45.
+Keep the original five seed-42 MPS checkpoints and their saved fitted transforms.
+Candidate selection and history resets use sensor fields only. Join scored targets after candidate prediction.
+A fold-01 preflight reproduced all 4,587 legacy-control probabilities exactly without training.
+Run the full five-fold replay locally to compare paired scores and disclose unscored predictions and tail exclusions.
+The full-study output remains fresh, and the final test stays reserved.
+
+Reviewed: [full sensor-only frozen replay](experiments/sensor-only-replay-2026-11-25/README.md) passes all five legacy controls with exact probability agreement.
+On 22,705 shared targets, accuracy rises by 0.1277 percentage points and pooled macro-F1 by 0.003528. REM F1 falls slightly.
+All 177 changed class decisions occur within the 566 changed histories. The other 22,139 shared probabilities remain identical.
+No training ran, fitted state stayed unchanged, and the final test remained reserved.
+Next: implement a bounded raw-event adapter with explicit clock, completion, session-end, and late-event rules.
+Use chunking parity and frozen predictions to verify the adapter before deployment services or further model tuning.

@@ -104,3 +104,6 @@ Restore each fold's saved imputation and scaling. Make predictions first, then j
 Report changes on shared scored epochs and disclose additional unscored predictions and excluded boundary targets.
 Use a matching bundle/runtime or a separately identified, verified export. Do not bypass the exact-runtime guard.
 This replay can measure the consequences of removing label-dependent resets without any training or final-test access.
+
+The [frozen-model replay](sensor-only-replay.md) is now prepared in notebook 45.
+A one-fold inference preflight passed; the full five-fold policy comparison remains opt-in.

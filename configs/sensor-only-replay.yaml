@@ -1,0 +1,4 @@
+sensor_audit_config: label-free-sensor-audit.yaml
+chronological_config: chronological-inference.yaml
+output_dir: ../artifacts/sensor-only-frozen-replay
+device: mps

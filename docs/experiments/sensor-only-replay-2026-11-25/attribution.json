@@ -1,0 +1,19 @@
+{
+  "method": "Exact participant/time inner join of hash-verified saved predictions; compare class correctness and history length",
+  "input_sha256": {
+    "candidate-predictions.csv": "ce14564dabac9cba9db2e71abfe9c2ca8d47ef0e5b896bfea7179ef3e44913a4",
+    "reference-predictions.csv": "d65c65cccc1f6032fd8011ab8844de9b612b53a927103bacabcfe47022394edb"
+  },
+  "corrected_errors": 89,
+  "new_errors": 60,
+  "wrong_to_other_wrong": 28,
+  "net_correct": 29,
+  "history_changes": 566,
+  "class_changes": 177,
+  "class_changes_outside_changed_history": 0,
+  "unchanged_history_epochs": 22139,
+  "unchanged_history_max_probability_difference": 0.0,
+  "probability_changes_above_2e_6": 566,
+  "training_performed": false,
+  "test_observations_read": false
+}
