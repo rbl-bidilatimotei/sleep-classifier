@@ -89,3 +89,8 @@ Use all five fold checkpoints as evaluation evidence. Freeze a separate procedur
 
 The [exporter and loader](evaluation-bundles.md) package a selected evaluation fold with its fitted preprocessing and runtime identity.
 Publication requires full selected-fold parity against saved development predictions. No training or model-quality improvement is implied.
+
+The [bounded raw-event adapter](raw-event-adapter.md) now prepares epochs with explicit watermark, session-end, and late-event rules.
+The [full adapter audit](experiments/raw-event-adapter-2026-11-26/README.md) preserves all 24,738 batch epochs and 23,674 sensor-only predictions exactly.
+Both chunk sizes stay within the declared queue cap. This validates ordered recorded replay, not live device timing or process RSS.
+This adds an input component, without changing the model, fitted preprocessing, or completed evaluation results.
