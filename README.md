@@ -468,3 +468,9 @@ Per-stream watermarks close thirty-second epochs. Late events are rejected, exac
 An explicit session end drains complete epochs and counts discarded tail events. Pending event queues have a fixed combined cap.
 A thirty-epoch development preflight preserves batch features and frozen MPS predictions exactly for two chunk sizes.
 The full twenty-six-participant audit remains opt-in. No model training or final-test observation reads are needed.
+
+Reviewed: [full bounded raw-event adapter audit](docs/experiments/raw-event-adapter-2026-11-26/README.md) passes for twenty-six development participants and two chunk sizes.
+All 24,738 epochs match batch preparation, and all 23,674 canonical frozen predictions match notebook 45 exactly.
+Queue peaks are 2,131 and 3,026 events under the 8,192 cap. Every session conserves accepted events and closes cleanly.
+No model, fitted transform, or test-set observation changed. This adds input parity evidence, not new accuracy results.
+Next: a versioned, single-session JSONL inference runner combining the verified adapter and evaluation bundle, before network serving.

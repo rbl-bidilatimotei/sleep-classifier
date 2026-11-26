@@ -1,7 +1,7 @@
 # Bounded raw-event adapter
 
-Status: prepared on 2026-11-25. Synthetic tests and a thirty-epoch development preflight pass.
-The complete twenty-six-participant audit remains opt-in in [notebook 46](../notebooks/46_raw_event_adapter.ipynb).
+Status: full development audit passed on 2026-11-26.
+Read the [measured findings](experiments/raw-event-adapter-2026-11-26/README.md) alongside [notebook 46](../notebooks/46_raw_event_adapter.ipynb).
 No model was trained, and no final-test observations were opened.
 
 ## Interface and scope
@@ -148,7 +148,8 @@ uv run --locked --inexact --group gru --group notebook python -u -m sleep_classi
 ```
 
 The full raw replay can take several minutes. Logs identify each participant, chunk size, epoch count, and peak queue size.
-The output is `artifacts/raw-event-adapter-audit`. It remains unused after the bounded preflight.
+The output is `artifacts/raw-event-adapter-audit`. It now contains the verified immutable full-cohort snapshot.
+Keep RUN_AUDIT false for cached inspection. Use a fresh configuration and output path for an intentional repeat.
 Publication uses a staged, exclusive directory rename. Existing outputs and source artifacts cannot be overwritten.
 Cached inspection verifies hashes, source identities, complete chunk/fold coverage, buffer limits, event conservation, and fixed-model parity.
 It does not rerun raw processing or inference. Cached code hashes describe the recorded implementation; inspection does not validate later code changes.
@@ -162,8 +163,9 @@ uv run --locked --inexact --group gru --group notebook python scripts/execute_no
 
 The report appears at `artifacts/notebooks/46_raw_event_adapter.executed.html`.
 Setup, audit, and recursive export cells carry skip-execution tags. Source notebook outputs stay empty.
-The [bounded preflight](experiments/raw-event-adapter-preflight-2026-11-25/README.md) verifies thirty epochs, not full-cohort acceptance.
-Review the full audit before adding a live source, service endpoint, or another model experiment.
+The [bounded preflight](experiments/raw-event-adapter-preflight-2026-11-25/README.md) first verified thirty epochs.
+The subsequent [full audit](experiments/raw-event-adapter-2026-11-26/README.md) verifies 24,738 epochs and 23,674 frozen predictions.
+Next, integrate the adapter and verified bundle behind a single-session JSONL runner before a live service or model sweep.
 
 Validation passes 515 targeted non-training tests, Ruff, and whitespace checks.
 Notebook 46 passes fresh-kernel report-only execution. Synthetic completed-report tests exercise its tables and memory-bound chart.
