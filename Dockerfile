@@ -1,4 +1,7 @@
-FROM ghcr.io/astral-sh/uv:0.12.10-python3.11-bookworm-slim
+FROM python:3.11-slim-trixie@sha256:61e01f72680f86a5279ad510818ab7b2ee9f049822589d4e34e33e044360356c
+
+# uv 0.12.10, pinned to the verified multi-platform index
+COPY --from=ghcr.io/astral-sh/uv@sha256:2bb3ebca0a796a155094a27773d290c4b074572e6107f171d88d086682fd2500 /uv /uvx /bin/
 
 WORKDIR /app
 ENV UV_LINK_MODE=copy \
