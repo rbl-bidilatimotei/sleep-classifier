@@ -198,3 +198,18 @@ def test_wheel_checker_cli_uses_only_standard_library(tmp_path: Path) -> None:
         capture_output=True, text=True, check=True,
     )
     assert json.loads(completed.stdout)["status"] == "passed"
+
+
+
+def test_cpu_profile_is_explicit_for_ci_and_docker() -> None:
+    """Select CPU wheels for automation without changing the default Linux experiment source."""
+    import tomllib
+
+    with (ROOT / "pyproject.toml").open("rb") as stream:
+        project = tomllib.load(stream)
+    source = project["tool"]["uv"]["sources"]["torch"][0]
+    assert source["extra"] == "cpu"
+    assert source["marker"] == "sys_platform == 'linux'"
+    assert "cpu" in project["project"]["optional-dependencies"]
+    assert "--group service --extra cpu" in (ROOT / "Dockerfile").read_text()
+    assert "--group service --extra cpu" in (ROOT / ".github/workflows/ci.yml").read_text()

@@ -41,7 +41,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Install locked CPU test dependencies
-        run: uv sync --locked --group service
+        run: uv sync --locked --group service --extra cpu
       - name: Lint the repository
         run: uv run --locked --no-sync ruff check .
       - name: Run only the synthetic contract tests

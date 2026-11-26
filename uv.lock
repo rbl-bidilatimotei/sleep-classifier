@@ -2,19 +2,41 @@ version = 1
 revision = 3
 requires-python = ">=3.11, <3.13"
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
+conflicts = [[
+    { package = "sleep-classifier", extra = "cpu" },
+    { package = "sleep-classifier", extra = "gpu" },
+]]
 
 [[package]]
 name = "annotated-doc"
@@ -147,8 +169,8 @@ name = "beautifulsoup4"
 version = "4.15.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "soupsieve", version = "2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5'" },
-    { name = "soupsieve", version = "3.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5'" },
+    { name = "soupsieve", version = "2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11.5' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "soupsieve", version = "3.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11.5' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/43/65/318323f98dbee45d42dff61d8f047181bc6f2268a9068cfad035a46be5af/beautifulsoup4-4.15.0.tar.gz", hash = "sha256:288e3ca7d54b06f2ac191970bc275c1939cb46d450b255bf6718b04aa37ab4f7", size = 632571, upload-time = "2026-06-07T16:44:20.453Z" }
@@ -187,7 +209,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -316,17 +338,29 @@ name = "contourpy"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/58/01/1253e6698a07380cd31a736d248a3f2a50a7c88779a1813da27503cadc2a/contourpy-1.3.3.tar.gz", hash = "sha256:083e12155b210502d0bca491432bb04d56dc3432f95a979b429f2848c3dbe880", size = 13466174, upload-time = "2025-07-26T12:03:12.549Z" }
 wheels = [
@@ -364,13 +398,19 @@ name = "contourpy"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/83/5a/a55177dd22553a277388e8a1b3220e92de91bacb28356cdc73caa240121d/contourpy-1.4.0.tar.gz", hash = "sha256:20156f5a1ac4f8ce02656e39a61e82164a3d359796dc8026f75b062783d500e1", size = 13323726, upload-time = "2026-09-11T19:05:05.808Z" }
 wheels = [
@@ -385,6 +425,78 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ac/f0/b75a10e9d0616b97a30de277b6dfe83f1879880854c7330337309530eb48/contourpy-1.4.0-cp312-cp312-win32.whl", hash = "sha256:5450f091ac1be0be3ad3a2a3b3f23b5e443e78c670ced4fd347d626f92a28fd2", size = 347345, upload-time = "2026-09-11T19:03:06.192Z" },
     { url = "https://files.pythonhosted.org/packages/50/a9/dab08786bb4d77ef9a046b3c1be923be4e73c5d07d91f5a54e8ea9b09e41/contourpy-1.4.0-cp312-cp312-win_amd64.whl", hash = "sha256:6e697d94e69f499ff6bebb899cae97a58d5d14f0e1fe9568b43a0248d2f9af8c", size = 234083, upload-time = "2026-09-11T19:03:08.122Z" },
     { url = "https://files.pythonhosted.org/packages/47/b9/3ba509755a970dbde5948e7142ac21f266be72f38017cc4087a05fdceee1/contourpy-1.4.0-cp312-cp312-win_arm64.whl", hash = "sha256:0c7a4c2716a4e98342221954416a836cca77c996c14ddbf22b5f01d5d93ca09c", size = 559521, upload-time = "2026-09-11T19:03:10.047Z" },
+]
+
+[[package]]
+name = "cuda-bindings"
+version = "13.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cuda-pathfinder", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/12/09/74e159fbe67b081cca842871addce6d2b493f9bb48ce85124f023eb5f1c9/cuda_bindings-13.5.0-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:71c15ed97099a8ef416515d80ddd10770e0f6339234e16855a526d2896516631", size = 7434875, upload-time = "2026-11-05T12:05:50.666Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/0d/ca24317a31118b90fd60126aec5c0a92a191a7fdd39524032d43328b49b5/cuda_bindings-13.5.0-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:08b7e8d674c3266facb00453a7e34ea7d3ea965c2f594bb728f269f45f39fbe2", size = 8390178, upload-time = "2026-11-05T12:05:52.653Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/7b/455b204f07dcbac810bc48b558d3febff8adb81b6036efac315bd5a4aa33/cuda_bindings-13.5.0-cp311-cp311-win_amd64.whl", hash = "sha256:0d7a5d92be00b2a618fd7c62482f6c69584fd5ac498193b236600810d7ebaf74", size = 8097474, upload-time = "2026-11-05T12:05:59.207Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/70/9ab184a434f47dacedd47a49901c0be1a81080e8b57d1d3f0e5445bb1277/cuda_bindings-13.5.0-cp311-cp311-win_arm64.whl", hash = "sha256:4d850299e6ba1ca9caec78b3d87b6b7590ed1d6c9a404272798f40b1e19e3f24", size = 7010633, upload-time = "2026-11-05T12:06:00.913Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/a6/13d14600381bdbfe55dfc35564e4bf4a208f169ee9f6cbeb356564268aff/cuda_bindings-13.5.0-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:40eadfad6ae1554f8c1aa456620a85a49a275fc902f2c6dd93ee8c488b2c5e9f", size = 7354398, upload-time = "2026-11-05T12:06:03.542Z" },
+    { url = "https://files.pythonhosted.org/packages/27/68/14bf44f386672b03fcc0799be8d18df3e1c45847ee23b95721f6022abbaf/cuda_bindings-13.5.0-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a46a8cc84112d769d0f57bf3ae3fedc115cf09348f14da85a1a8200968b6f262", size = 8378158, upload-time = "2026-11-05T12:06:05.253Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/ea/87bd4fa1e1e70d3895b4e46606902fa7974111a81002dbd0418b68fb5b74/cuda_bindings-13.5.0-cp312-cp312-win_amd64.whl", hash = "sha256:2e8d562f928fe0bb254b1ade02133f9f6bc5e395efd2f1fbdb8533d64bf16e1f", size = 8423332, upload-time = "2026-11-05T12:06:07.32Z" },
+    { url = "https://files.pythonhosted.org/packages/ca/b5/caabd4780b999bc7c8ae70c76eae6eed07ad966abfa7a0fb1e7af708e8b6/cuda_bindings-13.5.0-cp312-cp312-win_arm64.whl", hash = "sha256:64d9c337209736eadc807a36925f11528a4815fed9869df77f259bc9341bc1e1", size = 7302369, upload-time = "2026-11-05T12:06:09.65Z" },
+]
+
+[[package]]
+name = "cuda-pathfinder"
+version = "1.9.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/8e/e6101ff068e7e78b362879ffc0c7cbfe68c9742943c9b034f009fe19f88f/cuda_pathfinder-1.9.1-py3-none-any.whl", hash = "sha256:b743c132f90ad2d1e71d43fd28f31ebcde518f943e50fd44aca62b2a80d5230d", size = 63462, upload-time = "2026-11-19T04:26:29.241Z" },
+]
+
+[[package]]
+name = "cuda-toolkit"
+version = "13.2.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/62/854e4a141f5e87e5425513bad2a742a6260acfe06ef148001b5362148f31/cuda_toolkit-13.2.2-py2.py3-none-any.whl", hash = "sha256:d12edc1aad1356236a2ee10c0d794b1aff5d3e79bfeca54867c3bb8e5afd87b0", size = 2607, upload-time = "2026-07-16T10:13:01.07Z" },
+]
+
+[package.optional-dependencies]
+cublas = [
+    { name = "nvidia-cublas", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cudart = [
+    { name = "nvidia-cuda-runtime", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cufft = [
+    { name = "nvidia-cufft", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cufile = [
+    { name = "nvidia-cufile", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cupti = [
+    { name = "nvidia-cuda-cupti", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cusolver = [
+    { name = "nvidia-cublas", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cusolver", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cusparse", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+cusparse = [
+    { name = "nvidia-cusparse", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+nvjitlink = [
+    { name = "nvidia-nvjitlink", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+nvrtc = [
+    { name = "nvidia-cuda-nvrtc", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+nvtx = [
+    { name = "nvidia-nvtx", marker = "(platform_machine != 'aarch64' and platform_machine != 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (platform_machine == 'aarch64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (platform_machine == 'x86_64' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 
 [[package]]
@@ -539,8 +651,8 @@ name = "httpcore2"
 version = "2.16.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11" },
-    { name = "truststore" },
+    { name = "h11", marker = "sys_platform != 'emscripten' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "truststore", marker = "sys_platform != 'emscripten' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/92/9d/df40b41f7db0370f82019820709244e7b660c52aa3da3c9e5c4e8141f6e6/httpcore2-2.16.2.tar.gz", hash = "sha256:6c519d0f7b44f7269fa9bbb4d2763db395a4a2370f046d8e8e0a4b38227815d2", size = 70064, upload-time = "2026-11-16T10:12:19.491Z" }
 wheels = [
@@ -567,11 +679,11 @@ name = "httpx2"
 version = "2.16.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "sys_platform != 'emscripten'" },
-    { name = "httpcore2", marker = "sys_platform != 'emscripten'" },
-    { name = "httpx2-jsfetch", marker = "python_full_version >= '3.12' and sys_platform == 'emscripten'" },
+    { name = "anyio", marker = "sys_platform != 'emscripten' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "httpcore2", marker = "sys_platform != 'emscripten' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "httpx2-jsfetch", marker = "(python_full_version >= '3.12' and sys_platform == 'emscripten') or (python_full_version < '3.12' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "idna" },
-    { name = "truststore", marker = "sys_platform != 'emscripten'" },
+    { name = "truststore", marker = "sys_platform != 'emscripten' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/1c/77/6515121dc5ac3c743ad1bff5afe635bcd1a3f23cc40db3c5c89f7d02917d/httpx2-2.16.2.tar.gz", hash = "sha256:748b615678f07d8e3b183efe81ad13b655ca88bfc56ce4589219b2d442860574", size = 103370, upload-time = "2026-11-16T10:12:20.49Z" }
@@ -611,7 +723,7 @@ name = "ipykernel"
 version = "7.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython" },
@@ -634,17 +746,17 @@ name = "ipython"
 version = "9.17.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "ipython-pygments-lexers" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "prompt-toolkit" },
-    { name = "psutil", marker = "sys_platform != 'cygwin' and sys_platform != 'emscripten'" },
+    { name = "psutil", marker = "(sys_platform != 'cygwin' and sys_platform != 'emscripten') or (sys_platform == 'cygwin' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "pygments" },
     { name = "stack-data" },
     { name = "traitlets" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/32/99451b1283ec5d92ad77073f12e1c667dc10775384d8f15c2914207149dd/ipython-9.17.1.tar.gz", hash = "sha256:8919be8c27f20a6f4423145028063f6637b42a03ce57665bb12015ee1f073529", size = 4539289, upload-time = "2026-09-01T08:29:32.6Z" }
 wheels = [
@@ -857,10 +969,10 @@ dependencies = [
     { name = "jupyter-server-terminals" },
     { name = "nbconvert" },
     { name = "nbformat" },
-    { name = "overrides", marker = "python_full_version < '3.12'" },
+    { name = "overrides", marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'linux'" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and sys_platform != 'linux') or (os_name == 'nt' and extra != 'extra-16-sleep-classifier-cpu') or (os_name != 'nt' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -878,7 +990,7 @@ name = "jupyter-server-terminals"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'linux'" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and sys_platform != 'linux') or (os_name == 'nt' and extra != 'extra-16-sleep-classifier-cpu') or (os_name != 'nt' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/a7/bcd0a9b0cbba88986fe944aaaf91bfda603e5a50bda8ed15123f381a3b2f/jupyter_server_terminals-0.5.4.tar.gz", hash = "sha256:bbda128ed41d0be9020349f9f1f2a4ab9952a73ed5f5ac9f1419794761fb87f5", size = 31770, upload-time = "2026-01-14T16:53:20.213Z" }
@@ -904,7 +1016,7 @@ dependencies = [
     { name = "packaging" },
     { name = "tornado" },
     { name = "traitlets" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/33/8d/995cc142f6083346b35e7d3eadc5a6717ee89ce64ea53577010ac493bc3c/jupyterlab-4.6.4.tar.gz", hash = "sha256:404f49b081819378524886c9db66dba57a5565981eff885830df1baba3a17df5", size = 28335647, upload-time = "2026-09-21T15:25:18.779Z" }
 wheels = [
@@ -1036,13 +1148,13 @@ name = "matplotlib"
 version = "3.11.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "contourpy", version = "1.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "contourpy", version = "1.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "contourpy", version = "1.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "contourpy", version = "1.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "cycler" },
     { name = "fonttools" },
     { name = "kiwisolver" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "packaging" },
     { name = "pillow" },
     { name = "pyparsing" },
@@ -1177,14 +1289,26 @@ name = "networkx"
 version = "3.6.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be9d2e4f1158eb633317598cfa6e1fc14af5383f17512/networkx-3.6.1.tar.gz", hash = "sha256:26b7c357accc0c8cde558ad486283728b65b6a95d85ee1cd66bafab4c8168509", size = 2517025, upload-time = "2025-12-08T17:02:39.908Z" }
 wheels = [
@@ -1196,10 +1320,16 @@ name = "networkx"
 version = "3.7"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dc/76/3af777226b63a5e64a6b36b1ec5855c14e2b94a37096d4760e595fc43511/networkx-3.7.tar.gz", hash = "sha256:fd77a511bd90f39f3d016351345b52cf5319b813bdca01de3f755d3cca62e96a", size = 1866482, upload-time = "2026-09-21T16:45:16.974Z" }
 wheels = [
@@ -1223,14 +1353,26 @@ name = "numpy"
 version = "2.4.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d0/ad/fed0499ce6a338d2a03ebae59cd15093910c8875328855781952abf6c2fe/numpy-2.4.6.tar.gz", hash = "sha256:f3a3570c4a2a16746ac2c31a7c7c7b0c186b95ce902e33db6f28094ed7387dda", size = 20735807, upload-time = "2026-05-18T23:37:14.07Z" }
 wheels = [
@@ -1270,10 +1412,16 @@ name = "numpy"
 version = "2.5.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/95/b0/c7453d0b6e2073c3264468b106ee1563750cecc910965e67357e3698c83e/numpy-2.5.4.tar.gz", hash = "sha256:9a94cf751c9ad8ebaa835bcd3d40dacf8534ad086b88c38029b65123c7999d2a", size = 20866315, upload-time = "2026-10-10T20:05:31.422Z" }
 wheels = [
@@ -1291,14 +1439,183 @@ wheels = [
 ]
 
 [[package]]
+name = "nvidia-cublas"
+version = "13.4.1.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cuda-nvrtc", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/a0/5cd9d4b08a8320f7ca150ee0d66c97e98092922e338336cb4b62da7500c3/nvidia_cublas-13.4.1.3-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:4eb1472bf92b741e7cf24da7978dde251b58ddec2092d9f6a04f3623eb4e9a15", size = 513048232, upload-time = "2026-07-16T09:45:07.751Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/97/d483a41da34df5c88727c57319576967f6d7befba5028d70928d2999635e/nvidia_cublas-13.4.1.3-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:a5917cb642cfb07f4a0231ee16aec7e2e0357d8cb8b1b78a0c9c68dba3e6afc7", size = 404870805, upload-time = "2026-07-16T09:46:05.62Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/0f/8982a363ab246d22876f3eb8baccce81f0da6304d39f86d63b67389c5457/nvidia_cublas-13.4.1.3-py3-none-win_amd64.whl", hash = "sha256:7e7f780caf07bde7b36b0d25bdad29e8ccbacfc4b75066907bdb601af1e6d4aa", size = 388920654, upload-time = "2026-07-16T10:05:36.737Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-cccl"
+version = "13.3.5.0.6"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/dc/9a056ef9bd05c55ddaed3afce160702e4ce8303b9ec1b38066044c18dcd2/nvidia_cuda_cccl-13.3.5.0.6-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6f30b8076b3e69951c459c94ae190bde51924b320076ebaec376d36848b4c76e", size = 4113650, upload-time = "2026-11-04T23:21:46.803Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/7e/4aa67cca14e0558b5a151a692f5ffe609930cdfc20d16c7a584de68424d4/nvidia_cuda_cccl-13.3.5.0.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:d5230098fa2df5021e1a00c0c4eee41797671a91119d31e892463e5ccf3ee326", size = 4113651, upload-time = "2026-11-04T23:21:54.262Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/36/cda28cc973cc31c710d83256cc5b225922a04e3a361fa1a19c166206f805/nvidia_cuda_cccl-13.3.5.0.6-py3-none-win_amd64.whl", hash = "sha256:6e1f96b71d582171cebd9ae1d7ffbfc726e112a0a41aef77b9ead500aad7e0a2", size = 4113630, upload-time = "2026-11-04T23:34:33.947Z" },
+    { url = "https://files.pythonhosted.org/packages/05/97/d71b6887711e37f19fbb22b624f412fcf226188b194cc1df5c48d6c61f2d/nvidia_cuda_cccl-13.3.5.0.6-py3-none-win_arm64.whl", hash = "sha256:a729999ca75633c6e2c7f48804fa982e00d75e5416284d010fadf82646c1d854", size = 4120910, upload-time = "2026-11-04T23:39:29.265Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-cupti"
+version = "13.2.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/ab/52414925ea803a5f86b994ae97d951e5943ed27a6f1da4a5c4ac09e308af/nvidia_cuda_cupti-13.2.86-py3-none-manylinux_2_25_aarch64.whl", hash = "sha256:d9a5c133f73fcb9013f3ada0da6fb54d4117618d81f3f5a0419417ea6ee829d4", size = 11760263, upload-time = "2026-07-16T09:35:34.643Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/76/a10d9fb5d9a0e46d5f95e5520bd1b2d8ad22a9c0a09d2f8c20c5ee842a96/nvidia_cuda_cupti-13.2.86-py3-none-manylinux_2_25_x86_64.whl", hash = "sha256:8fa29f15dd8336181f961764d9d95236fc6b931dd0c8fcf8cd70aab0c310b586", size = 11988600, upload-time = "2026-07-16T09:36:06.061Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/7a/7dadeb6faa141c07e608d9ed1dcb355c97b11b42f61106e41937e10da643/nvidia_cuda_cupti-13.2.86-py3-none-win_amd64.whl", hash = "sha256:10837e2910753a7726c0243aa113e2bd65c0edee6f6f3e097db1757a8eac2c9e", size = 8175943, upload-time = "2026-07-16T10:00:42.314Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-nvrtc"
+version = "13.2.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/39/c58835ec8392a91b8d7bad83760eafc3085f64788b722ec2b44a27b3ca3e/nvidia_cuda_nvrtc-13.2.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:8111c5130e967b78222ea2124145f8efe9ce201b752b2579a2513100a53be1c5", size = 47018468, upload-time = "2026-07-16T09:40:35.085Z" },
+    { url = "https://files.pythonhosted.org/packages/13/95/029e91026e1d378cba9fb2cdb62394bb15d06de7586bab73d76397df6b7f/nvidia_cuda_nvrtc-13.2.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:1e5d7b411a2eb83f5c71c98d58133a763fc9fa86a4241ee320c5c4782d9ad1fd", size = 44755454, upload-time = "2026-07-16T09:39:59.909Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/4e/2a19f2aa79ffc822c0d2be7c161fcac5a8b43aebd554c79ff982bb44071e/nvidia_cuda_nvrtc-13.2.86-py3-none-win_amd64.whl", hash = "sha256:bf070582c2d8b03f681cea8d34a9de900d808607deb813a826ecb3a585606f9a", size = 40818138, upload-time = "2026-07-16T10:02:27.876Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-runtime"
+version = "13.2.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/89/d4/fa981071e3d9f29158ca16c69ee617831cd6df4dd47024149c16eec717f8/nvidia_cuda_runtime-13.2.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:37844957894bfdecf90243568d21a2cb251b66106915b71459a23c8e6ef2da69", size = 2341433, upload-time = "2026-07-16T09:33:00.116Z" },
+    { url = "https://files.pythonhosted.org/packages/70/c6/8f8c5e893d183082ea78f973aebc7ebc845ee219d68bddac73b0f62490fe/nvidia_cuda_runtime-13.2.86-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:3498247680dfddce31bad102af7e3e26fc795342a3cac64722bb0fa95e7f60f0", size = 2323576, upload-time = "2026-07-16T09:33:28.652Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/7f/0849696e8ea074fd6c30864a235ab232683c71cb8e6a88186d48fc62120f/nvidia_cuda_runtime-13.2.86-py3-none-win_amd64.whl", hash = "sha256:b26f5dd86e67f0eb404ae679185e1c49fe546fa9a47b32dee31312f65ccfe764", size = 3154679, upload-time = "2026-07-16T10:00:09.778Z" },
+]
+
+[[package]]
+name = "nvidia-cudnn-cu13"
+version = "9.26.0.51"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/1c/01e1dd3dec6ffe0baaff7e722b8946d867353d05a01301f128f1730fde0b/nvidia_cudnn_cu13-9.26.0.51-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8e5b4f5eccff721416f70ecf4353172fc4d5cdd8ca869fe6f983a4a5b0147b20", size = 595329497, upload-time = "2026-09-10T16:45:39.945Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/1b/ea72dd62f26ce3e0a7870b85148b75a5987507629b712deebeb87f7cce9a/nvidia_cudnn_cu13-9.26.0.51-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:9c976d539786698c71d6bcdbe2053b7485fae062ff7e1215d2f2ff67b1a2149a", size = 519150073, upload-time = "2026-09-10T16:47:58.332Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/1f/9c5d7ed254d7040192b4bb4eef669ba3ed66a3c4576c50f7d2385b255c8e/nvidia_cudnn_cu13-9.26.0.51-py3-none-win_amd64.whl", hash = "sha256:8e37a83d7dd7c2663afcae38b1c95c5e9e7c9754f313800da95ca81439fa37f9", size = 419603885, upload-time = "2026-09-10T16:51:07.436Z" },
+]
+
+[[package]]
+name = "nvidia-cufft"
+version = "12.2.0.57"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/8d/f650e6d527f9d22b5ded906c000eaebb037721c06d4ecd906df62f300979/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:1ed438568ae1088ba2c25789d10205d4104b8b140b7bd942e39a787947a0fb74", size = 218244742, upload-time = "2026-07-16T09:47:08.76Z" },
+    { url = "https://files.pythonhosted.org/packages/41/28/868ed0c6ade5e6a75b25166b3cf191f4a2ff58ad618c1e40befb776c97c5/nvidia_cufft-12.2.0.57-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:34da27fadf3979b0b042c43823f0530be8408b86df31ee0108e1ca0b621d4ef6", size = 218258101, upload-time = "2026-07-16T09:47:50.978Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/48/4a943a66093ec0e9e077bf584462d35d9feed297a76078a78582841985f2/nvidia_cufft-12.2.0.57-py3-none-win_amd64.whl", hash = "sha256:89b78b2b60d6ca1fb7dab7d1a4af135d69d586d18a216ca84e51db5901cd41d0", size = 217463602, upload-time = "2026-07-16T10:06:13.575Z" },
+]
+
+[[package]]
+name = "nvidia-cufile"
+version = "1.17.1.22"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fe/fd/4b4157512a131a51e1514d40d0199b1c5b7b10c6856db274ff22e5fe15be/nvidia_cufile-1.17.1.22-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:bec33d7f1f12691dce330275246587569c2ed90b1ce43b0f94b3e1ce9268744b", size = 1226736, upload-time = "2026-04-13T09:52:40.142Z" },
+    { url = "https://files.pythonhosted.org/packages/23/c5/661a73a9042fc5f81cdd5fe6e89f4170b3b33f7962e709987e2b5e5f1381/nvidia_cufile-1.17.1.22-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:87feaf8c3ad20d3d03a01933181801ff6892bace5c8f0b1e4b48f319d3e62d36", size = 1387670, upload-time = "2026-04-13T09:52:57.783Z" },
+]
+
+[[package]]
+name = "nvidia-cusolver"
+version = "12.2.0.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cublas", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cusparse", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/60/df/9e6b603f1d64040ce3e076e9bce1b78e2d588d0aabc9783f351cecd861ab/nvidia_cusolver-12.2.0.11-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:8be097fca28de6be0990ab216ee9b804dd51077e1d1d83acf6c9850650bdc64d", size = 250383075, upload-time = "2026-07-16T09:50:16.355Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/a4/90f7ade9992190788658c3c285f196fdb9bcc3a5bb93a325c245121d22fd/nvidia_cusolver-12.2.0.11-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:fab5778f6769947389a1a6abc07e635576825a08c0ffc68c3ae7f1392c794b42", size = 227913465, upload-time = "2026-07-16T09:50:56.976Z" },
+    { url = "https://files.pythonhosted.org/packages/02/12/c5c52523ec7970b193837b79f4b892122c24dc5ee5a6b1fae26dae1a31ca/nvidia_cusolver-12.2.0.11-py3-none-win_amd64.whl", hash = "sha256:364511c9974ef1fcde2ca197caebfe0994ece2cb33bc27117eeb88b8cee5c46d", size = 217690140, upload-time = "2026-07-16T10:07:33.457Z" },
+]
+
+[[package]]
+name = "nvidia-cusparse"
+version = "12.7.10.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-nvjitlink", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/60/35/abbd278fb6d039fcfb5175efa10a21007a11878bec59920d84854b47d766/nvidia_cusparse-12.7.10.12-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:597eff2cd83e3ab1d1e3a0dce9c9c879d77cf64ec2659bfdb5af6a5d02e7aaa9", size = 169043093, upload-time = "2026-07-16T09:51:37.058Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/46/3a9700cc13f30c9279af9a862363535c814fa27597199b21fd93cad66237/nvidia_cusparse-12.7.10.12-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:25907c75e4db1581685f06f61cc6cdecc04611765516a52373e0a18ebd69fa00", size = 150999307, upload-time = "2026-07-16T09:52:17.727Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/28/355676e73dd07d1a41cc33904a8b4fbb22b6fe97662e5ec47c535fe7e9e3/nvidia_cusparse-12.7.10.12-py3-none-win_amd64.whl", hash = "sha256:6b1e82056a0865c5b4f5da6adbebb15244e9a2b8aeea0838a9cf725e16523c53", size = 149276551, upload-time = "2026-07-16T10:08:16.871Z" },
+]
+
+[[package]]
+name = "nvidia-cusparselt-cu13"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/46/e1/cdc1797eadf82d3a9a575a19b33fdc871a97edbec42c00b5b5e914f4aff4/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4dca476c50bf4780d46cd0bfbd82e2bc10a08e4fef7950917ce8d7578d22a23f", size = 221051344, upload-time = "2025-09-05T18:49:51.289Z" },
+    { url = "https://files.pythonhosted.org/packages/34/7d/2661f2fb3ac4302f3a246f5fc030213ac60c1fe0bce84f9783dbd831dbb7/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl", hash = "sha256:786ce87568c303fadb5afcc7102d454cd3040d75f6f8626f5db460d1871f4dd0", size = 170148586, upload-time = "2025-09-05T18:50:50.248Z" },
+    { url = "https://files.pythonhosted.org/packages/31/83/f3647ce26916c94a6ca4ff1810623e2c405cff2dea6e78d29516b2514df9/nvidia_cusparselt_cu13-0.8.1-py3-none-win_amd64.whl", hash = "sha256:dccbd362f91a7b9024d1f55ee9f548ac065027ff15d8c8b0db889ab3a8f31215", size = 156885108, upload-time = "2025-09-05T18:51:35.958Z" },
+]
+
+[[package]]
+name = "nvidia-nccl-cu13"
+version = "2.30.7"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/21/a73174c6157101bdf1ffc22b517f76ff0082613989dd9bc8f43e8034caac/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_aarch64.whl", hash = "sha256:ca786ffa5a647c75d4d1f5cc72a6c4f537947e2ba8823d7c8aaf768e7a7b9f77", size = 215983881, upload-time = "2026-06-09T03:23:15.633Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/34/c500f90c7ae641b8e0f98965b36b8a7ac79cc8b296e8d251fe3eb592ee54/nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl", hash = "sha256:cefa7fdb9710efd0f39c5f1be1d61ff6fc9a996c451265bd7fbdcf9455ed4b50", size = 215965170, upload-time = "2026-06-09T03:23:39.73Z" },
+]
+
+[[package]]
+name = "nvidia-nvjitlink"
+version = "13.5.37"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cc/1f/2321702b8d60b4b4dd18b957f61612dbac9cb1c07e940cf6582106b7c8b8/nvidia_nvjitlink-13.5.37-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:280d7cb9649704145f074b8dbde500de04ce02d0872e066e20a83c17bcaa93eb", size = 46642491, upload-time = "2026-11-04T23:33:31.696Z" },
+    { url = "https://files.pythonhosted.org/packages/24/15/dd228f798cd01d7aeaf19d872b2b20f9aeafc1a7d8b6bfaa878b30b8d6f7/nvidia_nvjitlink-13.5.37-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:893f6f9a55b2720ed94913b5ba3332e972da8c78dfa2863d0244403dbd528ffc", size = 45253761, upload-time = "2026-11-04T23:33:22.854Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/53/c43398492e8374880d5e01c23c4dac33ba0c3bd03515d6ecc574254c0967/nvidia_nvjitlink-13.5.37-py3-none-win_amd64.whl", hash = "sha256:4465d4e8f2212118220b580c82523c5654f93a62906bd51d29d79bdfc12376c1", size = 41467665, upload-time = "2026-11-04T23:38:44.689Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/4a/1ff9ab7d0c961a1b5539f8291c881bea82adbbf8ba40a9e81f9c9b3a8d5d/nvidia_nvjitlink-13.5.37-py3-none-win_arm64.whl", hash = "sha256:eb30348ae64c525180a280025dd12a089c3e2e1dc4e19cdd58f68c6edc622404", size = 38552904, upload-time = "2026-11-04T23:43:27.658Z" },
+]
+
+[[package]]
+name = "nvidia-nvshmem-cu13"
+version = "3.7.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cuda-cccl", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/11/1767ef120299972822a43aceffbc81ac813aad2089d817e36e4e12aa4c9c/nvidia_nvshmem_cu13-3.7.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:0e748308b9e0a8a8d81859353f3e6c98fbe85a85f652a915a2ba60149a0bd124", size = 135174619, upload-time = "2026-07-17T19:24:15.404Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/4a/037dfbbafc96ad1828ef62326f27970cae2c0eb271cf5b8e6922f32a7427/nvidia_nvshmem_cu13-3.7.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:b9a4f843c62b5dded8ad33fd6d220e007dcd39f06cee549292f5ba14ce4c235c", size = 135397797, upload-time = "2026-07-17T19:25:26.4Z" },
+]
+
+[[package]]
+name = "nvidia-nvtx"
+version = "13.2.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/ee/16bde09927e7ffacd50b117cd7d1dc764d145f03249fc41fdf6dfba3301f/nvidia_nvtx-13.2.86-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:968ce72baee2a01791c7d3254000eac81f24677b0b91c62d21b449a1f309c245", size = 153463, upload-time = "2026-07-16T09:41:23.242Z" },
+    { url = "https://files.pythonhosted.org/packages/52/5f/74e2d29240de30a971d59ca20f4a3c4f2720cd49752809eeb4177d385c2c/nvidia_nvtx-13.2.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:1c6ae1be92fba569dd271f7b9b3056f99f5642726dc6c53d1b93ae4110c398fb", size = 154292, upload-time = "2026-07-16T09:40:53.791Z" },
+    { url = "https://files.pythonhosted.org/packages/df/b3/00239b7a93d2f44dabce1c2b5579d275e83678d6699727ec43de427523ac/nvidia_nvtx-13.2.86-py3-none-win_amd64.whl", hash = "sha256:7f3f430a87bb1e2db3371832d21a5c1efcf77bef7cacfd772fd71649e121cd58", size = 142533, upload-time = "2026-07-16T10:03:02.777Z" },
+]
+
+[[package]]
 name = "opal-optimizer"
 version = "0.3.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
-    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/ce/92ddaaa83ee838e0851f436c9fdb37d118a61f61caa2e159973aeb26a636/opal_optimizer-0.3.10.tar.gz", hash = "sha256:2b4d617f40ae9cd54fa63396cb19c91693dbf74742aca8deccd65f7d6d583d2e", size = 258405, upload-time = "2026-11-03T07:30:00.452Z" }
 wheels = [
@@ -1340,10 +1657,10 @@ name = "pandas"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "python-dateutil" },
-    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32'" },
+    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/55/b1/a10c0d1a7e3ce44eb42635771004aa503e3b9ddde0bd39c524dda65f7eff/pandas-3.1.0.tar.gz", hash = "sha256:ecb9b2d8a817b1e1ba1fdb90c0abe9eab31b4fdf2562b7a56b86ac66ace17e49", size = 5933421, upload-time = "2026-10-22T11:57:03.087Z" }
 wheels = [
@@ -1609,7 +1926,7 @@ name = "pytest"
 version = "9.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
@@ -1686,7 +2003,7 @@ name = "pyzmq"
 version = "27.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy'" },
+    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e7/8d/5b3d5631c2f4b4b8862f64cd0c9eb777b5710eeb5125b4be8dd0a200a4c0/pyzmq-27.2.0.tar.gz", hash = "sha256:54d4259d1bfae24ecdb5ca79f7acc2eac6c286a02d6a0ae617797cb45f0726d3", size = 292316, upload-time = "2026-08-20T19:08:21.19Z" }
 wheels = [
@@ -1875,10 +2192,10 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
     { name = "narwhals" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "threadpoolctl" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d2/eb/eaf5e07fcc0da7149b0e084f24e54edd7441b9a89ce7e034032ae97fe3a0/scikit_learn-1.9.1.tar.gz", hash = "sha256:629cada3e33e2b9bf376cdc7614a47a4140b8aedc1d836579e359736fbd82977", size = 7786908, upload-time = "2026-09-10T18:34:04.679Z" }
@@ -1902,17 +2219,29 @@ name = "scipy"
 version = "1.17.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7a/97/5a3609c4f8d58b039179648e62dd220f89864f56f7357f5d4f45c29eb2cc/scipy-1.17.1.tar.gz", hash = "sha256:95d8e012d8cb8816c226aef832200b1d45109ed4464303e997c5b13122b297c0", size = 30573822, upload-time = "2026-02-23T00:26:24.851Z" }
 wheels = [
@@ -1943,13 +2272,19 @@ name = "scipy"
 version = "1.18.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7e/74/66de6258867beb2ef08f35f9f2ac017a52cacd5081714d239ff1a442d458/scipy-1.18.1.tar.gz", hash = "sha256:52c4b7422442aba924d03ad4019852b08a92e64ea187b933135687bfe2747307", size = 30781235, upload-time = "2026-08-21T23:28:50.599Z" }
 wheels = [
@@ -2000,10 +2335,19 @@ dependencies = [
     { name = "ipython" },
     { name = "jsonschema" },
     { name = "matplotlib" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "pandas" },
     { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+cpu = [
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "(sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+]
+gpu = [
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'linux'" },
 ]
 
 [package.dev-dependencies]
@@ -2019,8 +2363,8 @@ dev = [
 gru = [
     { name = "joblib" },
     { name = "scikit-learn" },
-    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
-    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 notebook = [
     { name = "ipykernel" },
@@ -2034,8 +2378,8 @@ service = [
     { name = "fastapi" },
     { name = "joblib" },
     { name = "scikit-learn" },
-    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
-    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'linux'" },
+    { name = "torch", version = "2.15.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "torch", version = "2.15.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "uvicorn" },
 ]
 
@@ -2047,7 +2391,11 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.0" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "torch", marker = "sys_platform == 'linux' and extra == 'cpu'", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "sleep-classifier", extra = "cpu" } },
+    { name = "torch", marker = "sys_platform == 'linux' and extra == 'gpu'", specifier = ">=2.15.0", index = "https://pypi.org/simple", conflict = { package = "sleep-classifier", extra = "gpu" } },
+    { name = "torch", marker = "sys_platform != 'linux' and extra == 'cpu'", specifier = ">=2.15.0" },
 ]
+provides-extras = ["cpu", "gpu"]
 
 [package.metadata.requires-dev]
 baseline = [
@@ -2062,8 +2410,7 @@ dev = [
 gru = [
     { name = "joblib", specifier = ">=1.6.0" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
-    { name = "torch", marker = "sys_platform != 'linux'", specifier = ">=2.15.0" },
-    { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", specifier = ">=2.15.0" },
 ]
 notebook = [
     { name = "ipykernel", specifier = ">=6.0" },
@@ -2075,8 +2422,7 @@ service = [
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "joblib", specifier = ">=1.6.0" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
-    { name = "torch", marker = "sys_platform != 'linux'", specifier = ">=2.15.0" },
-    { name = "torch", marker = "sys_platform == 'linux'", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", specifier = ">=2.15.0" },
     { name = "uvicorn", specifier = ">=0.30,<1" },
 ]
 
@@ -2085,10 +2431,16 @@ name = "soupsieve"
 version = "2.10"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform == 'linux'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/71/c3/1b817965ac12dc002d7c9cd7dfffdd7d4fbf9b45763ef2ffe7b86ee94670/soupsieve-2.10.tar.gz", hash = "sha256:49e9380d7d2905463583bafe285e818c7366a9ed7b3aee221c1ac79c905d8bc0", size = 124337, upload-time = "2026-09-24T02:36:35.048Z" }
 wheels = [
@@ -2100,14 +2452,26 @@ name = "soupsieve"
 version = "3.0.4"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/19/63/0b6bae54546aed98d72f12d09df57b19a287f01c84d22047fa2e23772ab9/soupsieve-3.0.4.tar.gz", hash = "sha256:924fab84ae21604c19e175e1f39815eb6fa83ba23836e09e9de180925e5bc4c0", size = 119017, upload-time = "2026-10-22T00:45:26.362Z" }
 wheels = [
@@ -2158,8 +2522,8 @@ name = "terminado"
 version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "os_name == 'nt' and sys_platform != 'linux'" },
+    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "pywinpty", marker = "(os_name == 'nt' and sys_platform != 'linux') or (os_name == 'nt' and extra != 'extra-16-sleep-classifier-cpu') or (os_name != 'nt' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -2193,30 +2557,59 @@ name = "torch"
 version = "2.15.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'win32'",
-    "python_full_version < '3.11.5' and sys_platform == 'emscripten'",
-    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32' and extra == 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform == 'emscripten' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version >= '3.11.5' and python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
+    "python_full_version < '3.11.5' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-16-sleep-classifier-cpu' and extra != 'extra-16-sleep-classifier-gpu'",
 ]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "jinja2" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "setuptools" },
-    { name = "sympy" },
-    { name = "typing-extensions" },
+    { name = "cuda-bindings", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "cuda-toolkit", extra = ["cublas", "cudart", "cufft", "cufile", "cupti", "cusolver", "cusparse", "nvjitlink", "nvrtc", "nvtx"], marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "filelock", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "fsspec", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "jinja2", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and sys_platform != 'linux') or (python_full_version < '3.12' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform != 'linux') or (python_full_version >= '3.12' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cudnn-cu13", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-cusparselt-cu13", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nccl-cu13", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "nvidia-nvshmem-cu13", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "setuptools", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "sympy", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "triton", marker = "(sys_platform == 'linux' and extra != 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "typing-extensions", marker = "sys_platform != 'linux' or extra != 'extra-16-sleep-classifier-cpu' or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2d/a5/fa947e2bbb072933f8c0ad5e02bd11126bcfc2b624fe234ac29a7b63600c/torch-2.15.0-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:e808b63d616a43b326e1a5677d45a2e5babe7a8ce27edb03ddb48e7dd9b6d663", size = 138527954, upload-time = "2026-10-28T15:16:30.29Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/06/439e6434bef959507463fa3fd21c580304f3798ea06ab3e932ef908cff1d/torch-2.15.0-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:58ce2ebfb3430941353109a85be63ee8e941da22f13daa2c43344eeb51c81e06", size = 483605887, upload-time = "2026-10-28T15:16:55.208Z" },
+    { url = "https://files.pythonhosted.org/packages/06/7d/57b7f46934e1148b436889e385693bfcb94ae047b3fe0b6015922e3b66f7/torch-2.15.0-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:48c2d861134c0b5697c7602cb5ffa68f62a2989fdcd1717e593356f67996ca1e", size = 539136850, upload-time = "2026-10-28T15:17:10.346Z" },
     { url = "https://files.pythonhosted.org/packages/d1/7e/7f1252812e8048bc24f203fc0757a251f26af797b4ff986e19046e2b5f73/torch-2.15.0-cp311-cp311-win_amd64.whl", hash = "sha256:d2c5938f593a47cf6d151a16d130a3cc3f0c105df1b905a571efc00b01e38c1f", size = 126720349, upload-time = "2026-10-28T15:16:25.498Z" },
     { url = "https://files.pythonhosted.org/packages/17/24/7b9b755e8c4dd2395c6a94bab6a4ed8aded1735ff2538bc63cbba8abeddd/torch-2.15.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:593e5fd0c204284890d1c3dff643be34e549e1d24523e13402510f960d4da438", size = 138558517, upload-time = "2026-10-28T15:16:35.918Z" },
+    { url = "https://files.pythonhosted.org/packages/56/c9/ac253c63f13212393483bfa6c180b684c8e5437960c06ec9292797e09357/torch-2.15.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:9e51cf9460c5441dcd2a4f31ece207e35ea7c3d2535be0f929cca4944e2eeb18", size = 483664949, upload-time = "2026-10-28T15:17:27.418Z" },
+    { url = "https://files.pythonhosted.org/packages/42/43/612036bf387d34afff1ec77d3aabe0d16776f1727b00b8bc4540fe5472b1/torch-2.15.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:6d8c86f4e33a9f12a58149bd9b0d64351632b8eb44479be8ff85e5389932dd79", size = 539172785, upload-time = "2026-10-28T15:17:47.95Z" },
     { url = "https://files.pythonhosted.org/packages/74/0b/a57c0b58a64b7a197dc40fc464bb96c0de867f95a2b1cbb3ec9e54414fde/torch-2.15.0-cp312-cp312-win_amd64.whl", hash = "sha256:f2bd0a3709a7493a6ef2ac5a654111242a854439f7558f910b6b653b56f7504d", size = 126738207, upload-time = "2026-10-28T15:16:40.586Z" },
 ]
 
@@ -2230,22 +2623,26 @@ resolution-markers = [
     "python_full_version < '3.11.5' and sys_platform == 'linux'",
 ]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "jinja2" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "setuptools" },
-    { name = "sympy" },
-    { name = "typing-extensions" },
+    { name = "filelock", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "fsspec", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "jinja2", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (python_full_version >= '3.12' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (python_full_version < '3.12' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu') or (sys_platform != 'linux' and extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "setuptools", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "sympy", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
+    { name = "typing-extensions", marker = "(sys_platform == 'linux' and extra == 'extra-16-sleep-classifier-cpu') or (extra == 'extra-16-sleep-classifier-cpu' and extra == 'extra-16-sleep-classifier-gpu')" },
 ]
 wheels = [
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp311-cp311-linux_s390x.whl", hash = "sha256:ef0bd617c9439a54d698d95fb7c3f63efcc48c29efdd42b177e87d862cb574fa", upload-time = "2026-10-28T13:17:54Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:97dc6b0a7cbad2109e615da3eac03df626c61e821e9486438b0248ba896178c6", upload-time = "2026-10-28T13:18:01Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:cee15855a32ad89a9bb27b8a9d6e07a859dcd2e11ed1b5561f3d6206e31a103b", upload-time = "2026-10-28T13:18:09Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp311-cp311-win_amd64.whl", hash = "sha256:773a685c0210c9c29e0ff4b6bc7f5ff98d3f7fa5853d62770c83babd75adf8c4", upload-time = "2026-10-28T13:18:17Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp311-cp311-win_arm64.whl", hash = "sha256:ede58d628d67be1158c2028b783b9c8a0c411b650406475dbee13006716f872e", upload-time = "2026-10-28T13:18:20Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-linux_s390x.whl", hash = "sha256:29c74659a82483d9a9c5d7f9e1112973dfa2dce5b3956dba5d1b97381b94cfae", upload-time = "2026-10-28T13:18:25Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:75941d429aaf4450bcd364345d7677e2d54aad45b38fbfcb1c0552450a6e9c40", upload-time = "2026-10-28T13:18:32Z" },
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:0955c7e3446326293f48af18fad67872fa31dee5a36a87690eb9e5be8b465be3", upload-time = "2026-10-28T13:18:39Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-win_amd64.whl", hash = "sha256:5af9fb357790db09e62484b12032304f046c22c4b1895ca88c4cf5987ea369ca", upload-time = "2026-10-28T13:18:45Z" },
+    { url = "https://download-r2.pytorch.org/whl/cpu/torch-2.15.0%2Bcpu-cp312-cp312-win_arm64.whl", hash = "sha256:fe17318e964a6eb4b1380fd6dcd5405264af3e54b10bce7abcce5fa701a3f049", upload-time = "2026-10-28T13:18:48Z" },
 ]
 
 [[package]]
@@ -2277,6 +2674,17 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/2c/2e/a7fbfe268c8a3b32546930c0297c101d65a4a14c304ad5790a9f478f0e4e/traitlets-5.16.1.tar.gz", hash = "sha256:ed900c2b631aa3a112811139fa97b8d2c3bad5e989656bba4b7e52c7852c18c1", size = 166137, upload-time = "2026-08-03T08:32:36.848Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ad/66/0d785f0bc5e4315a96c989bb476d0fc07ea4f85132550c7b156ca2035d52/traitlets-5.16.1-py3-none-any.whl", hash = "sha256:f775618166caa0396c8e337099240f2bd3e5e917d203b2e6fbe21a58d3cb1f6b", size = 86211, upload-time = "2026-08-03T08:32:34.48Z" },
+]
+
+[[package]]
+name = "triton"
+version = "3.9.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/0e/a2176f4ddc2a0c77796d7834cd9bb088cdba4d89e080716b36970dce4ad0/triton-3.9.0-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:feaaec13578ca84301d561d034cb08b3ae293d7f0b7ab6b8ddbb2d6796363716", size = 263373771, upload-time = "2026-10-27T18:38:49.077Z" },
+    { url = "https://files.pythonhosted.org/packages/05/73/51e1466f2941ed36dbe57d1f88f772ba6afe669e5ba1e24eaf148b7ec0e1/triton-3.9.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1622118a038b0c6e16fa4a0305da62c8b3c15904ee1cc4d4e65846a25969e41e", size = 285777556, upload-time = "2026-10-27T18:28:00.919Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/7f/79490a3e16cbda1817f00ad6d05694020f1decb1e063f96e83d1cfd2558d/triton-3.9.0-cp312-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5542f4328472fd827dbb1ec43873364c2894682cc3f5d1c74a643762900e243e", size = 263270508, upload-time = "2026-10-27T18:39:01.187Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/c9/af85b25e0d98bd921a7646ad1db1c8746250ee04b8f1595982d29b6283cf/triton-3.9.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5e52ab4e2f1d64f0ac494c9aa723697b793f81a91c4cae4c36608ca0bc4267bf", size = 285674620, upload-time = "2026-10-27T18:28:11.992Z" },
 ]
 
 [[package]]

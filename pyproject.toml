@@ -16,6 +16,10 @@ dependencies = [
     "ipython>=9.17.1",
 ]
 
+[project.optional-dependencies]
+cpu = ["torch>=2.15.0"]
+gpu = ["torch>=2.15.0; sys_platform == 'linux'"]
+
 [dependency-groups]
 baseline = [
     "joblib>=1.6.0",
@@ -53,10 +57,21 @@ select = ["E", "F", "I"]
 [tool.hatch.build.targets.wheel.hooks.custom]
 path = "hatch_build.py"
 
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
+
 [tool.uv.sources]
-torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu", marker = "sys_platform == 'linux'" },
+    { index = "pytorch-default", extra = "gpu", marker = "sys_platform == 'linux'" },
+]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-default"
+url = "https://pypi.org/simple"
 explicit = true

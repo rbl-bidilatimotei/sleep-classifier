@@ -12,7 +12,7 @@ ENV UV_LINK_MODE=copy \
     PATH="/app/.venv/bin:$PATH"
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --group service --no-dev --no-install-project
+RUN uv sync --locked --group service --extra cpu --no-dev --no-install-project
 
 ARG RUNTIME_WHEEL=sleep_classifier-0.1.0-py3-none-any.whl
 COPY dist/ /tmp/wheels/

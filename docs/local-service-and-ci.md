@@ -3,6 +3,7 @@
 This milestone adds transport and package checks around the fixed raw-session runner.
 It does not change features, weights, class policies, or the reserved final test.
 All automated inference tests use random-weight synthetic fixtures on CPU.
+The fixture uses a test-only device resolver. The production loader retains its validated-device check.
 
 ## CI scope
 
@@ -10,7 +11,9 @@ One Ubuntu job runs for pull requests and pushes to `main`.
 Feature-branch pushes do not create a second run. New commits cancel stale runs for the same PR.
 The job has read-only repository permissions and a fifteen-minute timeout.
 It caches uv downloads and installs locked dependencies with Python 3.11.
-Linux resolves PyTorch from its explicit CPU wheel index, without CUDA packages.
+CI and Docker select `--extra cpu`. On Linux, that extra uses the explicit CPU wheel index without CUDA packages.
+Future Linux GPU experiments can select `--extra gpu` to retain the original PyPI dependency source.
+The `cpu` and `gpu` extras are mutually exclusive. This milestone does not run or validate GPU experiments.
 The Mac PyTorch version stays 2.15.0. This dependency selection does not certify a Linux inference bundle.
 
 The automatic job checks:
@@ -85,6 +88,7 @@ Bind the service to loopback. Public hosting remains outside this version.
 The instance owns one active session. Another start returns 409 until finish, cancellation, or idle expiry.
 Use exactly one Uvicorn worker and one instance. Multiple workers do not share session state.
 Concurrent mutations return 409 instead of queuing inference.
+The supplied commands cap Uvicorn concurrency. Per-body limits do not impose a complete slow-reader or connection-time policy.
 There is no automatic retry cache. A repeated sequence is rejected before state changes.
 If a successful response is lost, the server cannot reproduce it through this interface.
 Cancel with the owner token and expected next sequence, or let the idle timeout expire before restarting.
