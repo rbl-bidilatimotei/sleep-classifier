@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sleep-classifier:raw-session-output:1.0.0",
+  "title": "Raw session output v1",
+  "$defs": {
+    "session_started": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_id",
+        "participant_id",
+        "bundle_id",
+        "artifact_role",
+        "checkpoint_sha256",
+        "coverage_profile",
+        "class_names"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "session_started"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "participant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "artifact_role": {
+          "const": "evaluation_fold"
+        },
+        "checkpoint_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "coverage_profile": {
+          "const": "moderate-v1"
+        },
+        "class_names": {
+          "const": [
+            "wake",
+            "light",
+            "deep",
+            "REM"
+          ]
+        }
+      }
+    },
+    "prediction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_id",
+        "participant_id",
+        "bundle_id",
+        "artifact_role",
+        "time",
+        "available_at",
+        "watermark_at_emission",
+        "segment_id",
+        "prediction",
+        "stage",
+        "probabilities",
+        "history_epochs",
+        "reset_reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "prediction"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "participant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "artifact_role": {
+          "const": "evaluation_fold"
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "available_at": {
+          "type": "number",
+          "minimum": 0
+        },
+        "watermark_at_emission": {
+          "type": "number",
+          "minimum": 0
+        },
+        "segment_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prediction": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "stage": {
+          "enum": [
+            "wake",
+            "light",
+            "deep",
+            "REM"
+          ]
+        },
+        "probabilities": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "history_epochs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "reset_reason": {
+          "enum": [
+            null,
+            "participant_change",
+            "segment_change",
+            "time_gap"
+          ]
+        }
+      }
+    },
+    "skipped_epoch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_id",
+        "participant_id",
+        "bundle_id",
+        "artifact_role",
+        "time",
+        "available_at",
+        "watermark_at_emission",
+        "segment_id",
+        "reason",
+        "coverage"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "skipped_epoch"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "participant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "artifact_role": {
+          "const": "evaluation_fold"
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "available_at": {
+          "type": "number",
+          "minimum": 0
+        },
+        "watermark_at_emission": {
+          "type": "number",
+          "minimum": 0
+        },
+        "segment_id": {
+          "type": "integer",
+          "const": -1
+        },
+        "reason": {
+          "const": "insufficient_sensor_coverage"
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "heart_sample_count",
+            "heart_occupied_bin_fraction",
+            "heart_largest_observation_gap",
+            "motion_sample_count",
+            "motion_occupied_bin_fraction",
+            "motion_largest_observation_gap"
+          ],
+          "properties": {
+            "heart_sample_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "heart_occupied_bin_fraction": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "heart_largest_observation_gap": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 30.00000001
+            },
+            "motion_sample_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "motion_occupied_bin_fraction": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "motion_largest_observation_gap": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 30.00000001
+            }
+          }
+        }
+      }
+    },
+    "session_finished": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_id",
+        "participant_id",
+        "bundle_id",
+        "artifact_role",
+        "emitted_epochs",
+        "predicted_epochs",
+        "skipped_epochs",
+        "duplicate_events",
+        "discarded_tail_events",
+        "peak_buffered_events",
+        "max_buffered_events",
+        "integrity"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "session_finished"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "participant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "bundle_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "artifact_role": {
+          "const": "evaluation_fold"
+        },
+        "emitted_epochs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "predicted_epochs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped_epochs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duplicate_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "discarded_tail_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "peak_buffered_events": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_buffered_events": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "integrity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_sha256",
+            "weights_unchanged",
+            "evaluation_mode",
+            "gradients_created"
+          ],
+          "properties": {
+            "state_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "weights_unchanged": {
+              "const": true
+            },
+            "evaluation_mode": {
+              "const": true
+            },
+            "gradients_created": {
+              "const": false
+            }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/session_started"
+    },
+    {
+      "$ref": "#/$defs/prediction"
+    },
+    {
+      "$ref": "#/$defs/skipped_epoch"
+    },
+    {
+      "$ref": "#/$defs/session_finished"
+    }
+  ]
+}

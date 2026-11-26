@@ -83,7 +83,7 @@ The frozen research scores and checkpoints remain unchanged.
 
 ## Requirements for a deployment model
 
-Use all five fold checkpoints as evaluation evidence. Freeze a separate procedure to select and train one model before accessing the final-test set. The bundle contract specifies requirements for future export and loading. End-to-end raw-sensor adapter parity and final-test evaluation remain pending. [Inference bundle contract](inference-bundle-contract.md)
+Use all five fold checkpoints as evaluation evidence. Freeze a separate procedure to select and train one model before accessing the final-test set. The bundle contract specifies requirements for future export and loading. Recorded raw-event parity has passed. Live source validation and final-test evaluation remain pending. [Inference bundle contract](inference-bundle-contract.md)
 
 ## Evaluation-bundle implementation
 
@@ -94,3 +94,6 @@ The [bounded raw-event adapter](raw-event-adapter.md) now prepares epochs with e
 The [full adapter audit](experiments/raw-event-adapter-2026-11-26/README.md) preserves all 24,738 batch epochs and 23,674 sensor-only predictions exactly.
 Both chunk sizes stay within the declared queue cap. This validates ordered recorded replay, not live device timing or process RSS.
 This adds an input component, without changing the model, fitted preprocessing, or completed evaluation results.
+
+The [single-session JSONL runner](raw-session-inference.md) connects the adapter to a verified evaluation bundle.
+It reports coverage skips and session integrity explicitly. Synthetic integration evidence does not establish live clinical performance.

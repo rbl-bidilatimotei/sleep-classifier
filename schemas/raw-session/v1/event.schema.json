@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sleep-classifier:raw-session-event:1.0.0",
+  "title": "Raw session event v1",
+  "$defs": {
+    "start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_id",
+        "participant_id",
+        "session_start_seconds"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "start"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "participant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$(?![\\s\\S])"
+        },
+        "session_start_seconds": {
+          "type": "number",
+          "const": 0
+        }
+      }
+    },
+    "heart_rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "time",
+        "heart_rate"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "heart_rate"
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "heart_rate": {
+          "type": "number"
+        }
+      }
+    },
+    "motion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "time",
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "motion"
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "watermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "sensor",
+        "time"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "watermark"
+        },
+        "sensor": {
+          "enum": [
+            "heart_rate",
+            "motion"
+          ]
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "finish": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "session_end_seconds"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "type": {
+          "const": "finish"
+        },
+        "session_end_seconds": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/start"
+    },
+    {
+      "$ref": "#/$defs/heart_rate"
+    },
+    {
+      "$ref": "#/$defs/motion"
+    },
+    {
+      "$ref": "#/$defs/watermark"
+    },
+    {
+      "$ref": "#/$defs/finish"
+    }
+  ]
+}

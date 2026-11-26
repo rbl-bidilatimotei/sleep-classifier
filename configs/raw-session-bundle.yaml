@@ -1,0 +1,6 @@
+audit_config: chronological-inference.yaml
+source_repository: ..
+output_dir: ../artifacts/evaluation-bundles
+verification_dir: ../artifacts/evaluation-bundle-verification
+bundle_id: motion-seed42-fold01-raw-session-v1
+fold: fold-01
