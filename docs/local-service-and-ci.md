@@ -153,3 +153,5 @@ The image's HEALTHCHECK measures liveness, not inference readiness.
 - [uv Docker integration](https://docs.astral.sh/uv/guides/integration/docker/)
 - [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/)
 - [FastAPI lifespan tests](https://fastapi.tiangolo.com/advanced/testing-events/)
+
+The [measured local validation](experiments/ci-local-service-2026-11-26/README.md) records synthetic contracts, wheel checks, and the no-bundle container smoke.

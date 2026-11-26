@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "image_id": "sha256:0eb6ae37f708ca4b31d208cd40d7a02e941a170f1239f221f85e774890666cd5",
+  "platform": "linux/arm64",
+  "read_only_root": true,
+  "health": {
+    "status": "alive"
+  },
+  "readiness_status": 503,
+  "readiness": {
+    "ready": false,
+    "reason": "no_bundle"
+  },
+  "event_status": 503,
+  "event_error": {
+    "error": "not_ready"
+  },
+  "runtime": {
+    "uid": 65532,
+    "torch": "2.15.0+cpu",
+    "cuda_build": null,
+    "runtime": {
+      "project_version": "0.1.0",
+      "python_requires": ">=3.11,<3.13",
+      "source_revision": "9505ccf7d80af1fa1afaf2f618213171b7fb6857"
+    }
+  },
+  "model_loaded": false,
+  "dataset_observations_read": false,
+  "training_performed": false,
+  "gpu_used": false
+}
