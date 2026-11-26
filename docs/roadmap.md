@@ -257,3 +257,9 @@ Prepared: [single-session raw-event inference](raw-session-inference.md) in note
 A strict JSONL protocol connects the bounded adapter to the verified frozen evaluation bundle.
 Synthetic inputs exercise prediction, coverage skips, explicit finish, and model integrity.
 No training or final-test observations are part of this milestone.
+
+Reviewed: [notebook-47 operator session](experiments/raw-session-2026-11-26/README.md) passes export and synthetic inference.
+All 4,587 fold-01 class decisions match, and the matching wheel reproduces all five synthetic response records exactly.
+The session emits two predictions, one coverage skip, and a clean finish with unchanged model state.
+Next: economical synthetic CI, then a local FastAPI session interface with explicit lifecycle and resource limits.
+Keep the model fixed and the final test reserved.
