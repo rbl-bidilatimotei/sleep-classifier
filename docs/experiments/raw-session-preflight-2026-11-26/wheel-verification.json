@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "response_records": 5,
+  "prediction_records": 2,
+  "responses_exactly_equal": true,
+  "source_access_blocked": true,
+  "git_access_blocked": true,
+  "loaded_module_from_wheel": true,
+  "packaged_session_schemas_used": true,
+  "training_performed": false,
+  "test_observations_read": false,
+  "session_summary": {
+    "schema_version": "1.0.0",
+    "bundle_id": "motion-seed42-fold01-raw-session-preflight-v1",
+    "artifact_role": "evaluation_fold",
+    "session_id": "synthetic-demo",
+    "participant_id": "synthetic-demo",
+    "type": "session_finished",
+    "emitted_epochs": 3,
+    "predicted_epochs": 2,
+    "skipped_epochs": 1,
+    "duplicate_events": 0,
+    "discarded_tail_events": 2,
+    "peak_buffered_events": 33,
+    "max_buffered_events": 8192,
+    "integrity": {
+      "state_sha256": "97e3a12dc04ea5490e3f2b6aca243e2be8c809ebd0af6988d267f24108acee9d",
+      "evaluation_mode": true,
+      "gradients_created": false,
+      "weights_unchanged": true
+    }
+  }
+}

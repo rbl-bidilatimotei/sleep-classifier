@@ -474,3 +474,14 @@ All 24,738 epochs match batch preparation, and all 23,674 canonical frozen predi
 Queue peaks are 2,131 and 3,026 events under the 8,192 cap. Every session conserves accepted events and closes cleanly.
 No model, fitted transform, or test-set observation changed. This adds input parity evidence, not new accuracy results.
 Next: a versioned, single-session JSONL inference runner combining the verified adapter and evaluation bundle, before network serving.
+
+Prepared: [single-session raw-event inference](docs/raw-session-inference.md) in notebook 47.
+A strict JSONL protocol connects the bounded adapter to the verified frozen evaluation bundle.
+Synthetic inputs exercise prediction, coverage skips, explicit finish, and model integrity.
+No training or final-test observations are part of this milestone.
+
+Reviewed: [notebook-47 operator session](docs/experiments/raw-session-2026-11-26/README.md) passes export and synthetic inference.
+All 4,587 fold-01 class decisions match, and the matching wheel reproduces all five synthetic response records exactly.
+The session emits two predictions, one coverage skip, and a clean finish with unchanged model state.
+Next: economical synthetic CI, then a local FastAPI session interface with explicit lifecycle and resource limits.
+Keep the model fixed and the final test reserved.
