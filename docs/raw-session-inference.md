@@ -87,3 +87,5 @@ Production loading retains the exact bundle runtime and device checks.
 The full raw-event development audit remains the evidence for adapter parity.
 The runner adds integration checks; it does not report new model scores.
 Keep the final test untouched. No training is part of this milestone.
+
+The [measured integration preflight](experiments/raw-session-preflight-2026-11-26/README.md) passes selected-fold export and isolated-wheel synthetic inference.
