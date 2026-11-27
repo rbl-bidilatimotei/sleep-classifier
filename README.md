@@ -491,3 +491,6 @@ One CPU job checks lint, selected synthetic contracts, and exact-revision wheel 
 A single-worker FastAPI interface adds session ownership, event sequencing, expiry, and cancellation around the unchanged runner.
 The default container serves health checks without a bundle. Validated Linux CPU inference remains a separate milestone.
 No datasets, training, or GPU inference are part of this work. Keep the final test reserved.
+
+Use the [service testing procedure](docs/service-testing.md) before submitting HTTP events.
+The default process is live without a model and intentionally returns readiness 503.

@@ -10,6 +10,7 @@ from test_bundle_loader import bundle_dir as bundle_dir
 from test_bundle_loader import checkpoint as checkpoint
 from test_raw_session_runner import bundle as bundle
 
+from sleep_classifier.bundle_export import BundleExportConfig
 from sleep_classifier.bundle_loader import EvaluationBundle
 from sleep_classifier.http_service import create_app
 from sleep_classifier.raw_session_runner import RawSessionRunner
@@ -38,9 +39,13 @@ def test_empty_service_is_live_but_not_ready() -> None:
     service = SessionService(ServiceConfig())
     with TestClient(create_app(service=service)) as client:
         assert client.get("/healthz").json() == {"status": "alive"}
-        assert client.get("/readyz").status_code == 503
-        response = client.post("/v1/events", json={}, headers={"x-event-sequence": "0"})
-        assert response.status_code == 503
+        readiness = client.get("/readyz")
+        assert readiness.status_code == 503
+        assert readiness.json() == {"ready": False, "reason": "no_bundle"}
+        event = {"schema_version": "1.0.0", "type": "start", "session_id": "demo",
+                 "participant_id": "demo", "session_start_seconds": 0}
+        response = client.post("/v1/events", json=event, headers={"x-event-sequence": "0"})
+        assert response.status_code == 503 and response.json() == {"error": "not_ready"}
 
 
 @pytest.fixture
@@ -214,3 +219,36 @@ def test_http_cancellation_preserves_explicit_cleanup(recording_service: Mock) -
                                                         "x-session-token": "owner"})
         assert response.json() == {"status": "cancelled"}
         recording_service.cancel.assert_called_once_with("owner", 5)
+
+
+
+def test_routers_preserve_paths_and_resolve_each_app_service() -> None:
+    """Keep the public API stable while preventing state sharing between app instances."""
+    first = Mock(spec=SessionService)
+    second = Mock(spec=SessionService)
+    first.readiness.return_value = {"ready": False, "reason": "no_bundle"}
+    second.readiness.return_value = {"ready": True, "reason": None}
+    app_a = create_app(service=first)
+    app_b = create_app(service=second)
+    with TestClient(app_a) as client_a, TestClient(app_b) as client_b:
+        assert client_a.get("/readyz").status_code == 503
+        assert client_b.get("/readyz").status_code == 200
+        schema = client_a.get("/openapi.json").json()
+        assert set(schema["paths"]) == {"/healthz", "/readyz", "/v1/events", "/v1/session"}
+        assert schema["paths"]["/healthz"]["get"]["tags"] == ["health"]
+        assert schema["paths"]["/v1/events"]["post"]["tags"] == ["sessions"]
+    first.close.assert_called_once()
+    second.close.assert_called_once()
+
+
+
+def test_manual_model_configs_select_one_fresh_bundle_profile() -> None:
+    """Keep the operator's export and service paths aligned without loading source artifacts."""
+    root = Path(__file__).resolve().parents[1]
+    export = BundleExportConfig.load(root / "configs/service-bundle.yaml")
+    service = ServiceConfig.load(root / "configs/service-model.yaml")
+    default = ServiceConfig.load(root / "configs/service.yaml")
+    assert service.bundle_dir.resolve() == export.output_dir / export.bundle_id
+    assert export.fold == "fold-01"
+    assert export.bundle_id == "motion-seed42-fold01-http-v1"
+    assert default.bundle_dir is None

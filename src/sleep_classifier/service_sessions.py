@@ -73,6 +73,11 @@ class SessionService:
             self._bundle = None
             if self._settings.bundle_dir is None:
                 self._unready_reason = "no_bundle"
+                LOGGER.warning(
+                    "No evaluation bundle configured; inference readiness is disabled. "
+                    "Set SLEEP_SERVICE_CONFIG to a config with a compatible bundle_dir. "
+                    "Use /healthz for liveness and /readyz for the reason.",
+                )
                 return
             try:
                 bundle = self._bundle_factory(self._settings.bundle_dir)

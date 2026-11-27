@@ -30,12 +30,34 @@ This is a restricted test selection, not an operating-system sandbox.
 Docker build and health checks require the manual `check_docker` workflow input.
 The workflow does not publish images or deploy a service.
 
+## Test the service step by step
+
+Use the [testing procedure](service-testing.md) for default health checks, synthetic CPU predictions, and optional fixed-model MPS testing.
+The default curl start request returns 503 because no bundle is configured. This is expected.
+
+## HTTP module layout
+
+```text
+http_service.py                 # app factory and lifecycle
+api/dependencies.py             # per-app service/controller dependencies
+api/session_controller.py       # bounded HTTP decoding
+api/routers/health.py           # health and readiness router
+api/routers/sessions.py         # versioned session router
+service_sessions.py            # transport-independent ownership and lifecycle
+```
+
+Routers declare their own tags and prefixes. The app factory registers them with `include_router`.
+Dependencies resolve state from each app instance; shared routers hold no mutable model or session state.
+The public paths and error bodies remain unchanged.
+The implementation follows FastAPI's multiple-file tutorial and the skill shipped with installed FastAPI 0.165.0.
+No global skill installer, cloud service, or telemetry exporter is needed for this local application.
+
 ## Start locally
 
 Install the locked service dependencies:
 
 ```bash
-uv sync --locked --group service
+uv sync --locked --inexact --group service --extra cpu
 uv run --locked --no-sync python -m uvicorn \
   sleep_classifier.http_service:create_app --factory \
   --host 127.0.0.1 --port 8000 --workers 1 --limit-concurrency 16
@@ -73,6 +95,9 @@ A successful reply returns `session_token`, `next_sequence`, and `records`.
 Send the token and the returned next sequence in subsequent request headers.
 A raw observation normally returns an empty `records` list. Watermarks and finish can emit epoch responses.
 Use the returned sequence after every successful request. Rejected events do not advance it.
+
+Check `/readyz` first. This start example requires HTTP 200 readiness and a compatible bundle.
+With the default no-bundle settings, expect HTTP 503 instead.
 
 ```bash
 curl -sS http://127.0.0.1:8000/v1/events \
@@ -151,6 +176,8 @@ The image's HEALTHCHECK measures liveness, not inference readiness.
 - [uv CPU PyTorch indexes](https://docs.astral.sh/uv/guides/integration/pytorch/)
 - [uv GitHub Actions integration](https://docs.astral.sh/uv/guides/integration/github/)
 - [uv Docker integration](https://docs.astral.sh/uv/guides/integration/docker/)
+- [FastAPI multiple-file applications](https://fastapi.tiangolo.com/tutorial/bigger-applications/)
+- [FastAPI agent guidance](https://fastapi.tiangolo.com/ai-development/)
 - [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/)
 - [FastAPI lifespan tests](https://fastapi.tiangolo.com/advanced/testing-events/)
 

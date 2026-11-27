@@ -432,3 +432,20 @@ def test_cancel_checks_idle_expiry_and_busy_mutation(
     clock.now = 10
     with pytest.raises(ServiceError, match="no_active_session"):
         service.cancel(token, 1)
+
+
+def test_missing_bundle_startup_explains_readiness(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Explain the default not-ready state without trying to load a research model.
+
+    Args:
+        caplog (pytest.LogCaptureFixture): Captured startup diagnostics.
+    """
+    factory = Mock()
+    service = SessionService(ServiceConfig(), bundle_factory=factory)
+    service.load()
+    factory.assert_not_called()
+    assert service.readiness() == {"ready": False, "reason": "no_bundle"}
+    assert "No evaluation bundle configured" in caplog.text
+    assert "SLEEP_SERVICE_CONFIG" in caplog.text
