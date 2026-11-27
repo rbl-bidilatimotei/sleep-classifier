@@ -263,3 +263,9 @@ All 4,587 fold-01 class decisions match, and the matching wheel reproduces all f
 The session emits two predictions, one coverage skip, and a clean finish with unchanged model state.
 Next: economical synthetic CI, then a local FastAPI session interface with explicit lifecycle and resource limits.
 Keep the model fixed and the final test reserved.
+
+Prepared: [economical CI and local HTTP service](local-service-and-ci.md).
+One CPU job checks lint, selected synthetic contracts, and exact-revision wheel contents. Docker health checks are manual.
+A single-worker FastAPI interface adds session ownership, event sequencing, expiry, and cancellation around the unchanged runner.
+The default container serves health checks without a bundle. Validated Linux CPU inference remains a separate milestone.
+No datasets, training, or GPU inference are part of this work. Keep the final test reserved.

@@ -16,15 +16,24 @@ dependencies = [
     "ipython>=9.17.1",
 ]
 
+[project.optional-dependencies]
+cpu = ["torch>=2.15.0"]
+gpu = ["torch>=2.15.0; sys_platform == 'linux'"]
+
 [dependency-groups]
 baseline = [
     "joblib>=1.6.0",
     "scikit-learn>=1.9.1",
 ]
-dev = ["pytest>=8.0", "ruff>=0.9"]
+dev = ["pytest>=8.0", "ruff>=0.9", "httpx2>=2,<3"]
 gru = [
     { include-group = "baseline" },
     "torch>=2.15.0",
+]
+service = [
+    { include-group = "gru" },
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
 ]
 notebook = ["jupyterlab>=4.0", "ipykernel>=6.0", "nbconvert>=7.0"]
 opal = [
@@ -47,3 +56,22 @@ select = ["E", "F", "I"]
 
 [tool.hatch.build.targets.wheel.hooks.custom]
 path = "hatch_build.py"
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu", marker = "sys_platform == 'linux'" },
+    { index = "pytorch-default", extra = "gpu", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-default"
+url = "https://pypi.org/simple"
+explicit = true

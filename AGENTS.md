@@ -69,3 +69,9 @@ Log the resolved config, output directory, and feature mask before training.
 Call the shared training-readiness guard before launching the CLI.
 Test actual training cells with a recording shell and a different active experiment.
 Preserve existing results; use explicit experiment configs for intentional reruns.
+
+# HTTP service
+
+For HTTP changes, read docs/local-service-and-ci.md and the installed FastAPI agent skill when available.
+Define endpoint modules with APIRouter and register them through the app factory.
+Resolve dependencies per application. Keep model and session state scoped to that application.

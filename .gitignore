@@ -12,3 +12,6 @@ artifacts/
 
 # Project-local CLI dependency
 tools/opal-codex/node_modules/
+
+# Built runtime wheels
+dist/

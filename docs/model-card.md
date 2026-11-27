@@ -97,3 +97,6 @@ This adds an input component, without changing the model, fitted preprocessing, 
 
 The [single-session JSONL runner](raw-session-inference.md) connects the adapter to a verified evaluation bundle.
 It reports coverage skips and session integrity explicitly. Synthetic integration evidence does not establish live clinical performance.
+
+The [local HTTP interface and container](local-service-and-ci.md) wrap the fixed evaluation runner.
+The container defaults to no bundle and reports not-ready. Linux CPU inference still requires a separately validated bundle profile.
